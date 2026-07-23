@@ -21,7 +21,7 @@
 - [x] 分支 `feishu/main`
 - [x] 迁入 feishu 契约 docs
 - [x] yarn install（npx yarn@1.22.22）+ next 可用
-- [ ] 首批 commit：docs + 说明（待提交）
+- [x] 首批 commit：docs + 说明
 - [x] `.env.feishu.example` + 本地 `.env.local`
 
 **验收：** `yarn dev` 能起（Notion 默认 demo 亦可）；契约在 `docs/feishu/`。
@@ -48,15 +48,15 @@
 ## Phase 3 — 正文接入主题
 
 - [x] 共享 `NotionPage` 内部转 FeishuRenderer
-- [ ] TOC/cover 字段
-- [ ] example 深验
+- [~] TOC/cover 字段（cover 已接；TOC 依赖 feishuHeadings 可继续）
+- [x] example 主路径：首页+文章 200 live
 
 **验收：** example 主题文章页可读；`?theme=simple` 不 500。
 
 ## Phase 4 — 站点能力 + 冒烟
 
-- [ ] archive/search/category/tag/rss/sitemap
-- [ ] gitbook 冒烟
+- [~] archive/search/category 200；tag/rss/sitemap 待细验
+- [~] ?theme=simple/gitbook 首页 200（切换深度待验）
 - [ ] README 飞书配置说明
 
 **验收：** 路由清单 200；三主题冒烟通过。
