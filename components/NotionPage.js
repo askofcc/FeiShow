@@ -7,6 +7,7 @@ import 'katex/dist/katex.min.css'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
 import { NotionRenderer } from 'react-notion-x'
+import FeishuPage from '@/components/FeishuPage'
 
 /**
  * 整个站点的核心组件
@@ -15,6 +16,11 @@ import { NotionRenderer } from 'react-notion-x'
  * @returns
  */
 const NotionPage = ({ post, className }) => {
+  // Feishu CMS: render via FeishuRenderer (all themes benefit)
+  if (post?.feishuContent || post?.ext?.source === 'feishu' || post?.accessError) {
+    return <FeishuPage post={post} className={className} />
+  }
+
   // 是否关闭数据库和画册的点击跳转
   const POST_DISABLE_GALLERY_CLICK = siteConfig('POST_DISABLE_GALLERY_CLICK')
   const POST_DISABLE_DATABASE_CLICK = siteConfig('POST_DISABLE_DATABASE_CLICK')
