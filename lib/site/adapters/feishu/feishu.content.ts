@@ -50,6 +50,8 @@ export type ContentRow = {
   type: ContentRowType
   typeRaw: string
   slug: string
+  /** Human slug from content table (e.g. about/links/notice) */
+  customSlug?: string
   icon?: string
   summary?: string
   date?: string
@@ -106,20 +108,26 @@ export async function loadContentRows(): Promise<ContentRow[]> {
     const title = extractTextField(field(record, f.title)) || '未命名'
     const typeRaw = extractTextField(field(record, f.type)) || '文章'
     const type = mapType(typeRaw)
-    const slugRaw = extractTextField(field(record, f.slug))
+    const slugRaw = extractTextField(field(record, f.slug)).trim()
     const docToken = extractDocToken(field(record, f.document))
-    const slug = slugRaw || docToken || record.record_id
+    const customSlug = slugRaw || undefined
+    const slug = customSlug || docToken || record.record_id
     const icon = extractTextField(field(record, f.icon || '图标')) || undefined
     const summary = extractTextField(field(record, f.summary)) || undefined
     const date = extractDate(field(record, f.date))
     const category = extractTextField(field(record, f.category)) || undefined
     const tags = extractMultiSelect(field(record, f.tags))
-    const href =
-      slug.startsWith('http') || slug.startsWith('/')
-        ? slug
-        : type === 'page'
-          ? `/${slug}`
-          : `/article/${slug}`
+    // menus: use slug as path (/about) or external URL; posts use /article/...
+    let href: string
+    if (slug.startsWith('http') || slug.startsWith('/')) {
+      href = slug
+    } else if (type === 'page' || type === 'menu' || type === 'submenu') {
+      href = `/${slug}`
+    } else if (type === 'notice') {
+      href = customSlug ? `/${customSlug}` : `/article/${slug}`
+    } else {
+      href = `/article/${slug}`
+    }
 
     return {
       recordId: record.record_id,
@@ -127,6 +135,7 @@ export async function loadContentRows(): Promise<ContentRow[]> {
       type,
       typeRaw,
       slug,
+      customSlug,
       icon,
       summary,
       date,
@@ -151,10 +160,13 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
       if (node) {
         const nodeToken = node.node_token || row.docToken
         const documentId = node.obj_token || row.docToken
+        // Posts: stable node_token. Pages/Notice: prefer table slug (about/links/notice).
         const stableSlug =
-          row.type === 'post' || row.type === 'page' || row.type === 'notice'
-            ? nodeToken || documentId || row.slug
-            : row.slug
+          row.type === 'page' || row.type === 'notice'
+            ? row.customSlug || nodeToken || documentId || row.slug
+            : row.type === 'post'
+              ? nodeToken || documentId || row.slug
+              : row.customSlug || row.slug
         const editTs = node.obj_edit_time
           ? Number(node.obj_edit_time) * (Number(node.obj_edit_time) < 1e12 ? 1000 : 1)
           : undefined
@@ -185,9 +197,11 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
       } else {
         const documentId = row.docToken
         const stableSlug =
-          row.type === 'post' || row.type === 'page' || row.type === 'notice'
-            ? documentId
-            : row.slug
+          row.type === 'page' || row.type === 'notice'
+            ? row.customSlug || documentId || row.slug
+            : row.type === 'post'
+              ? documentId || row.slug
+              : row.customSlug || row.slug
         out.push({
           ...row,
           documentId,

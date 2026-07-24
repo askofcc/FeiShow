@@ -182,7 +182,17 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     '飞书驱动的公开站点'
   const link = configMap.LINK || process.env.NEXT_PUBLIC_LINK || 'http://localhost:3460'
 
-  const notice = noticeRowsFilled[0] ? toPublishedPage(noticeRowsFilled[0], 'Notice') : null
+  // Notice needs body for sidebar Announcement (NotionPage/FeishuRenderer)
+  let notice: BasePage | null = noticeRowsFilled[0]
+    ? toPublishedPage(noticeRowsFilled[0], 'Notice')
+    : null
+  if (notice) {
+    try {
+      notice = await enrichFeishuPost(notice)
+    } catch (e) {
+      console.warn('[feishu] enrich notice failed', e)
+    }
+  }
 
   const siteData: SiteData = {
     NOTION_CONFIG: {
@@ -335,8 +345,10 @@ export async function findFeishuPageBySlug(
 ): Promise<(BasePage & Record<string, any>) | null> {
   const page =
     siteData.allPages.find(p => p.slug === slug) ||
+    siteData.allPages.find(p => p.href === `/${slug}`) ||
     siteData.allPages.find(p => p.href === `/article/${slug}`) ||
-    siteData.allPages.find(p => p.href === `/${slug}`)
+    siteData.allPages.find(p => (p.ext as any)?.nodeToken === slug) ||
+    siteData.allPages.find(p => (p.ext as any)?.documentId === slug)
   if (!page) return null
   if (page.type === 'Menu' || page.type === 'SubMenu') return page as any
   return enrichFeishuPost(page)
