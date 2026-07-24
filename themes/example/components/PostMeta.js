@@ -27,6 +27,15 @@ export const PostMeta = props => {
 
         {post?.type !== 'Page' && (
           <>
+            {post?.author && post?.showAuthors !== false && (
+              <>
+                <span className='mr-2'>
+                  <i className='mr-1 far fa-user' />
+                  {post.author}
+                </span>
+                <span className='mr-2'>|</span>
+              </>
+            )}
             <SmartLink
               href={`/archive#${formatDateFmt(post?.publishDate, 'yyyy-MM')}`}
               passHref
@@ -38,6 +47,24 @@ export const PostMeta = props => {
               {locale.COMMON.LAST_EDITED_TIME}: {post?.lastEditedDay}
             </span>
             <span className='mr-2'>|</span>
+            {post?.pv != null && post?.showPv !== false && (
+              <span className='mx-2 font-light'>
+                <i className='mr-1 fas fa-eye' />
+                {post.pv}
+              </span>
+            )}
+            {post?.likeCount != null && post?.showLikeCount !== false && (
+              <span className='mx-2 font-light'>
+                <i className='mr-1 fas fa-thumbs-up' />
+                {post.likeCount}
+              </span>
+            )}
+            {post?.commentCount != null && post?.showCommentCount !== false && (
+              <span className='mx-2 font-light'>
+                <i className='mr-1 fas fa-comments' />
+                {post.commentCount}
+              </span>
+            )}
             <span className='hidden busuanzi_container_page_pv font-light mr-2'>
               <i className='mr-1 fas fa-eye' />
               &nbsp;

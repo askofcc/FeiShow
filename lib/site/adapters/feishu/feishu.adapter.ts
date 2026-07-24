@@ -3,19 +3,42 @@ import {
   expandCategoryPosts,
   fillMissingCovers,
   fillMissingSummaries,
+  fillOfficialDriveFields,
   loadConfigMap,
   loadContentRows,
   loadFeishuArticleBody,
   resolveDocumentIds,
   type ContentRow
 } from './feishu.content'
+import formatDate from '@/lib/utils/formatDate'
 
 function stripUndefined<T>(value: T): T {
   return JSON.parse(JSON.stringify(value, (_k, v) => (v === undefined ? null : v)))
 }
 
 function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
-  const publishDate = row.date ? Date.parse(row.date) : Date.now()
+  // Prefer official document times: create -> publish, latest_modify -> lastEdited
+  const createMs = row.createdAt ? Date.parse(row.createdAt) : NaN
+  const editMs = row.updatedAt ? Date.parse(row.updatedAt) : NaN
+  const fallbackMs = row.date ? Date.parse(row.date) : Date.now()
+  const publishDate = Number.isFinite(createMs)
+    ? createMs
+    : Number.isFinite(editMs)
+      ? editMs
+      : Number.isFinite(fallbackMs)
+        ? fallbackMs
+        : Date.now()
+  const lastEditedDate = Number.isFinite(editMs)
+    ? editMs
+    : Number.isFinite(createMs)
+      ? createMs
+      : publishDate
+
+  const author =
+    row.authorName ||
+    // do not fall back to site config AUTHOR here — leave empty if unresolved
+    null
+
   return {
     id: row.recordId,
     title: row.title,
@@ -26,25 +49,38 @@ function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
     category: row.category || null,
     tags: row.tags || [],
     tagItems: (row.tags || []).map(name => ({ name })),
-    publishDate: Number.isFinite(publishDate) ? publishDate : Date.now(),
-    lastEditedDate: Number.isFinite(publishDate) ? publishDate : Date.now(),
+    publishDate,
+    lastEditedDate,
+    publishDay: formatDate(publishDate),
+    lastEditedDay: formatDate(lastEditedDate),
     pageCoverThumbnail: row.coverUrl || null,
     pageIcon: row.icon || null,
     href: row.href || null,
+    // Some themes read post.author
+    author: author,
     ext: {
       documentId: row.documentId || null,
       nodeToken: row.nodeToken || null,
       docToken: row.docToken || null,
       feishuType: row.type,
       source: 'feishu',
-      ownerId: row.ownerId || null,
+      ownerId: row.ownerId || row.authorId || null,
+      authorId: row.authorId || row.ownerId || null,
+      authorName: row.authorName || null,
+      lastEditorId: row.lastEditorId || null,
       coverToken: row.coverToken || null,
       displaySetting: row.displaySetting || null,
       revisionId: row.revisionId || null,
       showAuthors: row.displaySetting?.show_authors ?? null,
-      showCreateTime: row.displaySetting?.show_create_time ?? null
+      showCreateTime: row.displaySetting?.show_create_time ?? null,
+      likeCount: row.likeCount ?? null,
+      pv: row.pv ?? null,
+      uv: row.uv ?? null,
+      commentCount: row.commentCount ?? null,
+      createdAt: row.createdAt || null,
+      updatedAt: row.updatedAt || null
     }
-  }
+  } as BasePage
 }
 
 function buildMenus(rows: ContentRow[]): MenuItem[] {
@@ -97,20 +133,23 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
   for (const p of [...postRows, ...expanded]) {
     if (!postMap.has(p.slug)) postMap.set(p.slug, p)
   }
-  // Fill missing summaries (esp. category children) + covers for list cards
+  // Official drive meta times/owner first, then summary/cover fill
   let allPostRows = [...postMap.values()]
   let pageRowsFilled = pageRows
   let noticeRowsFilled = noticeRows
   try {
+    allPostRows = await fillOfficialDriveFields(allPostRows)
+    pageRowsFilled = await fillOfficialDriveFields(pageRowsFilled)
+    noticeRowsFilled = await fillOfficialDriveFields(noticeRowsFilled)
+
     allPostRows = await fillMissingSummaries(allPostRows, { concurrency: 4, maxLen: 120 })
     pageRowsFilled = await fillMissingSummaries(pageRowsFilled, { concurrency: 3, maxLen: 120 })
     noticeRowsFilled = await fillMissingSummaries(noticeRowsFilled, { concurrency: 2, maxLen: 120 })
-    // covers for list thumbnails (meta only, limited concurrency)
     allPostRows = await fillMissingCovers(allPostRows, { concurrency: 4 })
     pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 3 })
     noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
   } catch (e) {
-    console.warn('[feishu] fill summary/cover skipped', e)
+    console.warn('[feishu] fill drive/summary/cover skipped', e)
   }
 
   const allPages: BasePage[] = [
@@ -213,40 +252,77 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
     page.summary ||
     (body.plainText || '').replace(/\s+/g, ' ').trim().slice(0, 160) ||
     null
+
+  const createMs = body.createdAt ? Date.parse(body.createdAt) : NaN
+  const editMs = body.updatedAt || body.lastEdited ? Date.parse(body.updatedAt || body.lastEdited!) : NaN
+  const publishDate = Number.isFinite(createMs)
+    ? createMs
+    : Number.isFinite(editMs)
+      ? editMs
+      : page.publishDate
+  const lastEditedDate = Number.isFinite(editMs)
+    ? editMs
+    : Number.isFinite(createMs)
+      ? createMs
+      : page.lastEditedDate
+
+  // Author: document owner name only (not site CONFIG AUTHOR)
+  const authorName =
+    body.authorName || (page.ext as any)?.authorName || (page as any).author || null
+
   return stripUndefined({
     ...page,
     title: body.metaTitle || page.title,
     summary,
     pageCoverThumbnail: body.cover || page.pageCoverThumbnail || null,
-    lastEditedDate: body.lastEdited ? Date.parse(body.lastEdited) : page.lastEditedDate,
+    publishDate,
+    lastEditedDate,
+    publishDay: publishDate ? formatDate(publishDate) : page.publishDay || null,
+    lastEditedDay: lastEditedDate ? formatDate(lastEditedDate) : page.lastEditedDay || null,
+    author: authorName,
     accessError: body.accessError || null,
     blockMap: null,
     feishuContent: body.content || null,
     feishuPlainText: body.plainText || '',
     feishuHeadings: body.headings || [],
-    // NotionNext themes read post.toc
     toc: (body.headings || []).map(h => ({
       id: h.id,
       text: h.text,
       title: h.text,
       level: h.level
     })),
-    // Feishu meta for themes / PostMeta
     feishuMeta: body.meta || null,
     feishuDisplaySetting: display,
-    showAuthors: display?.show_authors ?? (page.ext as any)?.showAuthors ?? null,
-    showCreateTime: display?.show_create_time ?? (page.ext as any)?.showCreateTime ?? null,
+    showAuthors: display?.show_authors ?? null,
+    showCreateTime: display?.show_create_time ?? null,
+    showLikeCount: display?.show_like_count ?? null,
+    showCommentCount: display?.show_comment_count ?? null,
+    showPv: display?.show_pv ?? null,
+    showUv: display?.show_uv ?? null,
+    likeCount: body.likeCount ?? null,
+    commentCount: body.commentCount ?? null,
+    pv: body.pv ?? null,
+    uv: body.uv ?? null,
     coverOffsetX: body.coverOffsetX ?? null,
     coverOffsetY: body.coverOffsetY ?? null,
-    revisionId: body.revisionId ?? (page.ext as any)?.revisionId ?? null,
+    revisionId: body.revisionId ?? null,
     ext: {
       ...(page.ext || {}),
       documentId,
       coverToken: body.coverToken || (page.ext as any)?.coverToken || null,
       displaySetting: display,
-      revisionId: body.revisionId ?? (page.ext as any)?.revisionId ?? null,
+      revisionId: body.revisionId ?? null,
       showAuthors: display?.show_authors ?? null,
       showCreateTime: display?.show_create_time ?? null,
+      authorId: body.authorId || (page.ext as any)?.authorId || null,
+      authorName,
+      lastEditorId: body.lastEditorId || null,
+      createdAt: body.createdAt || null,
+      updatedAt: body.updatedAt || body.lastEdited || null,
+      likeCount: body.likeCount ?? null,
+      commentCount: body.commentCount ?? null,
+      pv: body.pv ?? null,
+      uv: body.uv ?? null,
       source: 'feishu'
     },
     password: null

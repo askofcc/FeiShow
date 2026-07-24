@@ -31,11 +31,15 @@ const BlogItem = ({ post }) => {
         </h2>
 
         <div className='mb-4 text-sm text-gray-700 dark:text-gray-300'>
-          by{' '}
-          <a href='#' className='text-gray-700 dark:text-gray-300'>
-            {siteConfig('AUTHOR')}
-          </a>{' '}
-          on {post.date?.start_date || post.createdTime}
+          {post?.author ? (
+            <>
+              by{' '}
+              <a href='#' className='text-gray-700 dark:text-gray-300'>
+                {post.author}
+              </a>{' '}
+            </>
+          ) : null}
+          on {post?.lastEditedDay || post?.publishDay || post.date?.start_date || post.createdTime}
           <TwikooCommentCount post={post} className='pl-1' />
           {post.category && (
             <>

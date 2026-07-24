@@ -20,6 +20,13 @@ import {
   type FeishuDocumentMeta
 } from '@/lib/feishu/docx'
 import {
+  batchQueryDriveMetas,
+  feishuTimeToMs,
+  getFileCommentCount,
+  getFileStatistics,
+  resolveUserDisplayName
+} from '@/lib/feishu/drive'
+import {
   contentToPlainText,
   extractHeadings,
   normalizeDocument
@@ -59,6 +66,17 @@ export type ContentRow = {
   coverUrl?: string
   displaySetting?: FeishuDisplaySetting | null
   revisionId?: number
+  /** document create time ISO */
+  createdAt?: string
+  /** document last modify time ISO */
+  updatedAt?: string
+  authorId?: string
+  authorName?: string
+  lastEditorId?: string
+  likeCount?: number
+  pv?: number
+  uv?: number
+  commentCount?: number
 }
 
 function mapType(raw: string): ContentRowType {
@@ -258,6 +276,75 @@ export async function extractSummaryFromDocument(
   return summarizePlainText(contentToPlainText(content), opts?.maxLen ?? 120)
 }
 
+/**
+ * Prefer official Drive meta for create/update time + owner.
+ * POST /drive/v1/metas/batch_query
+ */
+export async function fillOfficialDriveFields(rows: ContentRow[]): Promise<ContentRow[]> {
+  const docs = rows
+    .filter(r => r.documentId)
+    .map(r => ({ token: r.documentId!, type: 'docx' as const }))
+  if (!docs.length) return rows
+  const metaMap = await batchQueryDriveMetas(docs)
+  const withMeta = rows.map(row => {
+    if (!row.documentId) return row
+    const m = metaMap.get(row.documentId)
+    if (!m) return row
+    const createMs = feishuTimeToMs(m.create_time)
+    const editMs = feishuTimeToMs(m.latest_modify_time)
+    return {
+      ...row,
+      title: row.title && row.title !== '未命名' ? row.title : m.title || row.title,
+      ownerId: m.owner_id || row.ownerId,
+      authorId: m.owner_id || row.authorId || row.ownerId,
+      lastEditorId: m.latest_modify_user || row.lastEditorId,
+      createdAt: createMs ? new Date(createMs).toISOString() : row.createdAt,
+      updatedAt: editMs ? new Date(editMs).toISOString() : row.updatedAt,
+      // Prefer official document times over bitable date column
+      date: editMs
+        ? new Date(editMs).toISOString()
+        : createMs
+          ? new Date(createMs).toISOString()
+          : row.date
+    }
+  })
+
+  // Resolve author display names (best-effort; contact scope may be missing)
+  const authorIds = [
+    ...new Set(withMeta.map(r => r.authorId).filter(Boolean) as string[])
+  ]
+  const nameMap = new Map<string, string | null>()
+  const concurrency = 4
+  let cursor = 0
+  async function worker() {
+    while (cursor < authorIds.length) {
+      const i = cursor++
+      const id = authorIds[i]
+      // pick any file token for view_records fallback
+      const sample = withMeta.find(r => r.authorId === id && r.documentId)
+      try {
+        const name = await resolveUserDisplayName(id, {
+          fileToken: sample?.documentId,
+          fileType: 'docx'
+        })
+        nameMap.set(id, name)
+      } catch {
+        nameMap.set(id, null)
+      }
+    }
+  }
+  if (authorIds.length) {
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, authorIds.length) }, () => worker())
+    )
+  }
+  return withMeta.map(row => {
+    if (!row.authorId) return row
+    const name = nameMap.get(row.authorId)
+    return name ? { ...row, authorName: name } : row
+  })
+}
+
 /** Fill missing summaries with limited concurrency. */
 export async function fillMissingSummaries(
   rows: ContentRow[],
@@ -367,8 +454,17 @@ export async function loadFeishuArticleBody(opts: {
   revisionId?: number
   accessError?: string
   lastEdited?: string
+  createdAt?: string
+  updatedAt?: string
   metaTitle?: string
   meta?: FeishuDocumentMeta | null
+  authorId?: string
+  authorName?: string
+  lastEditorId?: string
+  likeCount?: number
+  pv?: number
+  uv?: number
+  commentCount?: number
 }> {
   try {
     const [meta, blocks] = await Promise.all([
@@ -381,6 +477,53 @@ export async function loadFeishuArticleBody(opts: {
     const plainText = contentToPlainText(content)
     const headings = extractHeadings(content)
     const coverToken = meta?.cover?.token
+    // Official drive meta + statistics for detail page
+    let createdAt: string | undefined
+    let updatedAt: string | undefined
+    let authorId: string | undefined
+    let authorName: string | undefined
+    let lastEditorId: string | undefined
+    let likeCount: number | undefined
+    let pv: number | undefined
+    let uv: number | undefined
+    let commentCount: number | undefined
+    try {
+      const driveMap = await batchQueryDriveMetas([{ token: opts.documentId, type: 'docx' }])
+      const dm = driveMap.get(opts.documentId)
+      if (dm) {
+        const c = feishuTimeToMs(dm.create_time)
+        const e = feishuTimeToMs(dm.latest_modify_time)
+        createdAt = c ? new Date(c).toISOString() : undefined
+        updatedAt = e ? new Date(e).toISOString() : undefined
+        authorId = dm.owner_id
+        lastEditorId = dm.latest_modify_user
+        if (authorId) {
+          authorName =
+            (await resolveUserDisplayName(authorId, {
+              fileToken: opts.documentId,
+              fileType: 'docx'
+            })) || undefined
+        }
+      }
+    } catch (e) {
+      console.warn('[feishu] detail drive meta failed', e)
+    }
+    try {
+      const stats = await getFileStatistics(opts.documentId, 'docx')
+      if (stats) {
+        likeCount = stats.like_count
+        pv = stats.pv
+        uv = stats.uv
+      }
+    } catch {}
+    // comments only when display says show (or always attach small count)
+    try {
+      if (meta?.display_setting?.show_comment_count !== false) {
+        const cc = await getFileCommentCount(opts.documentId, 'docx', 3)
+        if (cc != null) commentCount = cc
+      }
+    } catch {}
+
     return {
       content,
       plainText,
@@ -392,7 +535,17 @@ export async function loadFeishuArticleBody(opts: {
       displaySetting: meta?.display_setting || null,
       revisionId: meta?.revision_id,
       metaTitle: meta?.title || opts.title,
-      meta: meta || null
+      meta: meta || null,
+      createdAt,
+      updatedAt,
+      lastEdited: updatedAt,
+      authorId,
+      authorName,
+      lastEditorId,
+      likeCount,
+      pv,
+      uv,
+      commentCount
     }
   } catch (e: any) {
     const msg = e instanceof Error ? e.message : String(e)
