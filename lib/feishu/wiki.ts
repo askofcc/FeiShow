@@ -19,6 +19,9 @@ export type WikiNode = {
   obj_edit_time?: string;
   node_create_time?: string;
   url?: string;
+  owner?: string;
+  creator?: string;
+  node_creator?: string;
 };
 
 type GetNodeData = {

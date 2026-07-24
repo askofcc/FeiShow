@@ -124,28 +124,91 @@ export async function listDocumentBlocks(documentId: string): Promise<FeishuRawB
   }
 }
 
-export async function getDocumentMeta(documentId: string): Promise<{ title?: string; revision_id?: number }> {
+/** Full document meta from official docx API (cover + display_setting included). */
+export type FeishuDisplaySetting = {
+  show_authors?: boolean;
+  show_create_time?: boolean;
+  show_pv?: boolean;
+  show_uv?: boolean;
+  show_like_count?: boolean;
+  show_comment_count?: boolean;
+  show_related_matters?: boolean;
+};
+
+export type FeishuDocumentCover = {
+  token?: string;
+  offset_ratio_x?: number;
+  offset_ratio_y?: number;
+};
+
+export type FeishuDocumentMeta = {
+  document_id?: string;
+  title?: string;
+  revision_id?: number;
+  cover?: FeishuDocumentCover | null;
+  display_setting?: FeishuDisplaySetting | null;
+};
+
+type DocumentMetaResponse = {
+  document?: FeishuDocumentMeta;
+};
+
+async function fetchDocumentMetaOnce(documentId: string): Promise<FeishuDocumentMeta> {
+  const data = await feishuFetch<DocumentMetaResponse>(
+    `/open-apis/docx/v1/documents/${encodeURIComponent(documentId)}`,
+  );
+  const doc = data.document || {};
+  return {
+    document_id: doc.document_id || documentId,
+    title: doc.title,
+    revision_id: doc.revision_id,
+    cover: doc.cover || null,
+    display_setting: doc.display_setting || null,
+  };
+}
+
+/**
+ * Get full docx meta (title / revision / cover / display_setting).
+ * If `documentId` is a wiki token, resolve via get_node once.
+ */
+export async function getDocumentMeta(documentId: string): Promise<FeishuDocumentMeta> {
   try {
-    const data = await feishuFetch<{ document?: { title?: string; revision_id?: number } }>(
-      `/open-apis/docx/v1/documents/${encodeURIComponent(documentId)}`,
-    );
-    return {
-      title: data.document?.title,
-      revision_id: data.document?.revision_id,
-    };
+    return await fetchDocumentMetaOnce(documentId);
   } catch {
-    // wiki token fallback
     const resolved = await resolveWikiToDocumentId(documentId);
     if (resolved && resolved !== documentId) {
-      const data = await feishuFetch<{ document?: { title?: string; revision_id?: number } }>(
-        `/open-apis/docx/v1/documents/${encodeURIComponent(resolved)}`,
-      );
-      return {
-        title: data.document?.title,
-        revision_id: data.document?.revision_id,
-      };
+      return fetchDocumentMetaOnce(resolved);
     }
     throw new Error(`Feishu document meta failed for ${documentId}`);
+  }
+}
+
+/**
+ * First page of blocks only — for list summary extraction (cheap).
+ * page_size default 40 is enough for first paragraphs.
+ */
+export async function listDocumentBlocksFirstPage(
+  documentId: string,
+  pageSize = 40,
+): Promise<FeishuRawBlock[]> {
+  const qs = new URLSearchParams({
+    page_size: String(Math.min(Math.max(pageSize, 1), 500)),
+    document_revision_id: "-1",
+  });
+  try {
+    const data = await feishuFetch<BlocksPage>(
+      `/open-apis/docx/v1/documents/${encodeURIComponent(documentId)}/blocks?${qs.toString()}`,
+    );
+    return data.items || [];
+  } catch {
+    const resolved = await resolveWikiToDocumentId(documentId);
+    if (resolved && resolved !== documentId) {
+      const data = await feishuFetch<BlocksPage>(
+        `/open-apis/docx/v1/documents/${encodeURIComponent(resolved)}/blocks?${qs.toString()}`,
+      );
+      return data.items || [];
+    }
+    throw new Error(`Feishu document blocks (first page) failed for ${documentId}`);
   }
 }
 

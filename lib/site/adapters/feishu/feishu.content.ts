@@ -12,7 +12,13 @@ import {
   resolveWikiNode,
   type WikiNode
 } from '@/lib/feishu/wiki'
-import { getDocumentMeta, listDocumentBlocks } from '@/lib/feishu/docx'
+import {
+  getDocumentMeta,
+  listDocumentBlocks,
+  listDocumentBlocksFirstPage,
+  type FeishuDisplaySetting,
+  type FeishuDocumentMeta
+} from '@/lib/feishu/docx'
 import {
   contentToPlainText,
   extractHeadings,
@@ -47,6 +53,12 @@ export type ContentRow = {
   nodeToken?: string
   href?: string
   order?: number
+  /** wiki owner/creator open_id */
+  ownerId?: string
+  coverToken?: string
+  coverUrl?: string
+  displaySetting?: FeishuDisplaySetting | null
+  revisionId?: number
 }
 
 function mapType(raw: string): ContentRowType {
@@ -125,6 +137,12 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
           row.type === 'post' || row.type === 'page' || row.type === 'notice'
             ? nodeToken || documentId || row.slug
             : row.slug
+        const editTs = node.obj_edit_time
+          ? Number(node.obj_edit_time) * (Number(node.obj_edit_time) < 1e12 ? 1000 : 1)
+          : undefined
+        const createTs = node.obj_create_time
+          ? Number(node.obj_create_time) * (Number(node.obj_create_time) < 1e12 ? 1000 : 1)
+          : undefined
         out.push({
           ...row,
           nodeToken,
@@ -136,7 +154,15 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
               : row.type === 'post' || row.type === 'notice'
                 ? `/article/${stableSlug}`
                 : row.href,
-          title: row.title && row.title !== '未命名' ? row.title : node.title || row.title
+          title: row.title && row.title !== '未命名' ? row.title : node.title || row.title,
+          ownerId: (node as any).owner || (node as any).creator || row.ownerId,
+          date:
+            row.date ||
+            (editTs && Number.isFinite(editTs)
+              ? new Date(editTs).toISOString()
+              : createTs && Number.isFinite(createTs)
+                ? new Date(createTs).toISOString()
+                : row.date)
         })
       } else {
         const documentId = row.docToken
@@ -195,7 +221,10 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
           nodeToken,
           documentId,
           href: `/article/${slug}`,
-          order: posts.length
+          order: posts.length,
+          ownerId: (child as any).owner || (child as any).creator,
+          // summary filled later by fillMissingSummaries
+          summary: undefined
         })
       }
     } catch (e) {
@@ -203,6 +232,124 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
     }
   }
   return posts
+}
+
+function mediaUrl(token?: string | null): string | undefined {
+  if (!token) return undefined
+  return `/api/feishu/media/${token}`
+}
+
+function summarizePlainText(plain: string, maxLen = 120): string {
+  const s = (plain || '').replace(/\s+/g, ' ').trim()
+  if (!s) return ''
+  if (s.length <= maxLen) return s
+  return s.slice(0, maxLen).replace(/[\s,，。；;:.]+$/u, '') + '…'
+}
+
+/**
+ * Cheap summary from first page of blocks (for category children / empty table summary).
+ */
+export async function extractSummaryFromDocument(
+  documentId: string,
+  opts?: { title?: string; maxLen?: number }
+): Promise<string> {
+  const blocks = await listDocumentBlocksFirstPage(documentId, 40)
+  const content = normalizeDocument(documentId, blocks, opts?.title || '')
+  return summarizePlainText(contentToPlainText(content), opts?.maxLen ?? 120)
+}
+
+/** Fill missing summaries with limited concurrency. */
+export async function fillMissingSummaries(
+  rows: ContentRow[],
+  opts?: { concurrency?: number; maxLen?: number }
+): Promise<ContentRow[]> {
+  const concurrency = opts?.concurrency ?? 4
+  const maxLen = opts?.maxLen ?? 120
+  const targets = rows
+    .map((row, index) => ({ row, index }))
+    .filter(
+      ({ row }) =>
+        !row.summary &&
+        row.documentId &&
+        (row.type === 'post' || row.type === 'page' || row.type === 'notice')
+    )
+  if (!targets.length) return rows
+
+  const out = rows.slice()
+  let cursor = 0
+  async function worker() {
+    while (cursor < targets.length) {
+      const i = cursor++
+      const { row, index } = targets[i]
+      try {
+        const summary = await extractSummaryFromDocument(row.documentId!, {
+          title: row.title,
+          maxLen
+        })
+        if (summary) {
+          out[index] = { ...out[index], summary }
+        }
+      } catch (e) {
+        console.warn('[feishu] summary fill failed', row.documentId, e)
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, targets.length) }, () => worker()))
+  return out
+}
+
+/**
+ * Optional: attach cover token from docx meta for list cards (limited concurrency).
+ */
+export async function fillMissingCovers(
+  rows: ContentRow[],
+  opts?: { concurrency?: number }
+): Promise<ContentRow[]> {
+  const concurrency = opts?.concurrency ?? 4
+  const targets = rows
+    .map((row, index) => ({ row, index }))
+    .filter(
+      ({ row }) =>
+        !row.coverToken &&
+        row.documentId &&
+        (row.type === 'post' || row.type === 'page' || row.type === 'notice')
+    )
+  if (!targets.length) return rows
+  const out = rows.slice()
+  let cursor = 0
+  async function worker() {
+    while (cursor < targets.length) {
+      const i = cursor++
+      const { row, index } = targets[i]
+      try {
+        const meta = await getDocumentMeta(row.documentId!)
+        const token = meta.cover?.token
+        if (token) {
+          out[index] = {
+            ...out[index],
+            coverToken: token,
+            coverUrl: mediaUrl(token),
+            displaySetting: meta.display_setting || null,
+            revisionId: meta.revision_id,
+            title:
+              out[index].title && out[index].title !== '未命名'
+                ? out[index].title
+                : meta.title || out[index].title
+          }
+        } else if (meta.display_setting || meta.revision_id) {
+          out[index] = {
+            ...out[index],
+            displaySetting: meta.display_setting || null,
+            revisionId: meta.revision_id
+          }
+        }
+      } catch (e) {
+        console.warn('[feishu] cover fill failed', row.documentId, e)
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(concurrency, targets.length) }, () => worker()))
+  return out
 }
 
 export async function loadFeishuArticleBody(opts: {
@@ -213,33 +360,39 @@ export async function loadFeishuArticleBody(opts: {
   plainText?: string
   headings?: Array<{ id: string; text: string; level: number }>
   cover?: string
+  coverToken?: string
+  coverOffsetX?: number
+  coverOffsetY?: number
+  displaySetting?: FeishuDisplaySetting | null
+  revisionId?: number
   accessError?: string
   lastEdited?: string
   metaTitle?: string
+  meta?: FeishuDocumentMeta | null
 }> {
   try {
     const [meta, blocks] = await Promise.all([
-      getDocumentMeta(opts.documentId).catch(() => ({ title: opts.title || '' })),
+      getDocumentMeta(opts.documentId).catch(() => null),
       listDocumentBlocks(opts.documentId)
     ])
-    let content = normalizeDocument(
-      opts.documentId,
-      blocks,
-      (meta as any).title || opts.title || ''
-    )
+    const title = meta?.title || opts.title || ''
+    let content = normalizeDocument(opts.documentId, blocks, title)
     content = await enrichEmbedMetadata(content).catch(() => content)
     const plainText = contentToPlainText(content)
     const headings = extractHeadings(content)
-    const coverToken = (meta as any)?.cover?.token
+    const coverToken = meta?.cover?.token
     return {
       content,
       plainText,
       headings,
-      cover: coverToken ? `/api/feishu/media/${coverToken}` : undefined,
-      metaTitle: (meta as any)?.title,
-      lastEdited: (meta as any)?.edit_time
-        ? new Date(Number((meta as any).edit_time) * 1000).toISOString()
-        : undefined
+      cover: mediaUrl(coverToken),
+      coverToken: coverToken || undefined,
+      coverOffsetX: meta?.cover?.offset_ratio_x,
+      coverOffsetY: meta?.cover?.offset_ratio_y,
+      displaySetting: meta?.display_setting || null,
+      revisionId: meta?.revision_id,
+      metaTitle: meta?.title || opts.title,
+      meta: meta || null
     }
   } catch (e: any) {
     const msg = e instanceof Error ? e.message : String(e)

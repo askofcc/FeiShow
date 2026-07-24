@@ -1,6 +1,8 @@
 import type { BasePage, MenuItem, NavPage, SiteData } from '@/lib/site/site.types'
 import {
   expandCategoryPosts,
+  fillMissingCovers,
+  fillMissingSummaries,
   loadConfigMap,
   loadContentRows,
   loadFeishuArticleBody,
@@ -26,7 +28,7 @@ function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
     tagItems: (row.tags || []).map(name => ({ name })),
     publishDate: Number.isFinite(publishDate) ? publishDate : Date.now(),
     lastEditedDate: Number.isFinite(publishDate) ? publishDate : Date.now(),
-    pageCoverThumbnail: null,
+    pageCoverThumbnail: row.coverUrl || null,
     pageIcon: row.icon || null,
     href: row.href || null,
     ext: {
@@ -34,7 +36,13 @@ function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
       nodeToken: row.nodeToken || null,
       docToken: row.docToken || null,
       feishuType: row.type,
-      source: 'feishu'
+      source: 'feishu',
+      ownerId: row.ownerId || null,
+      coverToken: row.coverToken || null,
+      displaySetting: row.displaySetting || null,
+      revisionId: row.revisionId || null,
+      showAuthors: row.displaySetting?.show_authors ?? null,
+      showCreateTime: row.displaySetting?.show_create_time ?? null
     }
   }
 }
@@ -89,12 +97,26 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
   for (const p of [...postRows, ...expanded]) {
     if (!postMap.has(p.slug)) postMap.set(p.slug, p)
   }
-  const allPostRows = [...postMap.values()]
+  // Fill missing summaries (esp. category children) + covers for list cards
+  let allPostRows = [...postMap.values()]
+  let pageRowsFilled = pageRows
+  let noticeRowsFilled = noticeRows
+  try {
+    allPostRows = await fillMissingSummaries(allPostRows, { concurrency: 4, maxLen: 120 })
+    pageRowsFilled = await fillMissingSummaries(pageRowsFilled, { concurrency: 3, maxLen: 120 })
+    noticeRowsFilled = await fillMissingSummaries(noticeRowsFilled, { concurrency: 2, maxLen: 120 })
+    // covers for list thumbnails (meta only, limited concurrency)
+    allPostRows = await fillMissingCovers(allPostRows, { concurrency: 4 })
+    pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 3 })
+    noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
+  } catch (e) {
+    console.warn('[feishu] fill summary/cover skipped', e)
+  }
 
   const allPages: BasePage[] = [
     ...allPostRows.map(r => toPublishedPage(r, 'Post')),
-    ...pageRows.map(r => toPublishedPage(r, 'Page')),
-    ...noticeRows.map(r => toPublishedPage(r, 'Notice')),
+    ...pageRowsFilled.map(r => toPublishedPage(r, 'Page')),
+    ...noticeRowsFilled.map(r => toPublishedPage(r, 'Notice')),
     ...menus.filter(r => r.type === 'menu').map(r => toPublishedPage(r, 'Menu')),
     ...menus.filter(r => r.type === 'submenu').map(r => toPublishedPage(r, 'SubMenu'))
   ]
@@ -121,7 +143,7 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     '飞书驱动的公开站点'
   const link = configMap.LINK || process.env.NEXT_PUBLIC_LINK || 'http://localhost:3460'
 
-  const notice = noticeRows[0] ? toPublishedPage(noticeRows[0], 'Notice') : null
+  const notice = noticeRowsFilled[0] ? toPublishedPage(noticeRowsFilled[0], 'Notice') : null
 
   const siteData: SiteData = {
     NOTION_CONFIG: {
@@ -186,10 +208,15 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
     documentId,
     title: page.title
   })
+  const display = body.displaySetting || (page.ext as any)?.displaySetting || null
+  const summary =
+    page.summary ||
+    (body.plainText || '').replace(/\s+/g, ' ').trim().slice(0, 160) ||
+    null
   return stripUndefined({
     ...page,
     title: body.metaTitle || page.title,
-    summary: page.summary || (body.plainText || '').slice(0, 160) || null,
+    summary,
     pageCoverThumbnail: body.cover || page.pageCoverThumbnail || null,
     lastEditedDate: body.lastEdited ? Date.parse(body.lastEdited) : page.lastEditedDate,
     accessError: body.accessError || null,
@@ -204,6 +231,24 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
       title: h.text,
       level: h.level
     })),
+    // Feishu meta for themes / PostMeta
+    feishuMeta: body.meta || null,
+    feishuDisplaySetting: display,
+    showAuthors: display?.show_authors ?? (page.ext as any)?.showAuthors ?? null,
+    showCreateTime: display?.show_create_time ?? (page.ext as any)?.showCreateTime ?? null,
+    coverOffsetX: body.coverOffsetX ?? null,
+    coverOffsetY: body.coverOffsetY ?? null,
+    revisionId: body.revisionId ?? (page.ext as any)?.revisionId ?? null,
+    ext: {
+      ...(page.ext || {}),
+      documentId,
+      coverToken: body.coverToken || (page.ext as any)?.coverToken || null,
+      displaySetting: display,
+      revisionId: body.revisionId ?? (page.ext as any)?.revisionId ?? null,
+      showAuthors: display?.show_authors ?? null,
+      showCreateTime: display?.show_create_time ?? null,
+      source: 'feishu'
+    },
     password: null
   })
 }
