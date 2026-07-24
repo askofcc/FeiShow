@@ -48,16 +48,16 @@
 ## Phase 3 — 正文接入主题
 
 - [x] 共享 `NotionPage` 内部转 FeishuRenderer
-- [~] TOC/cover 字段（cover 已接；TOC 依赖 feishuHeadings 可继续）
+- [x] TOC：post.toc ← feishuHeadings；cover token 已映射
 - [x] example 主路径：首页+文章 200 live
 
 **验收：** example 主题文章页可读；`?theme=simple` 不 500。
 
 ## Phase 4 — 站点能力 + 冒烟
 
-- [~] archive/search/category 200；tag/rss/sitemap 待细验
-- [~] ?theme=simple/gitbook 首页 200（切换深度待验）
-- [ ] README 飞书配置说明
+- [x] archive/search/category/tag/sitemap/rss 200
+- [x] example/simple/gitbook 热路径 DOM id 正确
+- [x] FEISHU.md + PHASE4_VERIFY.md
 
 **验收：** 路由清单 200；三主题冒烟通过。
 
@@ -72,3 +72,8 @@
 ## 效果预期（一期结束）
 
 用户配置飞书应用 + 两张表后，得到 NotionNext 级站点壳，内容来自飞书；可切换主题；上游 themes 可 merge 复用（适配层偶发跟进）。
+
+
+## Phase 4 结论
+
+见 [PHASE4_VERIFY.md](./PHASE4_VERIFY.md)。主路径已通过。

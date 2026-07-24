@@ -556,7 +556,7 @@ function BlockView({
   }
 }
 
-export function FeishuRenderer({ content }: { content?: FeishuPageContent }) {
+export default function FeishuRenderer({ content }: { content?: FeishuPageContent }) {
   if (!content) {
     return <div className="notion-text">暂无正文。</div>;
   }

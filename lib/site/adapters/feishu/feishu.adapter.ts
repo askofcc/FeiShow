@@ -197,6 +197,13 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
     feishuContent: body.content || null,
     feishuPlainText: body.plainText || '',
     feishuHeadings: body.headings || [],
+    // NotionNext themes read post.toc
+    toc: (body.headings || []).map(h => ({
+      id: h.id,
+      text: h.text,
+      title: h.text,
+      level: h.level
+    })),
     password: null
   })
 }

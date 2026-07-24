@@ -119,14 +119,43 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
     try {
       const node = await resolveWikiNode(row.docToken)
       if (node) {
+        const nodeToken = node.node_token || row.docToken
+        const documentId = node.obj_token || row.docToken
+        const stableSlug =
+          row.type === 'post' || row.type === 'page' || row.type === 'notice'
+            ? nodeToken || documentId || row.slug
+            : row.slug
         out.push({
           ...row,
-          nodeToken: node.node_token || row.docToken,
-          documentId: node.obj_token || row.docToken,
+          nodeToken,
+          documentId,
+          slug: stableSlug,
+          href:
+            row.type === 'page'
+              ? `/${stableSlug}`
+              : row.type === 'post' || row.type === 'notice'
+                ? `/article/${stableSlug}`
+                : row.href,
           title: row.title && row.title !== '未命名' ? row.title : node.title || row.title
         })
       } else {
-        out.push({ ...row, documentId: row.docToken, nodeToken: row.docToken })
+        const documentId = row.docToken
+        const stableSlug =
+          row.type === 'post' || row.type === 'page' || row.type === 'notice'
+            ? documentId
+            : row.slug
+        out.push({
+          ...row,
+          documentId,
+          nodeToken: row.docToken,
+          slug: stableSlug,
+          href:
+            row.type === 'page'
+              ? `/${stableSlug}`
+              : row.type === 'post' || row.type === 'notice'
+                ? `/article/${stableSlug}`
+                : row.href
+        })
       }
     } catch {
       out.push({ ...row, documentId: row.docToken, nodeToken: row.docToken })
