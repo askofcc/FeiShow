@@ -38,7 +38,8 @@ lib/feishu/* ← OpenAPI 客户端
 ```
 
 契约：`docs/feishu/`  
-任务清单：`docs/feishu/TASKS.md`
+任务清单：`docs/feishu/TASKS.md`  
+**主题数据契约（新主题/AI 必读）：** `docs/feishu/THEME_DATA_CONTRACT.md`
 
 ## 旧仓
 

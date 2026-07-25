@@ -152,6 +152,7 @@
 | [STABLE_FEISHU_DATA.md](./STABLE_FEISHU_DATA.md) | 稳定 API 主路径 |
 | [FEISHU_DOCUMENT_CONTRACT.md](./FEISHU_DOCUMENT_CONTRACT.md) | 单篇文档字段与权限 |
 | [FEISHU_BLOCK_MAPPING.md](./FEISHU_BLOCK_MAPPING.md) | 块 → 展示模型 |
+| [THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md) | 主题开发：取数→结构→调用 |
 | [TASKS.md](./TASKS.md) | 可执行任务 |
 
 ---
