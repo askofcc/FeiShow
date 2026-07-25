@@ -572,17 +572,42 @@ export async function loadFeishuArticleBody(opts: {
   }
 }
 
-export async function loadConfigMap(): Promise<Record<string, string>> {
+function parseConfigValue(raw: string): any {
+  const v = (raw ?? '').trim()
+  if (v === '') return ''
+  if (v === 'true' || v === 'false') return v === 'true'
+  if (/^-?\d+(\.\d+)?$/.test(v)) {
+    const n = Number(v)
+    if (Number.isFinite(n) && Math.abs(n) <= Number.MAX_SAFE_INTEGER) return n
+  }
+  if (
+    (v.startsWith('{') && v.endsWith('}')) ||
+    (v.startsWith('[') && v.endsWith(']'))
+  ) {
+    try {
+      return JSON.parse(v)
+    } catch {
+      return v
+    }
+  }
+  return v
+}
+
+/**
+ * Load site config from Feishu CONFIG-TABLE (1:1 Notion CONFIG-TABLE rules).
+ * Only enabled rows; INLINE_CONFIG object merges on top.
+ */
+export async function loadConfigMap(): Promise<Record<string, any>> {
   const feishu = siteConfig.feishu as any
   const appToken = feishu.configAppToken
   const tableId = feishu.configTableId
   if (!appToken || !tableId) return {}
   try {
     const records = await listBitableRecordsFrom(appToken, tableId)
-    const map: Record<string, string> = {}
+    const map: Record<string, any> = {}
     for (const r of records) {
-      const key = extractTextField(r.fields['配置名'] ?? r.fields['key'] ?? r.fields['Key'])
-      const value = extractTextField(r.fields['配置值'] ?? r.fields['value'] ?? r.fields['Value'])
+      const key = extractTextField(r.fields['配置名'] ?? r.fields['key'] ?? r.fields['Key']).trim()
+      const valueRaw = extractTextField(r.fields['配置值'] ?? r.fields['value'] ?? r.fields['Value'])
       const enabledRaw = r.fields['启用'] ?? r.fields['enable'] ?? r.fields['Enable']
       const hasEnableCol =
         Object.prototype.hasOwnProperty.call(r.fields || {}, '启用') ||
@@ -597,7 +622,11 @@ export async function loadConfigMap(): Promise<Record<string, string>> {
         String(extractTextField(enabledRaw as any)).toLowerCase() === 'true'
       if (!key) continue
       if (hasEnableCol && !enabled) continue
-      map[key] = value
+      map[key] = parseConfigValue(valueRaw)
+    }
+    // NotionNext: INLINE_CONFIG merges into root config
+    if (map.INLINE_CONFIG && typeof map.INLINE_CONFIG === 'object' && !Array.isArray(map.INLINE_CONFIG)) {
+      Object.assign(map, map.INLINE_CONFIG)
     }
     return map
   } catch (e) {
