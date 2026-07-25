@@ -2,6 +2,10 @@
 
 本仓库 = [NotionNext](https://github.com/notionnext-org/NotionNext) 前端壳 + 飞书数据层。
 
+> **项目灵魂（必读）：** [docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md)  
+> 一句话：把飞书 API 的复杂 JSON 洗成**展示向**结构化数据；官方擅长编辑与权限，我们补齐对外展示（及未来 AI 就绪）。
+
+
 ## 快速开始
 
 ```bash

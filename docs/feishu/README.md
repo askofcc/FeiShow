@@ -4,6 +4,7 @@
 
 | 文档 | 内容 |
 |---|---|
+| [**PROJECT_SOUL.md**](./PROJECT_SOUL.md) | **项目灵魂：痛点 / 价值 / 结构化 / AI 就绪（后置）** |
 | [TASKS.md](./TASKS.md) | 可执行任务与验收 |
 | [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | 完整计划 |
 | [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 为何做 + 三块数据 |
