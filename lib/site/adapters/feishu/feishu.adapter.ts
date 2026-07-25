@@ -87,9 +87,13 @@ function buildMenus(rows: ContentRow[]): MenuItem[] {
   const menus: MenuItem[] = []
   let current: MenuItem | null = null
   for (const row of rows) {
+    const label = (row.title || '').trim()
+    if (!label) continue
     if (row.type === 'menu') {
       current = {
-        name: row.title,
+        // Themes use either name or title depending on component.
+        name: label,
+        title: label,
         icon: row.icon || null,
         href: row.href || '/',
         show: true,
@@ -98,7 +102,8 @@ function buildMenus(rows: ContentRow[]): MenuItem[] {
       menus.push(current)
     } else if (row.type === 'submenu') {
       const item: MenuItem = {
-        name: row.title,
+        name: label,
+        title: label,
         icon: row.icon || null,
         href: row.href || '/',
         show: true

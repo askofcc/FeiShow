@@ -65,7 +65,13 @@ export interface NavPage {
 }
 
 export interface MenuItem {
+  /** Display name used by most theme menu components */
   name: string
+  /**
+   * Official NotionNext menu pages expose `title`; many MenuItemDrop themes read
+   * `sLink.title`. Keep both so Feishu menus render like Notion menus.
+   */
+  title?: string
   icon?: string | null
   href?: string
   target?: string
