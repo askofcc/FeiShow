@@ -223,3 +223,42 @@ export function extractDocToken(value: BitableFieldValue | undefined): string | 
 
   return extractDocumentId(value);
 }
+
+export type BitableView = {
+  view_id?: string
+  view_name?: string
+  view_type?: string
+}
+
+/** List table views (for reading user-facing row order). */
+export async function listBitableViews(
+  appToken: string,
+  tableId: string
+): Promise<BitableView[]> {
+  const data = await feishuFetch<{ items?: BitableView[] }>(
+    `/open-apis/bitable/v1/apps/${encodeURIComponent(appToken)}/tables/${encodeURIComponent(tableId)}/views?page_size=50`
+  )
+  return data.items || []
+}
+
+/**
+ * Prefer explicit viewId; else first grid view; else first view.
+ * Content table "排序" is often just the Grid view order — must pass view_id to search.
+ */
+export async function resolveBitableViewId(
+  appToken: string,
+  tableId: string,
+  preferred?: string
+): Promise<string | undefined> {
+  if (preferred && String(preferred).trim()) return String(preferred).trim()
+  try {
+    const views = await listBitableViews(appToken, tableId)
+    if (!views.length) return undefined
+    const grid = views.find(v => String(v.view_type || '').toLowerCase() === 'grid')
+    return grid?.view_id || views[0]?.view_id
+  } catch (e) {
+    console.warn('[feishu] list views failed, fall back to unordered search', e)
+    return undefined
+  }
+}
+

@@ -24,6 +24,7 @@ const siteConfig = {
     bitableViewId: env('FEISHU_BITABLE_VIEW_ID') || env('FEISHU_CONTENT_VIEW_ID'),
     contentAppToken: contentApp,
     contentTableId: contentTable,
+    contentViewId: env('FEISHU_CONTENT_VIEW_ID') || env('FEISHU_BITABLE_VIEW_ID'),
     configAppToken: env('FEISHU_CONFIG_APP_TOKEN', 'JGShbeVp9aGGV3s2J4qcMmGAn0b'),
     configTableId: env('FEISHU_CONFIG_TABLE_ID', 'tbl4qPlVgMLg5eaH'),
     listRoot: env('FEISHU_LIST_ROOT'),

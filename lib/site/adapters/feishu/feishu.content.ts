@@ -5,6 +5,7 @@ import {
   extractMultiSelect,
   extractTextField,
   listBitableRecordsFrom,
+  resolveBitableViewId,
   type BitableRecord
 } from '@/lib/feishu/bitable'
 import {
@@ -156,7 +157,16 @@ export async function loadContentRows(): Promise<ContentRow[]> {
   const feishu = siteConfig.feishu as any
   const appToken = feishu.contentAppToken || feishu.bitableAppToken
   const tableId = feishu.contentTableId || feishu.bitableTableId
-  const records = await listBitableRecordsFrom(appToken, tableId)
+  // Use table Grid/view order = what user sees in Feishu (no 排序 column needed)
+  const viewId = await resolveBitableViewId(
+    appToken,
+    tableId,
+    feishu.contentViewId || feishu.bitableViewId || process.env.FEISHU_CONTENT_VIEW_ID || process.env.FEISHU_BITABLE_VIEW_ID
+  )
+  if (viewId) {
+    console.log('[feishu] content table using view_id for order', viewId)
+  }
+  const records = await listBitableRecordsFrom(appToken, tableId, { viewId })
   const f = siteConfig.fields as any
 
   return records.map((record, index) => {
