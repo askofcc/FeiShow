@@ -7,8 +7,8 @@ import { MenuItemDrop } from './MenuItemDrop'
  * 导航菜单列表
  *
  * Feishu / NotionNext 规则：
- * - CUSTOM_MENU=true  → 只用内容表「菜单/子菜单」(props.customMenu)
- * - CUSTOM_MENU=false → 只用主题默认项（搜索/归档/分类/标签），不拼接内容表菜单
+ * - CUSTOM_MENU 默认 true：内容表「菜单/子菜单」生效
+ * - CUSTOM_MENU=false：主题默认搜索/归档/分类/标签
  *
  * @param {*} props
  * @returns
@@ -50,7 +50,7 @@ export const MenuList = props => {
 
   const useCustom = !!siteConfig(
     'CUSTOM_MENU',
-    false,
+    true,
     NOTION_CONFIG || props?.NOTION_CONFIG
   )
   const menuFromTable = Array.isArray(customMenu) ? customMenu : []

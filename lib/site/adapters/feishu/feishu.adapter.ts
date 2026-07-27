@@ -233,16 +233,18 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
 
   const posts = allPages.filter(p => p.type === 'Post' && p.status === 'Published')
   const builtMenu = buildMenus(menus)
-  // Respect CONFIG-TABLE CUSTOM_MENU (启用). Do NOT force-on just because menu rows exist.
-  // - CUSTOM_MENU true  → themes use content-table 菜单/子菜单 only
-  // - CUSTOM_MENU false → themes use default nav; do not inject menu rows via customNav
-  const customMenuEnabled = configMap.CUSTOM_MENU === true || configMap.CUSTOM_MENU === 'true'
-  const customMenu = customMenuEnabled ? builtMenu : []
-  if (!customMenuEnabled) {
-    // Explicit false so blog.config default true cannot re-enable
-    configMap.CUSTOM_MENU = false
-    configMap.NEXT_PUBLIC_CUSTOM_MENU = false
-  }
+  // Content-table menus default ON.
+  // - CONFIG 启用=关 → configMap has no CUSTOM_MENU → default ON
+  // - CONFIG 启用=开 + true → ON
+  // - CONFIG 启用=开 + false → OFF
+  const flag = configMap.CUSTOM_MENU
+  const customMenuEnabled =
+    flag === undefined || flag === null
+      ? true
+      : flag === true || flag === 'true'
+  const customMenu = customMenuEnabled && builtMenu.length > 0 ? builtMenu : []
+  // Tell themes the effective switch
+  configMap.CUSTOM_MENU = customMenuEnabled
 
   const categoryCount = new Map<string, number>()
   const tagCount = new Map<string, number>()

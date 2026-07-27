@@ -853,11 +853,14 @@ export function isConfigRowEnabled(enabledRaw: unknown): boolean {
  * Feature-flag style keys: when row exists but 启用 is off → force `false`
  * (override blog.config defaults that are often true).
  * Non-listed keys with boolean 配置值 also get the same treatment.
+ *
+ * Exception: CUSTOM_MENU — 启用=关 means "use code default" (content-table menus ON),
+ * not "force menus off". Only 启用=开 + 配置值=false turns content menus off.
  */
 const BOOLEAN_FEATURE_KEYS = new Set([
   'THEME_SWITCH',
   'CAN_COPY',
-  'CUSTOM_MENU',
+  // CUSTOM_MENU intentionally NOT force-false when 启用 is off (default: content menus on)
   'WIDGET_PET',
   'WIDGET_PET_SWITCH_THEME',
   'POST_SHARE_BAR_ENABLE',
@@ -898,7 +901,8 @@ function isBooleanConfigValue(parsed: unknown, valueRaw: string, key: string): b
  *
  * Product model (Feishu-friendly):
  * - 「配置值」for feature flags should be `true` (the ON value when enabled)
- * - 「启用」is the only switch: checked → use 配置值; unchecked → false for booleans
+ * - 「启用」is the only switch: checked → use 配置值; unchecked → default (most booleans force false;
+ *   CUSTOM_MENU unchecked → keep default ON = content-table menus)
  * - String configs (TITLE/LINK/THEME…): checked → use value; unchecked → ignore (env/default)
  *
  * Do NOT put `false` in 配置值 to mean "default off" — leave 启用 unchecked instead.
@@ -939,7 +943,12 @@ export async function loadConfigMap(): Promise<Record<string, any>> {
         continue
       }
 
-      // 未启用：布尔类配置强制 false，避免回落到 blog.config 的 true
+      // 未启用：
+      // - CUSTOM_MENU: 不写 map → 回落默认 true（内容表菜单生效）
+      // - 其它布尔特性: 强制 false，避免 blog.config 默认 true 误开
+      if (key === 'CUSTOM_MENU' || key === 'NEXT_PUBLIC_CUSTOM_MENU') {
+        continue
+      }
       if (isBooleanConfigValue(parsed, valueRaw, key)) {
         map[key] = false
       }

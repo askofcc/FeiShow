@@ -59,8 +59,12 @@ const BLOG = {
   CUSTOM_EXTERNAL_CSS: [''], // e.g. ['http://xx.com/style.css','http://xx.com/style.css']
 
   // 自定义菜单
-  // FeishuNext: default OFF. Only on when env is explicit 'true' OR CONFIG-TABLE enables CUSTOM_MENU.
-  CUSTOM_MENU: process.env.NEXT_PUBLIC_CUSTOM_MENU === 'true', // 内容表菜单/子菜单；默认关
+  // FeishuNext: default ON (content-table 菜单/子菜单). Set env false or CONFIG 启用+false to turn off.
+  CUSTOM_MENU:
+    process.env.NEXT_PUBLIC_CUSTOM_MENU === undefined ||
+    process.env.NEXT_PUBLIC_CUSTOM_MENU === ''
+      ? true
+      : process.env.NEXT_PUBLIC_CUSTOM_MENU === 'true',
 
   // 文章列表相关设置
   CAN_COPY: process.env.NEXT_PUBLIC_CAN_COPY || true, // 是否允许复制页面内容 默认允许，如果设置为false、则全栈禁止复制内容。
