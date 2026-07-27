@@ -98,6 +98,31 @@ function field(record: BitableRecord, name: string) {
   return record.fields?.[name]
 }
 
+
+/** NotionNext-compatible post path: slug carries prefix so /${slug} === href. */
+function postUrlPrefix(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_POST_URL_PREFIX ||
+    process.env.POST_URL_PREFIX ||
+    'article'
+  return String(raw).replace(/^\/|\/$/g, '').split('/')[0] || 'article'
+}
+
+/** @returns slug like "article/TOKEN", href like "/article/TOKEN" */
+export function toPostSlugAndHref(tokenOrSlug: string): { slug: string; href: string } {
+  const prefix = postUrlPrefix()
+  let raw = String(tokenOrSlug || '').replace(/^\//, '')
+  if (!raw) {
+    return { slug: '', href: '#' }
+  }
+  // already prefixed
+  if (raw === prefix || raw.startsWith(prefix + '/')) {
+    return { slug: raw, href: `/${raw}` }
+  }
+  const slug = `${prefix}/${raw}`
+  return { slug, href: `/${slug}` }
+}
+
 export async function loadContentRows(): Promise<ContentRow[]> {
   const feishu = siteConfig.feishu as any
   const appToken = feishu.contentAppToken || feishu.bitableAppToken
@@ -118,16 +143,30 @@ export async function loadContentRows(): Promise<ContentRow[]> {
     const date = extractDate(field(record, f.date))
     const category = extractTextField(field(record, f.category)) || undefined
     const tags = extractMultiSelect(field(record, f.tags))
-    // menus: use slug as path (/about) or external URL; posts use /article/...
+    // menus/pages: /{slug}; posts: slug = "article/TOKEN" so themes using /${slug} match href
+    let finalSlug = slug
     let href: string
-    if (slug.startsWith('http') || slug.startsWith('/')) {
+    if (slug.startsWith('http')) {
       href = slug
+    } else if (slug.startsWith('/')) {
+      href = slug
+      finalSlug = slug.replace(/^\//, '')
     } else if (type === 'page' || type === 'menu' || type === 'submenu') {
       href = `/${slug}`
     } else if (type === 'notice') {
-      href = customSlug ? `/${customSlug}` : `/article/${slug}`
+      if (customSlug) {
+        href = `/${customSlug}`
+        finalSlug = customSlug
+      } else {
+        const p = toPostSlugAndHref(slug)
+        finalSlug = p.slug
+        href = p.href
+      }
     } else {
-      href = `/article/${slug}`
+      // post
+      const p = toPostSlugAndHref(slug)
+      finalSlug = p.slug
+      href = p.href
     }
 
     return {
@@ -135,7 +174,7 @@ export async function loadContentRows(): Promise<ContentRow[]> {
       title,
       type,
       typeRaw,
-      slug,
+      slug: finalSlug,
       customSlug,
       icon,
       summary,
@@ -162,12 +201,29 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         const nodeToken = node.node_token || row.docToken
         const documentId = node.obj_token || row.docToken
         // Posts: stable node_token. Pages/Notice: prefer table slug (about/links/notice).
-        const stableSlug =
+        let stableSlug =
           row.type === 'page' || row.type === 'notice'
             ? row.customSlug || nodeToken || documentId || row.slug
             : row.type === 'post'
               ? nodeToken || documentId || row.slug
               : row.customSlug || row.slug
+        let href = row.href
+        if (row.type === 'page') {
+          href = `/${stableSlug}`
+        } else if (row.type === 'post') {
+          const p = toPostSlugAndHref(stableSlug)
+          stableSlug = p.slug
+          href = p.href
+        } else if (row.type === 'notice') {
+          if (row.customSlug) {
+            href = `/${row.customSlug}`
+            stableSlug = row.customSlug
+          } else {
+            const p = toPostSlugAndHref(stableSlug)
+            stableSlug = p.slug
+            href = p.href
+          }
+        }
         const editTs = node.obj_edit_time
           ? Number(node.obj_edit_time) * (Number(node.obj_edit_time) < 1e12 ? 1000 : 1)
           : undefined
@@ -179,12 +235,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
           nodeToken,
           documentId,
           slug: stableSlug,
-          href:
-            row.type === 'page'
-              ? `/${stableSlug}`
-              : row.type === 'post' || row.type === 'notice'
-                ? `/article/${stableSlug}`
-                : row.href,
+          href,
           title: row.title && row.title !== '未命名' ? row.title : node.title || row.title,
           ownerId: (node as any).owner || (node as any).creator || row.ownerId,
           date:
@@ -197,23 +248,35 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         })
       } else {
         const documentId = row.docToken
-        const stableSlug =
+        let stableSlug =
           row.type === 'page' || row.type === 'notice'
             ? row.customSlug || documentId || row.slug
             : row.type === 'post'
               ? documentId || row.slug
               : row.customSlug || row.slug
+        let href = row.href
+        if (row.type === 'page') {
+          href = `/${stableSlug}`
+        } else if (row.type === 'post') {
+          const p = toPostSlugAndHref(stableSlug)
+          stableSlug = p.slug
+          href = p.href
+        } else if (row.type === 'notice') {
+          if (row.customSlug) {
+            href = `/${row.customSlug}`
+            stableSlug = row.customSlug
+          } else {
+            const p = toPostSlugAndHref(stableSlug)
+            stableSlug = p.slug
+            href = p.href
+          }
+        }
         out.push({
           ...row,
           documentId,
           nodeToken: row.docToken,
           slug: stableSlug,
-          href:
-            row.type === 'page'
-              ? `/${stableSlug}`
-              : row.type === 'post' || row.type === 'notice'
-                ? `/article/${stableSlug}`
-                : row.href
+          href
         })
       }
     } catch {
@@ -238,13 +301,14 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
         const documentId = child.obj_token
         if (!nodeToken && !documentId) continue
         const title = child.title || '未命名文档'
-        const slug = nodeToken || documentId!
+        const token = nodeToken || documentId!
+        const path = toPostSlugAndHref(token)
         posts.push({
-          recordId: `cat:${cat.recordId}:${slug}`,
+          recordId: `cat:${cat.recordId}:${token}`,
           title,
           type: 'post',
           typeRaw: '文章',
-          slug,
+          slug: path.slug,
           date: child.obj_edit_time
             ? new Date(Number(child.obj_edit_time) * (Number(child.obj_edit_time) < 1e12 ? 1000 : 1)).toISOString()
             : undefined,
@@ -253,7 +317,7 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
           docToken: nodeToken,
           nodeToken,
           documentId,
-          href: `/article/${slug}`,
+          href: path.href,
           order: posts.length,
           ownerId: (child as any).owner || (child as any).creator,
           // summary filled later by fillMissingSummaries

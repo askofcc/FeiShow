@@ -83,11 +83,11 @@ export const SideBar = props => {
           <ul className='list-reset leading-normal'>
             {latestPosts?.map(p => {
               return (
-                <SmartLink key={p.id} href={`/${p.slug}`} passHref legacyBehavior>
+                <SmartLink key={p.id} href={p.href || `/${p.slug}`} passHref legacyBehavior>
                   <li>
                     {' '}
                     <a
-                      href={`/${p.slug}`}
+                      href={p.href || `/${p.slug}`}
                       className='text-gray-darkest text-sm hover:underline'>
                       {p.title}
                     </a>

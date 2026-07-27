@@ -378,12 +378,16 @@ export async function findFeishuPageBySlug(
   siteData: SiteData,
   slug: string
 ): Promise<(BasePage & Record<string, any>) | null> {
-  const page =
-    siteData.allPages.find(p => p.slug === slug) ||
-    siteData.allPages.find(p => p.href === `/${slug}`) ||
-    siteData.allPages.find(p => p.href === `/article/${slug}`) ||
-    siteData.allPages.find(p => (p.ext as any)?.nodeToken === slug) ||
-    siteData.allPages.find(p => (p.ext as any)?.documentId === slug)
+  const match = (p: BasePage) => {
+    if (!p || !slug) return false
+    if (p.slug === slug || p.href === `/${slug}` || p.href === slug) return true
+    if (p.href === `/article/${slug}`) return true
+    if ((p.ext as any)?.nodeToken === slug || (p.ext as any)?.documentId === slug) return true
+    if (typeof p.slug === 'string' && (p.slug.endsWith('/' + slug) || p.slug.split('/').pop() === slug))
+      return true
+    return false
+  }
+  const page = siteData.allPages.find(match)
   if (!page) return null
   if (page.type === 'Menu' || page.type === 'SubMenu') return page as any
   return enrichFeishuPost(page)
