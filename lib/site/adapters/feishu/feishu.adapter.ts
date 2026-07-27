@@ -8,8 +8,10 @@ import {
   loadContentRows,
   loadFeishuArticleBody,
   resolveDocumentIds,
+  resolveSitePageCover,
   type ContentRow
 } from './feishu.content'
+import { resolvePageIcon } from '@/lib/feishu/page-icon'
 import formatDate from '@/lib/utils/formatDate'
 
 function stripUndefined<T>(value: T): T {
@@ -54,7 +56,7 @@ function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
     publishDay: formatDate(publishDate),
     lastEditedDay: formatDate(lastEditedDate),
     pageCoverThumbnail: row.coverUrl || null,
-    pageIcon: row.icon || null,
+    pageIcon: resolvePageIcon(row.icon, row.title),
     href: row.href || null,
     // Some themes read post.author
     author: author,
@@ -199,6 +201,12 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     }
   }
 
+  // Site banner: CONFIG HOME_BANNER_IMAGE (enabled) → else main wiki/doc cover
+  const banner = await resolveSitePageCover(configMap.HOME_BANNER_IMAGE)
+  if (banner.source === 'site-root') {
+    console.log('[feishu] site pageCover from site-root cover', banner.coverToken)
+  }
+
   const siteData: SiteData = {
     NOTION_CONFIG: {
       ...configMap,
@@ -207,12 +215,14 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
       LINK: link,
       AUTHOR: configMap.AUTHOR || process.env.NEXT_PUBLIC_AUTHOR || 'FeishuNext',
       THEME: configMap.THEME || process.env.NEXT_PUBLIC_THEME || 'example',
-      CMS_PROVIDER: 'feishu'
+      CMS_PROVIDER: 'feishu',
+      // so themes reading siteConfig('HOME_BANNER_IMAGE') also get fallback
+      HOME_BANNER_IMAGE: banner.pageCover || configMap.HOME_BANNER_IMAGE || ''
     },
     siteInfo: {
       title,
       description,
-      pageCover: configMap.HOME_BANNER_IMAGE || '',
+      pageCover: banner.pageCover || '',
       icon: configMap.ICON || '',
       link
     },
@@ -285,11 +295,17 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
   const authorName =
     body.authorName || (page.ext as any)?.authorName || (page as any).author || null
 
+  const pageIcon = resolvePageIcon(
+    (page as any).pageIcon || (page.ext as any)?.icon,
+    body.metaTitle || page.title
+  )
+
   return stripUndefined({
     ...page,
     title: body.metaTitle || page.title,
     summary,
     pageCoverThumbnail: body.cover || page.pageCoverThumbnail || null,
+    pageIcon,
     publishDate,
     lastEditedDate,
     publishDay: publishDate ? formatDate(publishDate) : page.publishDay || null,

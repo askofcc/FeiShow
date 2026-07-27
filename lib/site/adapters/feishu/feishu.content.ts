@@ -9,6 +9,7 @@ import {
 } from '@/lib/feishu/bitable'
 import {
   listWikiChildren,
+  parseWikiToken,
   resolveWikiNode,
   type WikiNode
 } from '@/lib/feishu/wiki'
@@ -270,6 +271,65 @@ function mediaUrl(token?: string | null): string | undefined {
   if (!token) return undefined
   return `/api/feishu/media/${token}`
 }
+
+
+/**
+ * Site-level banner (NotionNext HOME_BANNER / root page cover).
+ * Priority:
+ *  1. CONFIG HOME_BANNER_IMAGE when enabled (caller passes non-empty)
+ *  2. Main wiki/doc cover from FEISHU_SITE_ROOT / FEISHU_LIST_ROOT / rootDocumentId
+ *  3. empty
+ */
+export async function resolveSitePageCover(
+  configBanner?: string | null
+): Promise<{ pageCover: string; source: 'config' | 'site-root' | 'empty'; coverToken?: string }> {
+  const fromConfig = (configBanner || '').trim()
+  if (fromConfig) {
+    return { pageCover: fromConfig, source: 'config' }
+  }
+
+  const feishu = (siteConfig as any).feishu
+  const rootInput =
+    process.env.FEISHU_SITE_ROOT ||
+    feishu.listRoot ||
+    process.env.FEISHU_LIST_ROOT ||
+    feishu.rootDocumentId ||
+    process.env.FEISHU_ROOT_DOCUMENT_ID ||
+    ''
+
+  if (!rootInput) {
+    return { pageCover: '', source: 'empty' }
+  }
+
+  try {
+    let documentId = ''
+    const wikiToken = parseWikiToken(String(rootInput))
+    if (wikiToken) {
+      const node = await resolveWikiNode(wikiToken)
+      documentId = node?.obj_token || ''
+    } else if (/^[A-Za-z0-9_-]{10,}$/.test(String(rootInput).trim())) {
+      // bare docx token
+      documentId = String(rootInput).trim()
+    }
+    if (!documentId) {
+      return { pageCover: '', source: 'empty' }
+    }
+    const meta = await getDocumentMeta(documentId)
+    const token = meta?.cover?.token
+    if (!token) {
+      return { pageCover: '', source: 'empty' }
+    }
+    return {
+      pageCover: mediaUrl(token) || '',
+      source: 'site-root',
+      coverToken: token
+    }
+  } catch (e) {
+    console.warn('[feishu] resolveSitePageCover failed', e)
+    return { pageCover: '', source: 'empty' }
+  }
+}
+
 
 function summarizePlainText(plain: string, maxLen = 120): string {
   const s = (plain || '').replace(/\s+/g, ' ').trim()
@@ -594,8 +654,74 @@ function parseConfigValue(raw: string): any {
 }
 
 /**
- * Load site config from Feishu CONFIG-TABLE (1:1 Notion CONFIG-TABLE rules).
- * Only enabled rows; INLINE_CONFIG object merges on top.
+ * Whether CONFIG-TABLE 「启用」is on.
+ * Feishu often omits unchecked checkboxes → missing means OFF.
+ */
+export function isConfigRowEnabled(enabledRaw: unknown): boolean {
+  if (enabledRaw === true || enabledRaw === 1) return true
+  if (typeof enabledRaw === 'string') {
+    const s = enabledRaw.trim().toLowerCase()
+    return s === 'true' || s === 'yes' || s === '是' || s === '1'
+  }
+  if (Array.isArray(enabledRaw) && enabledRaw.length === 1) {
+    return isConfigRowEnabled(enabledRaw[0])
+  }
+  return false
+}
+
+/**
+ * Feature-flag style keys: when row exists but 启用 is off → force `false`
+ * (override blog.config defaults that are often true).
+ * Non-listed keys with boolean 配置值 also get the same treatment.
+ */
+const BOOLEAN_FEATURE_KEYS = new Set([
+  'THEME_SWITCH',
+  'CAN_COPY',
+  'CUSTOM_MENU',
+  'WIDGET_PET',
+  'WIDGET_PET_SWITCH_THEME',
+  'POST_SHARE_BAR_ENABLE',
+  'POST_TITLE_ICON',
+  'POST_LIST_COVER',
+  'POST_DISABLE_GALLERY_CLICK',
+  'POST_DISABLE_DATABASE_CLICK',
+  'CUSTOM_RIGHT_CLICK_CONTEXT_MENU',
+  'CUSTOM_RIGHT_CLICK_CONTEXT_MENU_THEME_SWITCH',
+  'CUSTOM_RIGHT_CLICK_CONTEXT_MENU_DARK_MODE',
+  'ENABLE_RSS',
+  'PSEUDO_STATIC',
+  'POST_LIST_PREVIEW',
+  'POST_SCHEDULE_PUBLISH',
+  'TAG_SORT_BY_COUNT',
+  'IS_TAG_COLOR_DISTINGUISHED',
+  'CODE_MAC_BAR',
+  'CODE_COLLAPSE',
+  'CODE_COLLAPSE_EXPAND_DEFAULT',
+  'PRISM_THEME_SWITCH',
+  'MUSIC_PLAYER',
+  'MUSIC_PLAYER_VISIBLE',
+  'MUSIC_PLAYER_AUTO_PLAY',
+  'ANALYTICS_BUSUANZI_ENABLE',
+  'EXAMPLE_POST_LIST_COVER',
+  'EXAMPLE_TITLE_IMAGE',
+])
+
+function isBooleanConfigValue(parsed: unknown, valueRaw: string, key: string): boolean {
+  if (typeof parsed === 'boolean') return true
+  if (BOOLEAN_FEATURE_KEYS.has(key)) return true
+  const s = (valueRaw || '').trim().toLowerCase()
+  return s === 'true' || s === 'false'
+}
+
+/**
+ * Load site config from Feishu CONFIG-TABLE.
+ *
+ * Product model (Feishu-friendly):
+ * - 「配置值」for feature flags should be `true` (the ON value when enabled)
+ * - 「启用」is the only switch: checked → use 配置值; unchecked → false for booleans
+ * - String configs (TITLE/LINK/THEME…): checked → use value; unchecked → ignore (env/default)
+ *
+ * Do NOT put `false` in 配置值 to mean "default off" — leave 启用 unchecked instead.
  */
 export async function loadConfigMap(): Promise<Record<string, any>> {
   const feishu = siteConfig.feishu as any
@@ -606,25 +732,39 @@ export async function loadConfigMap(): Promise<Record<string, any>> {
     const records = await listBitableRecordsFrom(appToken, tableId)
     const map: Record<string, any> = {}
     for (const r of records) {
-      const key = extractTextField(r.fields['配置名'] ?? r.fields['key'] ?? r.fields['Key']).trim()
-      const valueRaw = extractTextField(r.fields['配置值'] ?? r.fields['value'] ?? r.fields['Value'])
-      const enabledRaw = r.fields['启用'] ?? r.fields['enable'] ?? r.fields['Enable']
-      const hasEnableCol =
-        Object.prototype.hasOwnProperty.call(r.fields || {}, '启用') ||
-        Object.prototype.hasOwnProperty.call(r.fields || {}, 'enable') ||
-        Object.prototype.hasOwnProperty.call(r.fields || {}, 'Enable')
-      const enabled =
-        enabledRaw === true ||
-        enabledRaw === 1 ||
-        enabledRaw === 'true' ||
-        enabledRaw === 'Yes' ||
-        enabledRaw === '是' ||
-        String(extractTextField(enabledRaw as any)).toLowerCase() === 'true'
+      const fields = r.fields || {}
+      const key = extractTextField(
+        fields['配置名'] ?? fields['key'] ?? fields['Key']
+      ).trim()
       if (!key) continue
-      if (hasEnableCol && !enabled) continue
-      map[key] = parseConfigValue(valueRaw)
+
+      const valueRaw = extractTextField(
+        fields['配置值'] ?? fields['value'] ?? fields['Value']
+      )
+      const enabledRaw = fields['启用'] ?? fields['enable'] ?? fields['Enable']
+      const enabled = isConfigRowEnabled(enabledRaw)
+      let parsed = parseConfigValue(valueRaw)
+
+      // Feature flags: empty 配置值 + 启用 = treat as true (on)
+      if (
+        enabled &&
+        (parsed === '' || parsed == null) &&
+        BOOLEAN_FEATURE_KEYS.has(key)
+      ) {
+        parsed = true
+      }
+
+      if (enabled) {
+        map[key] = parsed
+        continue
+      }
+
+      // 未启用：布尔类配置强制 false，避免回落到 blog.config 的 true
+      if (isBooleanConfigValue(parsed, valueRaw, key)) {
+        map[key] = false
+      }
+      // 字符串/JSON/数字：未启用则不写入
     }
-    // NotionNext: INLINE_CONFIG merges into root config
     if (map.INLINE_CONFIG && typeof map.INLINE_CONFIG === 'object' && !Array.isArray(map.INLINE_CONFIG)) {
       Object.assign(map, map.INLINE_CONFIG)
     }

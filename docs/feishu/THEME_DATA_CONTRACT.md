@@ -181,6 +181,24 @@ interface BasePage {
 
 不要自己拼飞书 `feishu.cn/wiki/...` 当站内链（除非外链按钮）。
 
+
+
+## 2.6 封面与图标（飞书差异）
+
+| 字段 | 飞书来源 | 主题用法 |
+|---|---|---|
+| `pageCoverThumbnail` | 文档 meta `cover.token` → `/api/feishu/media/{token}` | 列表封面、TitleBar 背景 |
+| `siteInfo.pageCover` | ① CONFIG `HOME_BANNER_IMAGE`（启用）② 否则主配置页/wiki 的 docx `cover.token`（`FEISHU_SITE_ROOT` / `FEISHU_LIST_ROOT`） | 无文封面时的站级背景 |
+| `pageIcon` | **无稳定文档图标 OpenAPI** | `NotionIcon`：可空 |
+
+**pageIcon 解析优先级（adapter 已做）：**
+
+1. 内容表「图标」列：emoji / 图片 URL / `fas fa-xxx`
+2. 标题开头的 emoji（飞书里常见把图标写进标题）
+3. 空 → 主题不显示图标（与 Notion 有 icon 时不同，属预期降级）
+
+**主题不要**假设每篇文章都有 `pageIcon`；封面有则用，图标可缺。
+
 ### 2.3 详情：`post` 在 BasePage 上的扩展字段
 
 `enrichFeishuPost` 之后，详情 props 上的 `post` 额外包含：
