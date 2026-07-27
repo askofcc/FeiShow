@@ -137,30 +137,6 @@ export async function getStaticProps({ params: { prefix }, locale }) {
     locale,
   })
 
-  // Canonical post URL is /article/{slug} (POST_URL_PREFIX).
-  // Bare /{slug} is for Page/Notice only — avoid dual paths for posts.
-  const post = props?.post
-  const postPrefix = siteConfig(
-    'POST_URL_PREFIX',
-    BLOG.POST_URL_PREFIX || 'article',
-    props?.NOTION_CONFIG
-  )
-    ?.replace(/^\/|\/$/g, '')
-    .split('/')[0] || 'article'
-  if (
-    post &&
-    (post.type === 'Post' || post?.ext?.feishuType === 'post') &&
-    post.slug &&
-    prefix === post.slug
-  ) {
-    return {
-      redirect: {
-        destination: `/${postPrefix}/${post.slug}`,
-        permanent: true
-      }
-    }
-  }
-
   return {
     props,
     revalidate: isStaticExport

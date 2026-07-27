@@ -21,34 +21,13 @@ const PrefixSlug = props => {
 export async function getStaticPaths() {
   return getStaticPathsBase({
     from: 'slug-paths',
-    filterFn: row => {
-      // Notion style: slug already "article/xxx"
-      if (checkSlugHasOneSlash(row)) return true
-      // Feishu posts: slug is bare node_token, canonical path /article/{slug}
-      if (row.type === 'Post' || row?.ext?.feishuType === 'post') {
-        return Boolean(row.slug) && !String(row.slug).includes('/')
+    filterFn: row => checkSlugHasOneSlash(row),
+    mapPageToParams: row => ({
+      params: {
+        prefix: row.slug.split('/')[0],
+        slug: row.slug.split('/')[1]
       }
-      return false
-    },
-    mapPageToParams: row => {
-      if (checkSlugHasOneSlash(row)) {
-        return {
-          params: {
-            prefix: row.slug.split('/')[0],
-            slug: row.slug.split('/')[1]
-          }
-        }
-      }
-      // Post → /article/{slug}
-      const prefix =
-        (row.href || '').replace(/^\//, '').split('/')[0] || 'article'
-      return {
-        params: {
-          prefix,
-          slug: row.slug
-        }
-      }
-    }
+    })
   })
 }
 
