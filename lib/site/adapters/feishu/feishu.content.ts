@@ -99,17 +99,50 @@ function field(record: BitableRecord, name: string) {
 }
 
 
-/** Bare site path: slug = token, href = /token (no /article prefix). */
-function toSitePath(tokenOrSlug: string): { slug: string; href: string } {
-  let raw = String(tokenOrSlug || '').trim()
+/**
+ * Align with NotionNext conf/post.config.js POST_URL_PREFIX (default "article").
+ * Empty string = no prefix (official also supports this).
+ * Themes use both post.href and `/${post.slug}` — both must be the full path.
+ */
+function getPostUrlPrefix(): string {
+  // Match: process.env.NEXT_PUBLIC_POST_URL_PREFIX ?? 'article'
+  const env = process.env.NEXT_PUBLIC_POST_URL_PREFIX
+  const raw = env === undefined || env === null ? 'article' : String(env)
+  // only use first static segment (date patterns not used for Feishu tokens)
+  return raw.replace(/^\/|\/$/g, '').split('/').filter(s => s && !s.includes('%'))[0] || ''
+}
+
+function stripKnownPrefixes(raw: string): string {
+  let s = String(raw || '').trim().replace(/^\//, '')
+  if (!s) return ''
+  // unwrap one leading "article/" or configured prefix if duplicated
+  const prefix = getPostUrlPrefix()
+  if (prefix && s.startsWith(prefix + '/')) s = s.slice(prefix.length + 1)
+  else if (s.startsWith('article/')) s = s.slice('article/'.length)
+  return s
+}
+
+/** Page/Menu: bare /{slug} */
+function toPageSlugAndHref(tokenOrSlug: string): { slug: string; href: string } {
+  const raw = stripKnownPrefixes(tokenOrSlug)
   if (!raw) return { slug: '', href: '#' }
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
     return { slug: raw, href: raw }
   }
-  raw = raw.replace(/^\//, '')
-  // strip legacy "article/" if present
-  if (raw.startsWith('article/')) raw = raw.slice('article/'.length)
   return { slug: raw, href: `/${raw}` }
+}
+
+/** Post: slug = "article/TOKEN", href = "/article/TOKEN" (or bare if prefix empty) */
+function toPostSlugAndHref(tokenOrSlug: string): { slug: string; href: string } {
+  if (String(tokenOrSlug || '').startsWith('http://') || String(tokenOrSlug || '').startsWith('https://')) {
+    return { slug: String(tokenOrSlug), href: String(tokenOrSlug) }
+  }
+  const token = stripKnownPrefixes(tokenOrSlug)
+  if (!token) return { slug: '', href: '#' }
+  const prefix = getPostUrlPrefix()
+  if (!prefix) return { slug: token, href: `/${token}` }
+  const slug = `${prefix}/${token}`
+  return { slug, href: `/${slug}` }
 }
 
 export async function loadContentRows(): Promise<ContentRow[]> {
@@ -132,18 +165,24 @@ export async function loadContentRows(): Promise<ContentRow[]> {
     const date = extractDate(field(record, f.date))
     const category = extractTextField(field(record, f.category)) || undefined
     const tags = extractMultiSelect(field(record, f.tags))
-    // All internal content: bare /{slug} (no /article). Themes using /${slug} or href stay consistent.
+    // Posts: full path in slug+href (NotionNext default article/). Pages/menus: bare.
     let finalSlug = slug
     let href: string
     if (slug.startsWith('http://') || slug.startsWith('https://')) {
       href = slug
-    } else {
-      const path = toSitePath(type === 'notice' && customSlug ? customSlug : slug)
+    } else if (type === 'page' || type === 'menu' || type === 'submenu') {
+      const path = toPageSlugAndHref(type === 'page' && customSlug ? customSlug : slug)
       finalSlug = path.slug
       href = path.href
-      if (type === 'page' || type === 'menu' || type === 'submenu') {
-        // keep as-is
-      }
+    } else if (type === 'notice') {
+      const path = customSlug ? toPageSlugAndHref(customSlug) : toPostSlugAndHref(slug)
+      finalSlug = path.slug
+      href = path.href
+    } else {
+      // post
+      const path = toPostSlugAndHref(slug)
+      finalSlug = path.slug
+      href = path.href
     }
 
     return {
@@ -188,7 +227,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         if (row.type === 'page') {
           href = `/${stableSlug}`
         } else if (row.type === 'post') {
-          const p = toSitePath(stableSlug)
+          const p = toPostSlugAndHref(stableSlug)
           stableSlug = p.slug
           href = p.href
         } else if (row.type === 'notice') {
@@ -196,7 +235,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
             href = `/${row.customSlug}`
             stableSlug = row.customSlug
           } else {
-            const p = toSitePath(stableSlug)
+            const p = toPostSlugAndHref(stableSlug)
             stableSlug = p.slug
             href = p.href
           }
@@ -235,7 +274,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         if (row.type === 'page') {
           href = `/${stableSlug}`
         } else if (row.type === 'post') {
-          const p = toSitePath(stableSlug)
+          const p = toPostSlugAndHref(stableSlug)
           stableSlug = p.slug
           href = p.href
         } else if (row.type === 'notice') {
@@ -243,7 +282,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
             href = `/${row.customSlug}`
             stableSlug = row.customSlug
           } else {
-            const p = toSitePath(stableSlug)
+            const p = toPostSlugAndHref(stableSlug)
             stableSlug = p.slug
             href = p.href
           }
@@ -279,7 +318,7 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
         if (!nodeToken && !documentId) continue
         const title = child.title || '未命名文档'
         const token = nodeToken || documentId!
-        const path = toSitePath(token)
+        const path = toPostSlugAndHref(token)
         posts.push({
           recordId: `cat:${cat.recordId}:${token}`,
           title,
