@@ -331,6 +331,48 @@ export async function resolveSitePageCover(
 }
 
 
+
+/**
+ * Article/list cover cascade (display only):
+ *   1) own document cover
+ *   2) category parent wiki/doc cover (by category title)
+ *   3) site-wide pageCover (CONFIG banner or site-root cover)
+ */
+export function applyCoverCascade(
+  posts: ContentRow[],
+  categoryRows: ContentRow[],
+  siteCoverUrl?: string | null
+): ContentRow[] {
+  const catCover = new Map<string, { coverUrl?: string; coverToken?: string }>()
+  for (const c of categoryRows) {
+    const name = (c.title || '').trim()
+    if (!name) continue
+    if (c.coverUrl || c.coverToken) {
+      catCover.set(name, {
+        coverUrl: c.coverUrl || mediaUrl(c.coverToken),
+        coverToken: c.coverToken
+      })
+    }
+  }
+  const site = (siteCoverUrl || '').trim()
+  return posts.map(p => {
+    if (p.coverUrl || p.coverToken) return p
+    const catName = (p.category || '').trim()
+    const fromCat = catName ? catCover.get(catName) : undefined
+    if (fromCat?.coverUrl || fromCat?.coverToken) {
+      return {
+        ...p,
+        coverToken: fromCat.coverToken || p.coverToken,
+        coverUrl: fromCat.coverUrl || mediaUrl(fromCat.coverToken) || p.coverUrl
+      }
+    }
+    if (site) {
+      return { ...p, coverUrl: site }
+    }
+    return p
+  })
+}
+
 function summarizePlainText(plain: string, maxLen = 120): string {
   const s = (plain || '').replace(/\s+/g, ' ').trim()
   if (!s) return ''
@@ -473,7 +515,10 @@ export async function fillMissingCovers(
       ({ row }) =>
         !row.coverToken &&
         row.documentId &&
-        (row.type === 'post' || row.type === 'page' || row.type === 'notice')
+        (row.type === 'post' ||
+          row.type === 'page' ||
+          row.type === 'notice' ||
+          row.type === 'category')
     )
   if (!targets.length) return rows
   const out = rows.slice()

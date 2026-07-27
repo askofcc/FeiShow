@@ -199,6 +199,15 @@ interface BasePage {
 
 **主题不要**假设每篇文章都有 `pageIcon`；封面有则用，图标可缺。
 
+**文章 `pageCoverThumbnail` 回退链（adapter）：**
+
+```text
+① 文章自身 docx cover
+② 同名「分类」行对应父文档 cover
+③ 全站 siteInfo.pageCover（CONFIG HOME_BANNER_IMAGE 或主配置页 cover）
+```
+
+
 ### 2.3 详情：`post` 在 BasePage 上的扩展字段
 
 `enrichFeishuPost` 之后，详情 props 上的 `post` 额外包含：

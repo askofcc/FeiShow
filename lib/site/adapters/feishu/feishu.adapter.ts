@@ -9,6 +9,7 @@ import {
   loadFeishuArticleBody,
   resolveDocumentIds,
   resolveSitePageCover,
+  applyCoverCascade,
   type ContentRow
 } from './feishu.content'
 import { resolvePageIcon } from '@/lib/feishu/page-icon'
@@ -144,6 +145,9 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
   let allPostRows = [...postMap.values()]
   let pageRowsFilled = pageRows
   let noticeRowsFilled = noticeRows
+  let categoryRowsFilled = categoryRows
+  // Site banner early — used as last cover fallback for posts without own/category cover
+  const bannerEarly = await resolveSitePageCover(configMap.HOME_BANNER_IMAGE)
   try {
     allPostRows = await fillOfficialDriveFields(allPostRows)
     pageRowsFilled = await fillOfficialDriveFields(pageRowsFilled)
@@ -155,6 +159,14 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     allPostRows = await fillMissingCovers(allPostRows, { concurrency: 4 })
     pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 3 })
     noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
+    // category parent covers for cascade step 2
+    categoryRowsFilled = await fillMissingCovers(categoryRowsFilled, { concurrency: 3 })
+    // post cover: own → category → site
+    allPostRows = applyCoverCascade(
+      allPostRows,
+      categoryRowsFilled,
+      bannerEarly.pageCover
+    )
   } catch (e) {
     console.warn('[feishu] fill drive/summary/cover skipped', e)
   }
@@ -201,10 +213,12 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     }
   }
 
-  // Site banner: CONFIG HOME_BANNER_IMAGE (enabled) → else main wiki/doc cover
-  const banner = await resolveSitePageCover(configMap.HOME_BANNER_IMAGE)
+  // Site banner already resolved as bannerEarly (config → site-root cover)
+  const banner = bannerEarly
   if (banner.source === 'site-root') {
     console.log('[feishu] site pageCover from site-root cover', banner.coverToken)
+  } else if (banner.source === 'config') {
+    console.log('[feishu] site pageCover from CONFIG HOME_BANNER_IMAGE')
   }
 
   const siteData: SiteData = {
