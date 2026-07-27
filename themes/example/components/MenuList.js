@@ -5,12 +5,16 @@ import { MenuItemDrop } from './MenuItemDrop'
 
 /**
  * 导航菜单列表
- * Feishu: CUSTOM_MENU + customMenu from content table (菜单/子菜单)
+ *
+ * Feishu / NotionNext 规则：
+ * - CUSTOM_MENU=true  → 只用内容表「菜单/子菜单」(props.customMenu)
+ * - CUSTOM_MENU=false → 只用主题默认项（搜索/归档/分类/标签），不拼接内容表菜单
+ *
  * @param {*} props
  * @returns
  */
 export const MenuList = props => {
-  const { customNav, customMenu, NOTION_CONFIG } = props
+  const { customMenu, NOTION_CONFIG } = props
   const { locale } = useGlobal()
 
   const defaults = [
@@ -44,26 +48,15 @@ export const MenuList = props => {
     }
   ]
 
-  // Prefer page props config so Feishu adapter CUSTOM_MENU=true is visible
-  const useCustom = siteConfig('CUSTOM_MENU', true, NOTION_CONFIG || props?.NOTION_CONFIG)
-  const menuFromFeishu = Array.isArray(customMenu)
-    ? customMenu
-    : Array.isArray(customNav)
-      ? customNav
-      : []
+  const useCustom = !!siteConfig(
+    'CUSTOM_MENU',
+    false,
+    NOTION_CONFIG || props?.NOTION_CONFIG
+  )
+  const menuFromTable = Array.isArray(customMenu) ? customMenu : []
 
-  let links
-  if (useCustom && menuFromFeishu.length > 0) {
-    // Fully switch to Feishu/Notion Menu rows
-    links = menuFromFeishu
-  } else {
-    links = defaults
-    if (menuFromFeishu.length > 0) {
-      links = links.concat(menuFromFeishu)
-    } else if (customNav) {
-      links = links.concat(customNav)
-    }
-  }
+  // Strict: custom OR defaults — never silent-merge both (that caused "not my config")
+  const links = useCustom && menuFromTable.length > 0 ? menuFromTable : defaults
 
   if (!links || links.length === 0) {
     return null
@@ -74,7 +67,10 @@ export const MenuList = props => {
       <div className='mx-auto max-w-4xl md:flex justify-between items-center text-sm md:text-md md:justify-start'>
         <ul className='w-full text-center md:text-left flex flex-wrap justify-center items-stretch md:justify-start md:items-start'>
           {links.map((link, index) => (
-            <MenuItemDrop key={link?.id || link?.name || link?.title || index} link={link} />
+            <MenuItemDrop
+              key={link?.id || link?.name || link?.title || index}
+              link={link}
+            />
           ))}
         </ul>
       </div>
