@@ -5,14 +5,15 @@ import { MenuItemDrop } from './MenuItemDrop'
 
 /**
  * 导航菜单列表
+ * Feishu: CUSTOM_MENU + customMenu from content table (菜单/子菜单)
  * @param {*} props
  * @returns
  */
 export const MenuList = props => {
-  const { customNav, customMenu } = props
+  const { customNav, customMenu, NOTION_CONFIG } = props
   const { locale } = useGlobal()
 
-  let links = [
+  const defaults = [
     {
       id: 1,
       icon: 'fas fa-search',
@@ -43,13 +44,25 @@ export const MenuList = props => {
     }
   ]
 
-  if (customNav) {
-    links = links.concat(customNav)
-  }
+  // Prefer page props config so Feishu adapter CUSTOM_MENU=true is visible
+  const useCustom = siteConfig('CUSTOM_MENU', true, NOTION_CONFIG || props?.NOTION_CONFIG)
+  const menuFromFeishu = Array.isArray(customMenu)
+    ? customMenu
+    : Array.isArray(customNav)
+      ? customNav
+      : []
 
-  // 如果 开启自定义菜单，则不再使用 Page生成菜单。
-  if (siteConfig('CUSTOM_MENU')) {
-    links = customMenu
+  let links
+  if (useCustom && menuFromFeishu.length > 0) {
+    // Fully switch to Feishu/Notion Menu rows
+    links = menuFromFeishu
+  } else {
+    links = defaults
+    if (menuFromFeishu.length > 0) {
+      links = links.concat(menuFromFeishu)
+    } else if (customNav) {
+      links = links.concat(customNav)
+    }
   }
 
   if (!links || links.length === 0) {
@@ -61,12 +74,9 @@ export const MenuList = props => {
       <div className='mx-auto max-w-4xl md:flex justify-between items-center text-sm md:text-md md:justify-start'>
         <ul className='w-full text-center md:text-left flex flex-wrap justify-center items-stretch md:justify-start md:items-start'>
           {links.map((link, index) => (
-            <MenuItemDrop key={index} link={link} />
+            <MenuItemDrop key={link?.id || link?.name || link?.title || index} link={link} />
           ))}
         </ul>
-        {/* <div className="w-full md:w-1/3 text-center md:text-right"> */}
-        {/* <!-- extra links --> */}
-        {/* </div> */}
       </div>
     </nav>
   )

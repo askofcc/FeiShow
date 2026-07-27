@@ -63,6 +63,8 @@ export type ContentRow = {
   nodeToken?: string
   href?: string
   order?: number
+  /** 子菜单挂靠的父菜单标题（可选列「父菜单」） */
+  parentMenu?: string
   /** wiki owner/creator open_id */
   ownerId?: string
   coverToken?: string
@@ -122,13 +124,18 @@ function stripKnownPrefixes(raw: string): string {
   return s
 }
 
-/** Page/Menu: bare /{slug} */
+/** Page/Menu: bare /{slug}; explicit "/" means site home */
 function toPageSlugAndHref(tokenOrSlug: string): { slug: string; href: string } {
-  const raw = stripKnownPrefixes(tokenOrSlug)
-  if (!raw) return { slug: '', href: '#' }
-  if (raw.startsWith('http://') || raw.startsWith('https://')) {
-    return { slug: raw, href: raw }
+  const original = String(tokenOrSlug || '').trim()
+  if (original === '/' || original === '') {
+    // empty only when caller wants home; bare empty → home for menus handled upstream
+    return { slug: '', href: '/' }
   }
+  if (original.startsWith('http://') || original.startsWith('https://')) {
+    return { slug: original, href: original }
+  }
+  const raw = stripKnownPrefixes(original)
+  if (!raw) return { slug: '', href: '/' }
   return { slug: raw, href: `/${raw}` }
 }
 
@@ -165,13 +172,50 @@ export async function loadContentRows(): Promise<ContentRow[]> {
     const date = extractDate(field(record, f.date))
     const category = extractTextField(field(record, f.category)) || undefined
     const tags = extractMultiSelect(field(record, f.tags))
+    const orderRaw = field(record, f.order || '排序')
+    let orderNum: number | undefined
+    if (typeof orderRaw === 'number' && Number.isFinite(orderRaw)) {
+      orderNum = orderRaw
+    } else {
+      const ot = extractTextField(orderRaw).trim()
+      if (ot && /^-?\d+(\.\d+)?$/.test(ot)) orderNum = Number(ot)
+    }
+    if (orderNum === undefined) orderNum = index
+    const parentMenu =
+      extractTextField(
+        field(record, '父菜单') || field(record, 'parent') || field(record, 'Parent')
+      ).trim() || undefined
     // Posts: full path in slug+href (NotionNext default article/). Pages/menus: bare.
+    // Menus without slug are dropdown parents → href "#", not record_id garbage links.
     let finalSlug = slug
     let href: string
     if (slug.startsWith('http://') || slug.startsWith('https://')) {
       href = slug
-    } else if (type === 'page' || type === 'menu' || type === 'submenu') {
-      const path = toPageSlugAndHref(type === 'page' && customSlug ? customSlug : slug)
+      finalSlug = slug
+    } else if (type === 'menu' || type === 'submenu') {
+      if (customSlug) {
+        if (customSlug === '/') {
+          finalSlug = ''
+          href = '/'
+        } else if (customSlug.startsWith('http://') || customSlug.startsWith('https://')) {
+          finalSlug = customSlug
+          href = customSlug
+        } else {
+          const path = toPageSlugAndHref(customSlug)
+          finalSlug = path.slug
+          href = path.href
+        }
+      } else if (docToken) {
+        const path = toPageSlugAndHref(docToken)
+        finalSlug = path.slug
+        href = path.href
+      } else {
+        // Parent-only menu or empty submenu link
+        finalSlug = record.record_id
+        href = '#'
+      }
+    } else if (type === 'page') {
+      const path = toPageSlugAndHref(customSlug || slug)
       finalSlug = path.slug
       href = path.href
     } else if (type === 'notice') {
@@ -199,7 +243,8 @@ export async function loadContentRows(): Promise<ContentRow[]> {
       tags,
       docToken,
       href,
-      order: index
+      order: orderNum,
+      parentMenu
     }
   })
 }

@@ -6,6 +6,18 @@ import { useState } from 'react'
  * @param {*} param0
  * @returns
  */
+function isFaIcon(icon) {
+  if (!icon || typeof icon !== 'string') return false
+  return /(^|\s)(fa[srlbd]?|fas|far|fal|fab|fa)\s/.test(icon) || icon.includes('fa-')
+}
+
+function MenuIcon({ icon }) {
+  if (!icon) return null
+  if (isFaIcon(icon)) return <i className={icon} />
+  // emoji / plain text icon
+  return <span className='mr-1'>{icon}</span>
+}
+
 export const MenuItemDrop = ({ link }) => {
   const [show, changeShow] = useState(false)
   const hasSubMenu = link?.subMenus?.length > 0
@@ -24,14 +36,14 @@ export const MenuItemDrop = ({ link }) => {
       {!hasSubMenu && (
         <div className='rounded px-2 md:pl-0 md:mr-3 my-4 md:pr-3 text-gray-700 dark:text-gray-200 no-underline md:border-r border-gray-light'>
           <SmartLink href={link?.href} target={link?.target}>
-            {link?.icon && <i className={link?.icon} />} {label}
+            <MenuIcon icon={link?.icon} /> {label}
           </SmartLink>
         </div>
       )}
 
       {hasSubMenu && (
         <div className='rounded px-2 md:pl-0 md:mr-3 my-4 md:pr-3 text-gray-700 dark:text-gray-200 no-underline md:border-r border-gray-light'>
-          {link?.icon && <i className={link?.icon} />} {label}
+          <MenuIcon icon={link?.icon} /> {label}
           <i
             className={`px-2 fas fa-chevron-down duration-500 transition-all ${show ? ' rotate-180' : ''}`}></i>
         </div>
@@ -50,7 +62,7 @@ export const MenuItemDrop = ({ link }) => {
                 className='not:last-child:border-b-0 border-b text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 tracking-widest transition-all duration-200 dark:border-gray-800 py-3 pr-6 pl-3'>
                 <SmartLink href={sLink.href} target={sLink?.target || link?.target}>
                   <span className='text-sm text-nowrap font-extralight'>
-                    {sLink?.icon && <i className={sLink.icon}> &nbsp; </i>}
+                    {sLink?.icon ? (isFaIcon(sLink.icon) ? <i className={sLink.icon}> &nbsp; </i> : <span className="mr-1">{sLink.icon}</span>) : null}
                     {subLabel}
                   </span>
                 </SmartLink>

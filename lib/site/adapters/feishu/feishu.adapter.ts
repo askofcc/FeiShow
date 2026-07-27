@@ -86,34 +86,86 @@ function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
   } as BasePage
 }
 
+function isExternalHref(href?: string | null): boolean {
+  return !!href && (href.startsWith('http://') || href.startsWith('https://'))
+}
+
+/** Only FontAwesome-like classes; emoji/text must not go into className. */
+function menuIconClass(icon?: string | null): string | null {
+  if (!icon) return null
+  const s = String(icon).trim()
+  if (!s) return null
+  if (/(^|\s)(fa[srlbd]?|fas|far|fal|fab|fa)\s/.test(s) || s.includes('fa-')) return s
+  return null
+}
+
+function stripLeadingEmoji(label: string): string {
+  try {
+    return label.replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+/u, '').trim()
+  } catch {
+    return label
+  }
+}
+
 function buildMenus(rows: ContentRow[]): MenuItem[] {
+  // Only menu/submenu rows; order by 排序 then stable recordId
+  const menuRows = rows.filter(r => r.type === 'menu' || r.type === 'submenu')
+  const sorted = [...menuRows].sort((a, b) => {
+    const ao = a.order ?? 0
+    const bo = b.order ?? 0
+    if (ao !== bo) return ao - bo
+    return (a.recordId || '').localeCompare(b.recordId || '')
+  })
+
   const menus: MenuItem[] = []
+  const byName = new Map<string, MenuItem>()
   let current: MenuItem | null = null
-  for (const row of rows) {
+
+  for (const row of sorted) {
     const label = (row.title || '').trim()
     if (!label) continue
+
+    const href = row.href && String(row.href).trim() ? String(row.href).trim() : '#'
+    const icon = menuIconClass(row.icon)
+    const target = isExternalHref(href) ? '_blank' : undefined
+
     if (row.type === 'menu') {
       current = {
-        // Themes use either name or title depending on component.
         name: label,
         title: label,
-        icon: row.icon || null,
-        href: row.href || '/',
+        icon,
+        href,
+        to: href,
+        target,
         show: true,
-        subMenus: []
-      }
+        subMenus: [] as MenuItem[]
+      } as MenuItem
       menus.push(current)
-    } else if (row.type === 'submenu') {
-      const item: MenuItem = {
+      byName.set(label, current)
+      const bare = stripLeadingEmoji(label)
+      if (bare && bare !== label) byName.set(bare, current)
+      continue
+    }
+
+    if (row.type === 'submenu') {
+      const item = {
         name: label,
         title: label,
-        icon: row.icon || null,
-        href: row.href || '/',
+        icon,
+        href,
+        to: href,
+        target,
         show: true
-      }
-      if (current) {
-        current.subMenus = current.subMenus || []
-        current.subMenus.push(item)
+      } as MenuItem
+      const parentName = (row.parentMenu || '').trim()
+      const parent =
+        (parentName &&
+          (byName.get(parentName) || byName.get(stripLeadingEmoji(parentName)))) ||
+        current ||
+        null
+      if (parent) {
+        parent.subMenus = parent.subMenus || []
+        parent.subMenus.push(item)
       } else {
         menus.push(item)
       }
@@ -181,6 +233,11 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
 
   const posts = allPages.filter(p => p.type === 'Post' && p.status === 'Published')
   const customMenu = buildMenus(menus)
+  // Themes only fully switch to customMenu when CUSTOM_MENU is truthy.
+  if (customMenu.length > 0) {
+    configMap.CUSTOM_MENU = true
+    configMap.NEXT_PUBLIC_CUSTOM_MENU = true
+  }
 
   const categoryCount = new Map<string, number>()
   const tagCount = new Map<string, number>()
