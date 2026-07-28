@@ -52,7 +52,7 @@
 
 | 名字 | 是什么 |
 |---|---|
-| `feishu/main` | FeishuNext 产品线（日常开发） |
+| `main` | FeishuNext 产品线（日常开发） |
 | `main`（本地） | 历史上游锚点，勿当产品默认 |
 | `upstream/main` | NotionNext 官方主线（只读） |
 | `origin/*` | GitHub askofcc/FeishuNext |

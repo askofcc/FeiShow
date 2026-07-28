@@ -17,7 +17,7 @@ origin    → git@github.com:askofcc/FeishuNext.git
 upstream  → https://github.com/notionnext-org/NotionNext.git
 ```
 
-工作分支示例：`feishu/main`（飞书产品线）。
+工作分支示例：`main`（飞书产品线）。
 
 ## 同步策略
 
@@ -29,7 +29,7 @@ upstream  → https://github.com/notionnext-org/NotionNext.git
 
 ```bash
 git fetch upstream
-git log feishu/main..upstream/main --oneline -- themes components pages
+git log main..upstream/main --oneline -- themes components pages
 # 小改 cherry-pick；主题目录可：
 #   git checkout upstream/main -- themes/example
 # 然后飞书 live 冒烟：首页 + 文章 + example/simple
@@ -50,4 +50,4 @@ git config remote.upstream.fetch '+refs/heads/main:refs/remotes/upstream/main'
 git fetch upstream --prune
 ```
 
-本产品日常只使用本地 **`feishu/main`**。
+本产品日常只使用本地 **`main`**。

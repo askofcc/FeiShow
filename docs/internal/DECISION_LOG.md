@@ -210,13 +210,13 @@ Notion 全字段镜像表
 ### 6.2 分支为何曾很乱
 
 - `fetch upstream` 默认拉 NotionNext **全部分支**（上百条 deploy/codex/…）→ 看起来像本仓分支爆炸  
-- 本地曾并存 `main`（上游锚点）、`feishu/main`（产品）、旧 export  
+- 本地曾并存 `main`（上游锚点）、`main`（产品）、旧 export  
 
 **约定：**
 
 | 名字 | 含义 |
 |---|---|
-| **`feishu/main`** | 产品主线（日常只在这开发） |
+| **`main`** | 产品主线（日常只在这开发） |
 | `upstream/main` | 只读跟踪 NotionNext（已限制只 fetch main） |
 | `origin/*` | 私有 GitHub |
 
@@ -245,7 +245,7 @@ Notion 全字段镜像表
 
 ### 8.1 日常开发
 
-1. 分支只用 **`feishu/main`**。  
+1. 分支只用 **`main`**。  
 2. 改飞书逻辑：只动 `lib/feishu/**`、`lib/site/adapters/feishu/**`、`components/feishu/**`、`docs/feishu/**`。  
 3. 改皮肤：优先 `themes/*`，保持 `THEME_DATA_CONTRACT` 字段。  
 4. 不要为了「像 Notion」再引入 recordMap 主路径。  
@@ -313,4 +313,4 @@ Notion 全字段镜像表
 
 > 我们做过战略选择：**不造编辑器、不造假 Notion 数据、二开站点壳、飞书官方 API 结构化展示。**  
 > 主路径已经通；现在是运维与增强，不是推倒重来。  
-> 细节以 `docs/feishu/` 为准，分支以 `feishu/main` 为准。
+> 细节以 `docs/feishu/` 为准，分支以 `main` 为准。

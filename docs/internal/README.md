@@ -29,3 +29,8 @@
 ## 产品入口
 
 根目录 [README.md](../../README.md) · 演示 https://feishunext.srint.cn/
+
+## 分支
+
+产品只保留 **`main`**（`origin/main`）。  
+`upstream/main` 为 NotionNext 只读跟踪，不是功能分支。

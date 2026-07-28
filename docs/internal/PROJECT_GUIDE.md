@@ -163,9 +163,9 @@ NEXT_PUBLIC_THEME=example
 
 | 分支 / 引用 | 含义 | 你日常 |
 |---|---|---|
-| **`feishu/main`** | **FeishuNext 产品主线**（当前应在这开发） | 默认工作分支 |
+| **`main`** | **FeishuNext 产品主线**（当前应在这开发） | 默认工作分支 |
 | `main`（本地） | clone 时的上游历史锚点，**不是**飞书产品线 | 一般别在这写功能 |
-| `origin/feishu/main` | GitHub 上的产品线远程 | `git push origin feishu/main` |
+| `origin/main` | GitHub 产品远程 | `git push origin main` |
 | `origin/main` | 远程默认分支；可能仍是旧导出 | 可按需改默认分支或快进合并 |
 | `upstream/main` | NotionNext 官方主线（**只读跟踪**） | 仅同步前端时 fetch |
 
@@ -185,15 +185,15 @@ git fetch upstream --prune
 
 ```bash
 # 开发
-git checkout feishu/main
+git checkout main
 # …
 
 # 推自己的产品线（私有仓）
-git push -u origin feishu/main
+git push -u origin main
 
 # 看上游前端更新（不自动合并）
 git fetch upstream
-git log feishu/main..upstream/main --oneline -- themes components | head
+git log main..upstream/main --oneline -- themes components | head
 ```
 
 同步策略细节：[UPSTREAM.md](./UPSTREAM.md)
@@ -290,5 +290,5 @@ git log feishu/main..upstream/main --oneline -- themes components | head
 ## 7. 一句话收束
 
 > **FeishuNext = 飞书展示向结构化数据层 + NotionNext 站点壳。**  
-> 分支上请盯住 **`feishu/main`**；上游上百条 remote 分支是 NotionNext 的历史，不是我们的功能分支。  
+> 分支上请盯住 **`main`**；上游上百条 remote 分支是 NotionNext 的历史，不是我们的功能分支。  
 > 现在把结构做对；AI 就绪是同一结构上的下一章，不是另一条产品。
