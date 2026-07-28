@@ -38,3 +38,16 @@ git log feishu/main..upstream/main --oneline -- themes components pages
 验收必须用 `CMS_PROVIDER=feishu` 与真实飞书表，不要用 Notion demo 当通过标准。
 
 每次同步建议在 commit message 注明：`upstream: <date/sha> 合入… / 跳过…`。
+
+## 减少分支列表噪音
+
+默认 `git fetch upstream` 会把 NotionNext **所有**远程分支拉成 `remotes/upstream/*`（上百条 codex/deploy/release），看起来像「本仓库分支爆炸」。
+
+建议只跟踪上游 main：
+
+```bash
+git config remote.upstream.fetch '+refs/heads/main:refs/remotes/upstream/main'
+git fetch upstream --prune
+```
+
+本产品日常只使用本地 **`feishu/main`**。
