@@ -273,6 +273,7 @@ git log feishu/main..upstream/main --oneline -- themes components | head
 
 | 顺序 | 文档 | 用途 |
 |---|---|---|
+| 0 | [DECISION_LOG.md](./DECISION_LOG.md) | **讨论共识与运维注意（回看决策）** |
 | 1 | **本文 PROJECT_GUIDE** | 全局叙事 |
 | 2 | [PROJECT_SOUL.md](./PROJECT_SOUL.md) | 痛点与价值 |
 | 3 | [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 三块数据与边界 |

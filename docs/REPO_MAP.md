@@ -7,7 +7,8 @@
 | 路径 | 说明 |
 |---|---|
 | [README.md](../README.md) | 产品入口 |
-| [feishu/PROJECT_GUIDE.md](./feishu/PROJECT_GUIDE.md) | **通读总览** |
+| [feishu/PROJECT_GUIDE.md](./feishu/PROJECT_GUIDE.md) | 结构总览 |
+| [feishu/DECISION_LOG.md](./feishu/DECISION_LOG.md) | **决策/共识/运维（回看讨论）** |
 | [docs/feishu/PROJECT_SOUL.md](./feishu/PROJECT_SOUL.md) | 为什么做 |
 | [docs/feishu/THEME_DATA_CONTRACT.md](./feishu/THEME_DATA_CONTRACT.md) | 主题如何用数据 |
 | [docs/feishu/STABLE_FEISHU_DATA.md](./feishu/STABLE_FEISHU_DATA.md) | 飞书 API 主路径 |
