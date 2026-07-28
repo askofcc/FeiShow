@@ -1,20 +1,19 @@
 {
-  "name": "notion-next",
+  "name": "feishu-next",
   "version": "4.10.3",
   "packageManager": "yarn@1.22.22",
-  "homepage": "https://github.com/tangly1024/NotionNext.git",
+  "homepage": "https://github.com/askofcc/FeishuNext",
   "license": "MIT",
   "engines": {
     "node": ">=20 <25"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tangly1024/NotionNext.git"
+    "url": "https://github.com/askofcc/FeishuNext.git"
   },
   "author": {
-    "name": "tangly",
-    "email": "mail@tangly1024.com",
-    "url": "http://tangly1024.com"
+    "name": "FeishuNext",
+    "url": "https://feishunext.srint.cn/"
   },
   "scripts": {
     "dev": "next dev",
@@ -146,5 +145,6 @@
   "bugs": {
     "url": "https://github.com/tangly/NotionNext/issues",
     "email": "tlyong1992@hotmail.com"
-  }
+  },
+  "description": "FeishuNext — turn Feishu docs/bitable into a public site (frontend based on NotionNext)"
 }

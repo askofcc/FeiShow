@@ -1,5 +1,7 @@
 # FeishuNext（NotionNext 二开）
 
+产品入口见根目录 [README.md](./README.md)。
+
 本仓库 = [NotionNext](https://github.com/notionnext-org/NotionNext) 前端壳 + 飞书数据层。
 
 > **项目灵魂（必读）：** [docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md)  

@@ -1,3 +1,5 @@
+> 产品仓库：[askofcc/FeishuNext](https://github.com/askofcc/FeishuNext) · 演示：https://feishunext.srint.cn/
+
 # Feishu 适配文档索引
 
 本目录是 **FeishuNext 数据层契约**（从旧仓迁入），主工程为 NotionNext 二开。

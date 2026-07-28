@@ -1,0 +1,13 @@
+FeishuNext
+==========
+
+This product includes software developed from NotionNext
+(https://github.com/notionnext-org/NotionNext), Copyright (c) 2021-present tangly1024,
+licensed under the MIT License. See LICENSE.
+
+FeishuNext modifications — Feishu OpenAPI data layer, adapters, FeishuRenderer,
+product branding, and documentation under docs/feishu/ — are provided under the
+same MIT License terms unless otherwise noted.
+
+Product site: https://feishunext.srint.cn/
+Source: https://github.com/askofcc/FeishuNext

@@ -139,7 +139,7 @@ const SEO = props => {
       <meta name='keywords' content={keywords} />
       <meta name='description' content={description} />
       <meta name='author' content={AUTHOR} />
-      <meta name='generator' content='NotionNext' />
+      <meta name='generator' content='FeishuNext' />
 
       {/* 语言和地区 */}
       <meta httpEquiv='content-language' content={siteConfig('LANG')} />
@@ -159,8 +159,8 @@ const SEO = props => {
 
       {/* Twitter Card 元数据 */}
       <meta name='twitter:card' content='summary_large_image' />
-      <meta name='twitter:site' content={siteConfig('TWITTER_SITE', '@NotionNext')} />
-      <meta name='twitter:creator' content={siteConfig('TWITTER_CREATOR', '@NotionNext')} />
+      <meta name='twitter:site' content={siteConfig('TWITTER_SITE', '@FeishuNext')} />
+      <meta name='twitter:creator' content={siteConfig('TWITTER_CREATOR', '@FeishuNext')} />
       <meta name='twitter:title' content={title} />
       <meta name='twitter:description' content={description} />
       <meta name='twitter:image' content={image} />

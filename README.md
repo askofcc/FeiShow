@@ -1,191 +1,125 @@
-<div align="center">
+# FeishuNext
 
-<img src="https://github.com/user-attachments/assets/c111204d-2016-4343-92e4-83357cac4b19" width="96" height="96" alt="NotionNext Logo" />
+把**飞书**多维表格 + 云文档，发布成可访问、可 SEO 的独立站点。
 
-# NotionNext
-
-用 Notion 搭建自己的独立站
-
-继续在 Notion 写作，一键发布为博客、作品集、知识库、导航站或产品官网。
-
-<p>
-  <a href="https://preview.tangly1024.com/">在线预览</a>
-  ·
-  <a href="https://notionnext.tangly1024.com/user-guide/start-here">开始搭建</a>
-  ·
-  <a href="https://notionnext.tangly1024.com/user-guide/themes/THEMES_CATALOG">主题全览</a>
-  ·
-  <a href="https://notionnext.tangly1024.com/">文档站</a>
-  ·
-  <a href="https://github.com/notionnext-org/NotionNext/discussions">讨论区</a>
-</p>
-
-<p>
-  <a aria-label="GitHub commit activity" href="https://github.com/notionnext-org/NotionNext/commits/main" title="GitHub commit activity">
-    <img src="https://img.shields.io/github/commit-activity/m/notionnext-org/NotionNext?style=for-the-badge"/>
-  </a>
-  <a aria-label="GitHub contributors" href="https://github.com/notionnext-org/NotionNext/graphs/contributors" title="GitHub contributors">
-    <img src="https://img.shields.io/github/contributors/notionnext-org/NotionNext?color=orange&style=for-the-badge"/>
-  </a>
-  <a aria-label="Build status" href="#" title="Build status">
-    <img src="https://img.shields.io/github/deployments/notionnext-org/NotionNext/Production?logo=Vercel&style=for-the-badge"/>
-  </a>
-  <a aria-label="Powered by Vercel" href="https://vercel.com?utm_source=Craigary&utm_campaign=oss" title="Powered by Vercel">
-    <img src="https://www.datocms-assets.com/31049/1618983297-powered-by-vercel.svg" height="28"/>
-  </a>
-</p>
-
-中文 | [English](./README_EN.md)
-
-</div>
+演示站：[https://feishunext.srint.cn/](https://feishunext.srint.cn/)  
+仓库：[https://github.com/askofcc/FeishuNext](https://github.com/askofcc/FeishuNext)（当前可为私有）
 
 ---
 
-## NotionNext 是什么？
+## 这是什么
 
-NotionNext 是一个基于 **Next.js + Notion API** 的开源站点系统。你继续用 Notion 管理文章、分类、标签、菜单和页面，NotionNext 负责把这些内容发布成可访问、可搜索、可运营的独立网站。
+| | |
+|---|---|
+| **内容后台** | 飞书（知识库 / 云文档 / 多维表格） |
+| **站点前端** | 基于 [NotionNext](https://github.com/notionnext-org/NotionNext)（MIT）的主题与站点壳二开 |
+| **数据层** | 自研：飞书 OpenAPI → 结构化中间模型 → 渲染 |
 
-它适合想长期沉淀内容的人：内容创作者、独立开发者、设计师、摄影师、课程作者、开源项目维护者，以及需要快速搭建产品官网或知识库的小团队。
+一句话：官方飞书强在**编辑与权限**；FeishuNext 补齐**对外展示**（以及后续的 AI 就绪数据出口）。
 
-## 你可以用它做什么？
+项目灵魂（必读）：[docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md)  
+主题开发数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md)
 
-| 目标 | 推荐入口 | 适合人群 |
-| --- | --- | --- |
-| 搭个人博客 | [从这里开始](https://notionnext.tangly1024.com/user-guide/start-here) | 内容创作者、独立开发者、学生 |
-| 做作品集或个人品牌站 | [按场景选主题](https://notionnext.tangly1024.com/user-guide/themes/THEMES_CATALOG#按场景选主题) | 设计师、摄影师、自由职业者 |
-| 做产品官网或 SaaS 落地页 | [Starter / Landing / Proxio](https://notionnext.tangly1024.com/user-guide/themes/THEMES_CATALOG#按场景选主题) | 创业者、独立产品、小团队 |
-| 做知识库或文档站 | [GitBook / Claude](https://notionnext.tangly1024.com/user-guide/themes/THEMES_CATALOG#按场景选主题) | 开源项目、课程作者、团队文档 |
-| 做导航站或资源聚合 | [Nav 主题](https://notionnext.tangly1024.com/user-guide/themes/nav) | 资源整理者、社群运营者 |
+---
 
-## 为什么选择 NotionNext？
+## 与 NotionNext 的关系
 
-- **不换写作工具**：文章、分类、标签、封面、菜单仍在 Notion 中维护。
-- **上线路径短**：复制 Notion 模板、Fork 仓库、连接 Vercel，即可部署。
-- **主题选择多**：内置 25 个主题，覆盖博客、文档、作品集、官网、相册、导航站等场景。
-- **适合长期运营**：支持独立域名、SEO、Sitemap、RSS、评论、统计、搜索、广告和邮件订阅。
-- **开源可控**：源码、配置和主题都在自己的仓库里，后续可以继续二次开发。
-- **数据链路清晰**：Notion 负责内容沉淀，站点负责展示和分发，后续可迁移到 Markdown 或其他系统。
+- **前端壳 / 主题 / SEO / 布局**：大量基于 NotionNext 开源项目（MIT）。
+- **本仓库不是** NotionNext 官方 fork 维护分支；Issue / PR 请开到 **askofcc/FeishuNext**。
+- **数据源已替换为飞书**；不要按 Notion 官方教程填 `NOTION_PAGE_ID` 当主路径。
+- 上游同步策略：[docs/feishu/UPSTREAM.md](./docs/feishu/UPSTREAM.md)
+- 原版 NotionNext README 备份：[docs/upstream/README.NotionNext.md](./docs/upstream/README.NotionNext.md)
 
-## 20 分钟部署路线
+### Credits
 
-1. 打开 [主题预览站](https://preview.tangly1024.com/) 看最终效果。
-2. 复制 NotionNext 官方 Notion 模板。
-3. Fork 本仓库到自己的 GitHub 账号。
-4. 使用 [Vercel 部署 NotionNext](https://notionnext.tangly1024.com/user-guide/deploy-vercel)。
-5. 在环境变量中填写 Notion 页面 ID 等配置。
-6. 部署成功后，按场景选择主题并补齐域名、评论、统计、搜索等功能。
+感谢 [tangly1024](https://github.com/tangly1024) / [notionnext-org](https://github.com/notionnext-org) 开源 [NotionNext](https://github.com/notionnext-org/NotionNext)。  
+本仓库保留其 MIT `LICENSE` 与版权声明；产品品牌与默认为 **FeishuNext**。
 
-新手建议直接从文档站的 [从这里开始](https://notionnext.tangly1024.com/user-guide/start-here) 阅读。
+---
 
-## 主题与预览
-
-- 在线切换主题：[preview.tangly1024.com](https://preview.tangly1024.com/)
-- 25 个内置主题：[主题全览](https://notionnext.tangly1024.com/user-guide/themes/THEMES_CATALOG)
-- 仓库内主题文档：[docs/user-guide/themes/](./docs/user-guide/themes/)
-
-| 场景 | 优先看 |
-| --- | --- |
-| 个人博客 | `simple`、`hexo`、`nobelium`、`typography` |
-| 文档 / 知识库 | `gitbook`、`claude`、`thoughtlite` |
-| 作品集 / 个人品牌 | `proxio`、`starter`、`landing` |
-| 产品官网 | `starter`、`landing`、`commerce` |
-| 图片 / 摄影 | `photo`、`plog`、`magzine` |
-| 导航站 | `nav` |
-
-## 本地开发
-
-推荐使用 Node 20 和 Yarn 1。
+## 快速开始
 
 ```bash
-# 1. 使用 Node 20
-nvm use || nvm install
+git clone https://github.com/askofcc/FeishuNext.git
+cd FeishuNext
+# 依赖（仓库声明 yarn）
+npx yarn@1.22.22 install
 
-# 2. 安装 Yarn
-npm i -g yarn
+cp .env.feishu.example .env.local
+# 填写 FEISHU_APP_ID / FEISHU_APP_SECRET
+# 以及内容表、CONFIG 表 token（见下）
 
-# 3. 安装依赖
-yarn
-
-# 4. 启动开发
-yarn dev
+npx yarn@1.22.22 dev
+# 或: npx next dev -H 127.0.0.1 -p 3460
 ```
 
-常用命令：
-
-| 命令 | 用途 |
-| --- | --- |
-| `yarn dev` | 启动本地开发 |
-| `yarn build` | 构建生产版本 |
-| `yarn export` | 静态导出 |
-| `yarn docs:site:dev` | 本地预览文档站 |
-| `yarn docs:site:build` | 构建文档站 |
-
-## 文档入口
-
-自 2026 年起，NotionNext 使用仓库内 Markdown 文档作为主要教程来源，并发布为独立文档站。
-
-| 内容 | 链接 |
-| --- | --- |
-| 在线文档站 | [notionnext.tangly1024.com](https://notionnext.tangly1024.com) |
-| 新手入口 | [从这里开始](https://notionnext.tangly1024.com/user-guide/start-here) |
-| 配置索引 | [全站功能与配置索引](https://notionnext.tangly1024.com/user-guide/reference/features) |
-| 主题说明 | [25 个主题说明](https://notionnext.tangly1024.com/user-guide/themes/THEMES_CATALOG) |
-| 文档源码 | [docs/](./docs/) |
-| 旧版手册 | [docs.tangly1024.com](https://docs.tangly1024.com/) |
-
-## 参与社区
-
-NotionNext 主仓库由 GitHub 组织 [notionnext-org](https://github.com/notionnext-org) 维护。欢迎提交问题、补充文档、贡献主题、修复代码或参与讨论。
-
-| 内容 | 链接 |
-| --- | --- |
-| 参与社区 | [community-participate.md](./docs/user-guide/community-participate.md) |
-| 5.0 愿景与路线图 | [VISION_ROADMAP.md](./docs/developer/VISION_ROADMAP.md) |
-| 贡献指南 | [CONTRIBUTING.zh-CN.md](./CONTRIBUTING.zh-CN.md) |
-| 项目治理 | [GOVERNANCE.zh-CN.md](./GOVERNANCE.zh-CN.md) |
-| 维护者 | [MAINTAINERS.md](./MAINTAINERS.md) |
-| 行为准则 | [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) |
-| 讨论区 | [GitHub Discussions](https://github.com/notionnext-org/NotionNext/discussions) |
-
-如果你在仓库转让前已克隆旧地址，建议更新远程仓库：
+### 必填环境变量
 
 ```bash
-git remote set-url origin https://github.com/notionnext-org/NotionNext.git
-git remote -v
+CMS_PROVIDER=feishu
+FEISHU_APP_ID=
+FEISHU_APP_SECRET=
+FEISHU_CONTENT_APP_TOKEN=   # 内容表（菜单/文章/页面/分类）
+FEISHU_CONTENT_TABLE_ID=
+FEISHU_CONFIG_APP_TOKEN=    # 站点 CONFIG 表
+FEISHU_CONFIG_TABLE_ID=
+NEXT_PUBLIC_LINK=https://feishunext.srint.cn/
+NEXT_PUBLIC_THEME=example
 ```
 
-## 技术栈
+完整示例：[.env.feishu.example](./.env.feishu.example)
 
-- **框架**：[Next.js](https://nextjs.org)
-- **样式**：[Tailwind CSS](https://www.tailwindcss.cn/)
-- **渲染**：[react-notion-x](https://github.com/NotionX/react-notion-x)
-- **评论**：Twikoo、Giscus、Gitalk、Cusdis、Utterances
-- **部署**：[Vercel](https://vercel.com)
+飞书应用需具备文档/多维表格/云空间等读权限，并把对应知识库与表格授权给应用。
 
-## 相关项目
+---
 
-- [Elog](https://github.com/LetTTGACO/elog)：Markdown 批量导出工具，支持组合 Notion、语雀、FlowUs、飞书等写作平台与 Hexo、VitePress、Halo、WordPress 等博客平台。
+## 架构（给开发者）
 
-## 致谢
+```text
+飞书 OpenAPI
+  → lib/feishu/*（auth / bitable / wiki / docx / media / normalize）
+  → lib/site/adapters/feishu/*（SiteData + 详情 enrich）
+  → pages/* + themes/*（NotionNext 壳）
+  → 正文：NotionPage → FeishuPage → FeishuRenderer
+```
 
-感谢 Craig Hart 发起的 Nobelium 项目。
+| 路径 | 职责 |
+|---|---|
+| `lib/feishu/` | 飞书取数与结构化 |
+| `lib/site/adapters/feishu/` | 组装主题可用的 SiteData |
+| `components/feishu/` | 正文渲染 |
+| `themes/` | 主题（可跟随上游更新） |
+| `docs/feishu/` | **产品与数据契约（优先读这里）** |
+| `docs/upstream/` | 上游 NotionNext 文档备份 |
+| `docs/user-guide/` 等 | 多为上游用户文档，未全面改写 |
 
-<table><tr align="left">
-  <td align="center"><a href="https://github.com/craigary" title="Craig Hart"><img src="https://avatars.githubusercontent.com/u/10571717" width="64px;" alt="Craig Hart"/></a><br/><a href="https://github.com/craigary" title="Craig Hart">Craig Hart</a></td>
-</tr></table>
+---
 
-感谢每一位参与代码、主题、文档、Issue、Review 与发布维护的贡献者。
+## 仓库怎么读（避免「乱」）
 
-[![Contributors](https://contrib.rocks/image?repo=notionnext-org/NotionNext)](https://github.com/notionnext-org/NotionNext/graphs/contributors)
+1. 先读本 README + `docs/feishu/PROJECT_SOUL.md`  
+2. 接飞书：`docs/feishu/STABLE_FEISHU_DATA.md`、内容表/CONFIG 契约  
+3. 做主题：`docs/feishu/THEME_DATA_CONTRACT.md`  
+4. 跟上游前端：`docs/feishu/UPSTREAM.md`  
+5. 根目录大量 `GOVERNANCE*` / `MAINTAINERS*` / 上游 user-guide：**来自 NotionNext，不是 FeishuNext 运营文档**
 
-## 使用声明
+更细的目录说明：[docs/REPO_MAP.md](./docs/REPO_MAP.md)
 
-本项目为免费、公开资源，仅限个人学习和合法站点建设使用。禁止利用本项目发布非法内容或进行违法活动。
+---
+
+## 上游同步（摘要）
+
+```bash
+git fetch upstream
+# 优先看 themes / 壳修复；不要无脑全量当 Notion 数据层更新
+git log feishu/main..upstream/main -- themes components
+```
+
+冲突时保护：`lib/feishu/**`、`lib/site/adapters/feishu/**`、`components/feishu/**`、飞书分流逻辑。
+
+---
 
 ## License
 
-The MIT License.
-
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=notionnext-org/NotionNext&type=Date)](https://star-history.com/#notionnext-org/NotionNext&Date)
+[MIT](./LICENSE) — 含原 NotionNext 版权声明（Copyright tangly1024）。  
+另见 [NOTICE](./NOTICE)。
