@@ -3,7 +3,8 @@
 > **读这一份，应能回答：** 项目为什么存在、现在长什么样、核心怎么跑、仓库为什么曾经很乱、以后做什么。  
 > 细节契约仍链到其它文档；本文是目录与叙事主线。  
 > 更新日期：2026-07-28  
-> 仓库：[askofcc/FeishuNext](https://github.com/askofcc/FeishuNext) · 演示：[feishunext.srint.cn](https://feishunext.srint.cn/)
+> 本地目录：`/Users/qiushuanglong/Documents/FeishuNext`（见 [LOCAL_WORKSPACE.md](./LOCAL_WORKSPACE.md)）  
+仓库：[askofcc/FeishuNext](https://github.com/askofcc/FeishuNext) · 演示：[feishunext.srint.cn](https://feishunext.srint.cn/)
 
 ---
 
@@ -202,7 +203,7 @@ git log main..upstream/main --oneline -- themes components | head
 
 | 路径 | 角色 |
 |---|---|
-| `Documents/notionnext-feishu` | **真正开发树**（git = askofcc/FeishuNext） |
+| `Documents/FeishuNext` | **真正开发树**（git = askofcc/FeishuNext） |
 | `Documents/FeishuNext` | 早期半成品；见其中 `MOVED.md`，勿再当主仓 |
 
 ---

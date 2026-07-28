@@ -1,3 +1,5 @@
+> **本地路径与分支纪律：** 见 [LOCAL_WORKSPACE.md](./LOCAL_WORKSPACE.md)（`Documents/FeishuNext` = 唯一产品目录，仅 `main`）。
+
 # 仓库地图（FeishuNext）
 
 > 解决「clone 下来不知道先看哪」的问题。

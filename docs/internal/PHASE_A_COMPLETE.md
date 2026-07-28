@@ -3,7 +3,7 @@
 > 日期：2026-07-28  
 > 仓库：https://github.com/askofcc/FeishuNext · 分支 **`main`**  
 > 演示：https://feishunext.srint.cn/  
-> 本地主工程：`/Users/qiushuanglong/Documents/notionnext-feishu`  
+> 本地主工程：`/Users/qiushuanglong/Documents/FeishuNext`  
 > 旧实验仓：`/Users/qiushuanglong/Documents/FeishuNext`（只读参考，见根目录 `MOVED.md`）
 
 ---
@@ -95,7 +95,7 @@ pages/api/feishu/*   媒体/画板代理
 **部署前本地检查：**
 
 ```bash
-cd /Users/qiushuanglong/Documents/notionnext-feishu
+cd /Users/qiushuanglong/Documents/FeishuNext
 git status -sb          # 应为干净或仅本地 env
 git log -1 --oneline
 npx yarn@1.22.22 build  # 或项目 package.json 的 build

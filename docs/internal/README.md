@@ -11,6 +11,7 @@
 | [PROJECT_GUIDE.md](./PROJECT_GUIDE.md) | 结构、数据流、分支、路线图 |
 | [PROJECT_SOUL.md](./PROJECT_SOUL.md) | 痛点 / 价值 / 竞争力边界 |
 | [REPO_MAP.md](./REPO_MAP.md) | 目录与分支怎么看 |
+| [**LOCAL_WORKSPACE.md**](./LOCAL_WORKSPACE.md) | **本地目录 + 仅 main + 归档** |
 
 ## 规划与验收
 

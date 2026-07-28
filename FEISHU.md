@@ -11,7 +11,7 @@
 ## 快速开始
 
 ```bash
-cd /Users/qiushuanglong/Documents/notionnext-feishu
+cd /Users/qiushuanglong/Documents/FeishuNext
 # 依赖
 npx yarn@1.22.22 install
 # 配置（已有 .env.local 模板键名见 .env.feishu.example）
