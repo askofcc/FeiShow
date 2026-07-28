@@ -1,6 +1,6 @@
 {
   "name": "feishu-next",
-  "version": "4.10.3",
+  "version": "4.10.4",
   "packageManager": "yarn@1.22.22",
   "homepage": "https://github.com/askofcc/FeishuNext",
   "license": "MIT",
