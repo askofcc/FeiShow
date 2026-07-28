@@ -1,0 +1,16 @@
+{
+  "wiki_url": "https://test-d2al261ggga5.feishu.cn/wiki/Xk8gw3V1fiBzTukezRAcnylpn63?table=tbl4qPlVgMLg5eaH&view=vewGzGNryD",
+  "app_token": "JGShbeVp9aGGV3s2J4qcMmGAn0b",
+  "table_id": "tbl4qPlVgMLg5eaH",
+  "view_id": "vewGzGNryD",
+  "schema": [
+    "配置名",
+    "配置值",
+    "启用",
+    "备注"
+  ],
+  "record_count": 25,
+  "enabled_count": 16,
+  "notion_source": "https://tanghh.notion.site/8f4fe6b17a9e43e0bcfb6edb50f10a62",
+  "notion_logic": "CONFIG page type + inline CONFIG-TABLE: 配置名/配置值/启用/备注; enable must be Yes/true"
+}
