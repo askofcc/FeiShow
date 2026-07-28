@@ -9,6 +9,7 @@ import {
   loadFeishuArticleBody,
   resolveDocumentIds,
   resolveSitePageCover,
+  resolveSiteRootBrand,
   applyCoverCascade,
   type ContentRow
 } from './feishu.content'
@@ -17,6 +18,17 @@ import formatDate from '@/lib/utils/formatDate'
 
 function stripUndefined<T>(value: T): T {
   return JSON.parse(JSON.stringify(value, (_k, v) => (v === undefined ? null : v)))
+}
+
+function stripTitlePrefix(text: string, title: string): string {
+  let s = (text || '').trim()
+  const tit = (title || '').trim()
+  if (!s || !tit) return s
+  if (s === tit) return ''
+  if (s.startsWith(tit)) {
+    s = s.slice(tit.length).trim().replace(/^[\s\-—|:：,.，。]+/, '')
+  }
+  return s
 }
 
 function toPublishedPage(row: ContentRow, type: BasePage['type']): BasePage {
@@ -100,8 +112,22 @@ function menuIconClass(icon?: string | null): string | null {
 }
 
 function stripLeadingEmoji(label: string): string {
+  // Avoid \p{} (needs ES2018); strip common leading symbol/emoji code points
   try {
-    return label.replace(/^[\p{Extended_Pictographic}\uFE0F\u200D]+/u, '').trim()
+    const chars = Array.from(label || '')
+    let i = 0
+    while (i < chars.length) {
+      const cp = chars[i]!.codePointAt(0) || 0
+      const emojiLike =
+        (cp >= 0x1f300 && cp <= 0x1faff) ||
+        (cp >= 0x2600 && cp <= 0x27bf) ||
+        (cp >= 0x1f1e0 && cp <= 0x1f1ff) ||
+        cp === 0xfe0f ||
+        cp === 0x200d
+      if (!emojiLike) break
+      i += 1
+    }
+    return chars.slice(i).join('').trim() || label
   } catch {
     return label
   }
@@ -199,7 +225,17 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
   let noticeRowsFilled = noticeRows
   let categoryRowsFilled = categoryRows
   // Site banner early — used as last cover fallback for posts without own/category cover
-  const bannerEarly = await resolveSitePageCover(configMap.HOME_BANNER_IMAGE)
+  const siteBrand = await resolveSiteRootBrand(configMap.HOME_BANNER_IMAGE)
+  const bannerEarly = {
+    pageCover: siteBrand.pageCover,
+    source:
+      siteBrand.source === 'config'
+        ? 'config'
+        : siteBrand.pageCover
+          ? 'site-root'
+          : 'empty',
+    coverToken: siteBrand.coverToken
+  } as { pageCover: string; source: 'config' | 'site-root' | 'empty'; coverToken?: string }
   try {
     allPostRows = await fillOfficialDriveFields(allPostRows)
     pageRowsFilled = await fillOfficialDriveFields(pageRowsFilled)
@@ -237,12 +273,18 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
   // - CONFIG 启用=关 → configMap has no CUSTOM_MENU → default ON
   // - CONFIG 启用=开 + true → ON
   // - CONFIG 启用=开 + false → OFF
-  const flag = configMap.CUSTOM_MENU
+  const flag = configMap.CUSTOM_MENU ?? configMap.NEXT_PUBLIC_CUSTOM_MENU
+  // default ON; only explicit false turns off content-table menus
   const customMenuEnabled =
-    flag === undefined || flag === null
+    flag === undefined || flag === null || flag === ''
       ? true
-      : flag === true || flag === 'true'
+      : !(flag === false || flag === 'false' || flag === 0 || flag === '0')
   const customMenu = customMenuEnabled && builtMenu.length > 0 ? builtMenu : []
+  if (customMenuEnabled && builtMenu.length === 0) {
+    console.warn(
+      '[feishu] CUSTOM_MENU is on but content table has no Menu/SubMenu rows; theme falls back to default nav'
+    )
+  }
   // Tell themes the effective switch
   configMap.CUSTOM_MENU = customMenuEnabled
 
@@ -253,17 +295,33 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     for (const t of p.tags || []) tagCount.set(t, (tagCount.get(t) || 0) + 1)
   }
 
-  const title =
+  const title = (
     configMap.TITLE ||
     configMap.NEXT_PUBLIC_TITLE ||
     process.env.NEXT_PUBLIC_TITLE ||
+    siteBrand.title ||
     'FeishuNext'
-  const description =
+  ).toString().trim()
+  const descriptionRaw = (
     configMap.DESCRIPTION ||
     configMap.NEXT_PUBLIC_DESCRIPTION ||
     process.env.NEXT_PUBLIC_DESCRIPTION ||
+    siteBrand.description ||
     '飞书驱动的公开站点'
+  ).toString().trim()
+  const description = stripTitlePrefix(descriptionRaw, title) || descriptionRaw
   const link = configMap.LINK || process.env.NEXT_PUBLIC_LINK || 'http://localhost:3460'
+  // KEYWORDS: same idea as TITLE — CONFIG off → 主配置页标题（siteBrand.title）
+  const keywords = (
+    configMap.KEYWORDS ||
+    configMap.NEXT_PUBLIC_KEYWORD ||
+    process.env.NEXT_PUBLIC_KEYWORD ||
+    siteBrand.title ||
+    title ||
+    'FeishuNext'
+  )
+    .toString()
+    .trim()
 
   // Notice needs body for sidebar Announcement (NotionPage/FeishuRenderer)
   let notice: BasePage | null = noticeRowsFilled[0]
@@ -291,7 +349,24 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
       TITLE: title,
       DESCRIPTION: description,
       LINK: link,
-      AUTHOR: configMap.AUTHOR || process.env.NEXT_PUBLIC_AUTHOR || 'FeishuNext',
+      KEYWORDS: keywords,
+      AUTHOR:
+        configMap.AUTHOR ||
+        process.env.NEXT_PUBLIC_AUTHOR ||
+        siteBrand.authorName ||
+        'FeishuNext',
+      SINCE:
+        configMap.SINCE ||
+        process.env.NEXT_PUBLIC_SINCE ||
+        siteBrand.createdYear ||
+        new Date().getFullYear(),
+      ICON: configMap.ICON || siteBrand.authorAvatar || '',
+      BLOG_FAVICON:
+        configMap.BLOG_FAVICON ||
+        configMap.ICON ||
+        siteBrand.authorAvatar ||
+        '/favicon.ico',
+      AVATAR: configMap.AVATAR || configMap.ICON || siteBrand.authorAvatar || '',
       THEME: configMap.THEME || process.env.NEXT_PUBLIC_THEME || 'example',
       CMS_PROVIDER: 'feishu',
       // so themes reading siteConfig('HOME_BANNER_IMAGE') also get fallback
@@ -301,7 +376,7 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
       title,
       description,
       pageCover: banner.pageCover || '',
-      icon: configMap.ICON || '',
+      icon: configMap.ICON || siteBrand.authorAvatar || '',
       link
     },
     notice,
@@ -314,13 +389,13 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
       .slice()
       .sort((a, b) => (b.publishDate || 0) - (a.publishDate || 0))
       .slice(0, 50),
-    categoryOptions: [...categoryCount.entries()].map(([name, count]) => ({
+    categoryOptions: Array.from(categoryCount.entries()).map(([name, count]) => ({
       id: name,
       name,
       value: name,
       count
     })),
-    tagOptions: [...tagCount.entries()].map(([name, count]) => ({
+    tagOptions: Array.from(tagCount.entries()).map(([name, count]) => ({
       id: name,
       name,
       value: name,
@@ -386,8 +461,8 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
     pageIcon,
     publishDate,
     lastEditedDate,
-    publishDay: publishDate ? formatDate(publishDate) : page.publishDay || null,
-    lastEditedDay: lastEditedDate ? formatDate(lastEditedDate) : page.lastEditedDay || null,
+    publishDay: publishDate ? formatDate(publishDate) : (page as any).publishDay || null,
+    lastEditedDay: lastEditedDate ? formatDate(lastEditedDate) : (page as any).lastEditedDay || null,
     author: authorName,
     accessError: body.accessError || null,
     blockMap: null,

@@ -19,6 +19,7 @@
 
 **回看讨论与运维共识：** [docs/internal/DECISION_LOG.md](./docs/internal/DECISION_LOG.md)  
 **通读结构总览：** [docs/internal/PROJECT_GUIDE.md](./docs/internal/PROJECT_GUIDE.md)  
+**阶段 A 完成 / 部署前总检：** [docs/internal/PHASE_A_COMPLETE.md](./docs/internal/PHASE_A_COMPLETE.md)  
 
 项目灵魂：[docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md) · 仓库地图：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
 

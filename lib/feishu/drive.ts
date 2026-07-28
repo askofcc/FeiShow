@@ -38,7 +38,7 @@ export async function batchQueryDriveMetas(
   docs: Array<{ token: string; type?: 'docx' | 'doc' | 'sheet' | 'bitable' | 'file' }>
 ): Promise<Map<string, DriveDocMeta>> {
   const map = new Map<string, DriveDocMeta>()
-  const unique = [...new Map(docs.filter(d => d.token).map(d => [d.token, d])).values()]
+  const unique = Array.from(new Map(docs.filter(d => d.token).map(d => [d.token, d])).values())
   if (!unique.length) return map
 
   // API typically allows batching; chunk by 50 to be safe
@@ -126,34 +126,81 @@ export async function getFileCommentCount(
 }
 
 const userNameCache = new Map<string, string | null>()
+const userProfileCache = new Map<string, { name: string | null; avatar: string | null }>()
+
+export type FeishuUserProfile = {
+  name: string | null
+  avatar: string | null
+  /** English name if present */
+  enName?: string | null
+  /** Often needs contact email scope; may be empty */
+  email?: string | null
+  /** Job title / 职务 */
+  jobTitle?: string | null
+  /** Employee no */
+  employeeNo?: string | null
+  openId?: string | null
+}
 
 /**
- * Resolve open_id -> display name.
- * Contact API may fail without directory scope; fall back to view_records names.
+ * Resolve open_id -> display name + avatar.
+ * Contact API may fail without directory scope; fall back to view_records names (no avatar).
  */
-export async function resolveUserDisplayName(
+export async function resolveUserProfile(
   openId: string,
   opts?: { fileToken?: string; fileType?: 'docx' | 'doc' }
-): Promise<string | null> {
-  if (!openId) return null
-  if (userNameCache.has(openId)) return userNameCache.get(openId) || null
+): Promise<FeishuUserProfile> {
+  if (!openId) return { name: null, avatar: null, openId: null }
+  if (userProfileCache.has(openId)) return userProfileCache.get(openId)!
 
   // 1) contact user get
   try {
     const qs = new URLSearchParams({ user_id_type: 'open_id' })
     const data = await feishuFetch<{
-      user?: { name?: string; en_name?: string; nickname?: string }
+      user?: {
+        open_id?: string
+        name?: string
+        en_name?: string
+        nickname?: string
+        email?: string
+        enterprise_email?: string
+        job_title?: string
+        employee_no?: string
+        avatar?: {
+          avatar_72?: string
+          avatar_240?: string
+          avatar_640?: string
+          avatar_origin?: string
+        }
+      }
     }>(`/open-apis/contact/v3/users/${encodeURIComponent(openId)}?${qs.toString()}`)
-    const name = data.user?.name || data.user?.nickname || data.user?.en_name || null
-    if (name) {
-      userNameCache.set(openId, name)
-      return name
+    const u = data.user
+    const name = u?.name || u?.nickname || u?.en_name || null
+    const avatar =
+      u?.avatar?.avatar_240 ||
+      u?.avatar?.avatar_72 ||
+      u?.avatar?.avatar_640 ||
+      u?.avatar?.avatar_origin ||
+      null
+    if (name || avatar || u?.email || u?.job_title) {
+      const profile: FeishuUserProfile = {
+        name,
+        avatar,
+        enName: u?.en_name || null,
+        email: u?.email || u?.enterprise_email || null,
+        jobTitle: u?.job_title || null,
+        employeeNo: u?.employee_no || null,
+        openId: u?.open_id || openId
+      }
+      userProfileCache.set(openId, profile)
+      if (name) userNameCache.set(openId, name)
+      return profile
     }
   } catch {
     // ignore — often 41012 without contact scope
   }
 
-  // 2) view_records on the file (name appears for viewers)
+  // 2) view_records on the file (name appears for viewers; usually no avatar)
   if (opts?.fileToken) {
     try {
       const qs = new URLSearchParams({
@@ -167,16 +214,36 @@ export async function resolveUserDisplayName(
       )
       const hit = (data.items || []).find(i => i.viewer_id === openId && i.name)
       if (hit?.name) {
+        const profile: FeishuUserProfile = {
+          name: hit.name,
+          avatar: null,
+          openId
+        }
+        userProfileCache.set(openId, profile)
         userNameCache.set(openId, hit.name)
-        return hit.name
+        return profile
       }
     } catch {
       // ignore
     }
   }
 
+  const empty: FeishuUserProfile = { name: null, avatar: null, openId }
+  userProfileCache.set(openId, empty)
   userNameCache.set(openId, null)
-  return null
+  return empty
+}
+
+/**
+ * Resolve open_id -> display name.
+ * Contact API may fail without directory scope; fall back to view_records names.
+ */
+export async function resolveUserDisplayName(
+  openId: string,
+  opts?: { fileToken?: string; fileType?: 'docx' | 'doc' }
+): Promise<string | null> {
+  const profile = await resolveUserProfile(openId, opts)
+  return profile.name
 }
 
 /** unix seconds (or ms) string/number -> ms */

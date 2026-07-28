@@ -20,6 +20,7 @@
 | [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md) | 二开实施计划 |
 | [TASKS.md](./TASKS.md) | 任务清单 |
 | [PHASE4_VERIFY.md](./PHASE4_VERIFY.md) | 阶段验收记录 |
+| [**PHASE_A_COMPLETE.md**](./PHASE_A_COMPLETE.md) | **阶段 A 完成清单（部署前总检）** |
 | [UPSTREAM.md](./UPSTREAM.md) | 如何跟 NotionNext 前端 |
 
 ## 技术契约（数据层）

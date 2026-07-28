@@ -314,3 +314,14 @@ Notion 全字段镜像表
 > 我们做过战略选择：**不造编辑器、不造假 Notion 数据、二开站点壳、飞书官方 API 结构化展示。**  
 > 主路径已经通；现在是运维与增强，不是推倒重来。  
 > 细节以 `docs/feishu/` 为准，分支以 `main` 为准。
+
+
+---
+
+## 9. 2026-07-28 阶段 A 收尾整理
+
+- 本地主工程与 `origin/main`（askofcc/FeishuNext）对齐检查；产品分支仅 **main**。  
+- 未提交增强（站点根品牌、作者头像、pageIcon、菜单默认等）纳入代码并文档化。  
+- 明确：`tsc` 在 exactOptionalPropertyTypes 下噪音多，**部署以 Next build 为准**。  
+- 总检文档：[PHASE_A_COMPLETE.md](./PHASE_A_COMPLETE.md)。  
+- 下一动作：生产部署验证 → 阶段 B 体验/运维增强；AI 就绪仍后置。

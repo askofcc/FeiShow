@@ -26,7 +26,8 @@ import {
   feishuTimeToMs,
   getFileCommentCount,
   getFileStatistics,
-  resolveUserDisplayName
+  resolveUserDisplayName,
+  resolveUserProfile
 } from '@/lib/feishu/drive'
 import {
   contentToPlainText,
@@ -166,7 +167,7 @@ export async function loadContentRows(): Promise<ContentRow[]> {
   if (viewId) {
     console.log('[feishu] content table using view_id for order', viewId)
   }
-  const records = await listBitableRecordsFrom(appToken, tableId, { viewId })
+  const records = await listBitableRecordsFrom(appToken, tableId, viewId ? { viewId } : undefined)
   const f = siteConfig.fields as any
 
   return records.map((record, index) => {
@@ -415,53 +416,186 @@ function mediaUrl(token?: string | null): string | undefined {
  *  2. Main wiki/doc cover from FEISHU_SITE_ROOT / FEISHU_LIST_ROOT / rootDocumentId
  *  3. empty
  */
-export async function resolveSitePageCover(
-  configBanner?: string | null
-): Promise<{ pageCover: string; source: 'config' | 'site-root' | 'empty'; coverToken?: string }> {
-  const fromConfig = (configBanner || '').trim()
-  if (fromConfig) {
-    return { pageCover: fromConfig, source: 'config' }
-  }
-
+async function resolveSiteRootDocumentId(): Promise<string> {
   const feishu = (siteConfig as any).feishu
   const rootInput =
     process.env.FEISHU_SITE_ROOT ||
+    feishu.siteRoot ||
     feishu.listRoot ||
     process.env.FEISHU_LIST_ROOT ||
     feishu.rootDocumentId ||
     process.env.FEISHU_ROOT_DOCUMENT_ID ||
     ''
+  if (!rootInput) return ''
+  const wikiToken = parseWikiToken(String(rootInput))
+  if (wikiToken) {
+    const node = await resolveWikiNode(wikiToken)
+    return node?.obj_token || ''
+  }
+  if (/^[A-Za-z0-9_-]{10,}$/.test(String(rootInput).trim())) {
+    return String(rootInput).trim()
+  }
+  return ''
+}
 
-  if (!rootInput) {
-    return { pageCover: '', source: 'empty' }
+/**
+ * Site brand defaults from "主配置/站点根" Feishu page (same root as cover).
+ * - title ← document meta.title
+ * - description ← first-page plain text (Feishu has no Notion-like page description field)
+ * - pageCover ← cover token / CONFIG banner
+ */
+export async function resolveSiteRootBrand(configBanner?: string | null): Promise<{
+  title: string
+  description: string
+  pageCover: string
+  authorName: string
+  authorAvatar: string
+  /** Document create year for footer SINCE */
+  createdYear: number | null
+  authorEmail?: string
+  authorJobTitle?: string
+  source: 'config' | 'site-root' | 'mixed' | 'empty'
+  coverToken?: string
+}> {
+  const fromConfigCover = (configBanner || '').trim()
+  let documentId = ''
+  try {
+    documentId = await resolveSiteRootDocumentId()
+  } catch (e) {
+    console.warn('[feishu] resolveSiteRootDocumentId failed', e)
   }
 
-  try {
-    let documentId = ''
-    const wikiToken = parseWikiToken(String(rootInput))
-    if (wikiToken) {
-      const node = await resolveWikiNode(wikiToken)
-      documentId = node?.obj_token || ''
-    } else if (/^[A-Za-z0-9_-]{10,}$/.test(String(rootInput).trim())) {
-      // bare docx token
-      documentId = String(rootInput).trim()
+  let title = ''
+  let description = ''
+  let pageCover = fromConfigCover
+  let coverToken: string | undefined
+  let authorName = ''
+  let authorAvatar = ''
+  let authorEmail = ''
+  let authorJobTitle = ''
+  let createdYear: number | null = null
+  let usedRoot = false
+
+  if (documentId) {
+    try {
+      const meta = await getDocumentMeta(documentId)
+      title = (meta?.title || '').trim()
+      if (!pageCover) {
+        const token = meta?.cover?.token
+        if (token) {
+          pageCover = mediaUrl(token) || ''
+          coverToken = token
+          usedRoot = true
+        }
+      }
+
+      // Owner + create year (主配置页作者 / SINCE)
+      try {
+        const metas = await batchQueryDriveMetas([{ token: documentId, type: 'docx' }])
+        const dm = metas.get(documentId)
+        const createMs = feishuTimeToMs(dm?.create_time)
+        if (createMs) {
+          createdYear = new Date(createMs).getFullYear()
+          usedRoot = true
+        }
+        const ownerId = dm?.owner_id
+        if (ownerId) {
+          const profile = await resolveUserProfile(ownerId, {
+            fileToken: documentId,
+            fileType: 'docx'
+          })
+          authorName = (profile.name || '').trim()
+          authorAvatar = (profile.avatar || '').trim()
+          authorEmail = (profile.email || '').trim()
+          authorJobTitle = (profile.jobTitle || '').trim()
+          if (authorName || authorAvatar) usedRoot = true
+        }
+      } catch (e) {
+        console.warn('[feishu] site-root author/avatar/year failed', e)
+      }
+
+      // Page intro: body paragraphs only — never include page/title block text
+      try {
+        const blocks = await listDocumentBlocksFirstPage(documentId, 40)
+        const content = normalizeDocument(documentId, blocks, title || 'site')
+        const bodyPlain = content.blocks
+          .filter((b) => b.type !== 'page' && !String(b.type || '').startsWith('heading'))
+          .map((b) =>
+            (b.text || [])
+              .map((run) => run.text || '')
+              .join('')
+          )
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(' ')
+        let intro = summarizePlainText(bodyPlain, 160)
+        if (title && intro.startsWith(title)) {
+          intro = intro.slice(title.length).trim().replace(/^[\s\-—|:：]+/, '')
+        }
+        description = intro
+        if (description) usedRoot = true
+      } catch (e) {
+        console.warn('[feishu] site-root description extract failed', e)
+      }
+      if (title) usedRoot = true
+    } catch (e) {
+      console.warn('[feishu] resolveSiteRootBrand meta failed', e)
     }
-    if (!documentId) {
-      return { pageCover: '', source: 'empty' }
-    }
-    const meta = await getDocumentMeta(documentId)
-    const token = meta?.cover?.token
-    if (!token) {
-      return { pageCover: '', source: 'empty' }
-    }
-    return {
-      pageCover: mediaUrl(token) || '',
-      source: 'site-root',
-      coverToken: token
-    }
-  } catch (e) {
-    console.warn('[feishu] resolveSitePageCover failed', e)
-    return { pageCover: '', source: 'empty' }
+  }
+
+  const source =
+    fromConfigCover && usedRoot
+      ? 'mixed'
+      : fromConfigCover
+        ? 'config'
+        : usedRoot
+          ? 'site-root'
+          : 'empty'
+
+  const brand: {
+    title: string
+    description: string
+    pageCover: string
+    authorName: string
+    authorAvatar: string
+    createdYear: number | null
+    authorEmail?: string
+    authorJobTitle?: string
+    source: 'config' | 'site-root' | 'mixed' | 'empty'
+    coverToken?: string
+  } = {
+    title,
+    description,
+    pageCover,
+    authorName,
+    authorAvatar,
+    createdYear,
+    source
+  }
+  if (authorEmail) brand.authorEmail = authorEmail
+  if (authorJobTitle) brand.authorJobTitle = authorJobTitle
+  if (coverToken) brand.coverToken = coverToken
+  return brand
+}
+
+export async function resolveSitePageCover(
+  configBanner?: string | null
+): Promise<{ pageCover: string; source: 'config' | 'site-root' | 'empty'; coverToken?: string }> {
+  const brand = await resolveSiteRootBrand(configBanner)
+  const source =
+    brand.source === 'mixed'
+      ? brand.coverToken
+        ? 'site-root'
+        : 'config'
+      : brand.source === 'config'
+        ? 'config'
+        : brand.pageCover
+          ? 'site-root'
+          : 'empty'
+  return {
+    pageCover: brand.pageCover,
+    source: source as 'config' | 'site-root' | 'empty',
+    coverToken: brand.coverToken
   }
 }
 
@@ -483,10 +617,11 @@ export function applyCoverCascade(
     const name = (c.title || '').trim()
     if (!name) continue
     if (c.coverUrl || c.coverToken) {
-      catCover.set(name, {
-        coverUrl: c.coverUrl || mediaUrl(c.coverToken),
-        coverToken: c.coverToken
-      })
+      const entry: { coverUrl?: string; coverToken?: string } = {}
+      const url = c.coverUrl || mediaUrl(c.coverToken)
+      if (url) entry.coverUrl = url
+      if (c.coverToken) entry.coverToken = c.coverToken
+      catCover.set(name, entry)
     }
   }
   const site = (siteCoverUrl || '').trim()
@@ -495,11 +630,12 @@ export function applyCoverCascade(
     const catName = (p.category || '').trim()
     const fromCat = catName ? catCover.get(catName) : undefined
     if (fromCat?.coverUrl || fromCat?.coverToken) {
-      return {
-        ...p,
-        coverToken: fromCat.coverToken || p.coverToken,
-        coverUrl: fromCat.coverUrl || mediaUrl(fromCat.coverToken) || p.coverUrl
-      }
+      const next: ContentRow = { ...p }
+      const url = fromCat.coverUrl || mediaUrl(fromCat.coverToken) || p.coverUrl
+      if (fromCat.coverToken) next.coverToken = fromCat.coverToken
+      else if (p.coverToken) next.coverToken = p.coverToken
+      if (url) next.coverUrl = url
+      return next
     }
     if (site) {
       return { ...p, coverUrl: site }
@@ -512,7 +648,7 @@ function summarizePlainText(plain: string, maxLen = 120): string {
   const s = (plain || '').replace(/\s+/g, ' ').trim()
   if (!s) return ''
   if (s.length <= maxLen) return s
-  return s.slice(0, maxLen).replace(/[\s,，。；;:.]+$/u, '') + '…'
+  return s.slice(0, maxLen).replace(/[\s,，。；;:.]+$/, '') + '…'
 }
 
 /**
@@ -543,27 +679,29 @@ export async function fillOfficialDriveFields(rows: ContentRow[]): Promise<Conte
     if (!m) return row
     const createMs = feishuTimeToMs(m.create_time)
     const editMs = feishuTimeToMs(m.latest_modify_time)
-    return {
+    const next: ContentRow = {
       ...row,
-      title: row.title && row.title !== '未命名' ? row.title : m.title || row.title,
-      ownerId: m.owner_id || row.ownerId,
-      authorId: m.owner_id || row.authorId || row.ownerId,
-      lastEditorId: m.latest_modify_user || row.lastEditorId,
-      createdAt: createMs ? new Date(createMs).toISOString() : row.createdAt,
-      updatedAt: editMs ? new Date(editMs).toISOString() : row.updatedAt,
-      // Prefer official document times over bitable date column
-      date: editMs
-        ? new Date(editMs).toISOString()
-        : createMs
-          ? new Date(createMs).toISOString()
-          : row.date
+      title: row.title && row.title !== '未命名' ? row.title : m.title || row.title
     }
+    if (m.owner_id) {
+      next.ownerId = m.owner_id
+      next.authorId = m.owner_id
+    } else if (row.authorId || row.ownerId) {
+      next.authorId = row.authorId || row.ownerId
+    }
+    if (m.latest_modify_user) next.lastEditorId = m.latest_modify_user
+    if (createMs) next.createdAt = new Date(createMs).toISOString()
+    if (editMs) next.updatedAt = new Date(editMs).toISOString()
+    // Prefer official document times over bitable date column
+    if (editMs) next.date = new Date(editMs).toISOString()
+    else if (createMs) next.date = new Date(createMs).toISOString()
+    return next
   })
 
   // Resolve author display names (best-effort; contact scope may be missing)
-  const authorIds = [
-    ...new Set(withMeta.map(r => r.authorId).filter(Boolean) as string[])
-  ]
+  const authorIds = Array.from(
+    new Set(withMeta.map(r => r.authorId).filter(Boolean) as string[])
+  )
   const nameMap = new Map<string, string | null>()
   const concurrency = 4
   let cursor = 0
@@ -574,10 +712,12 @@ export async function fillOfficialDriveFields(rows: ContentRow[]): Promise<Conte
       // pick any file token for view_records fallback
       const sample = withMeta.find(r => r.authorId === id && r.documentId)
       try {
-        const name = await resolveUserDisplayName(id, {
-          fileToken: sample?.documentId,
-          fileType: 'docx'
-        })
+        const name = await resolveUserDisplayName(
+          id,
+          sample?.documentId
+            ? { fileToken: sample.documentId, fileType: 'docx' }
+            : undefined
+        )
         nameMap.set(id, name)
       } catch {
         nameMap.set(id, null)
@@ -618,14 +758,16 @@ export async function fillMissingSummaries(
   async function worker() {
     while (cursor < targets.length) {
       const i = cursor++
-      const { row, index } = targets[i]
+      const target = targets[i]
+      if (!target) continue
+      const { row, index } = target
       try {
         const summary = await extractSummaryFromDocument(row.documentId!, {
           title: row.title,
           maxLen
         })
         if (summary) {
-          out[index] = { ...out[index], summary }
+          out[index] = { ...out[index]!, summary }
         }
       } catch (e) {
         console.warn('[feishu] summary fill failed', row.documentId, e)
@@ -661,28 +803,35 @@ export async function fillMissingCovers(
   async function worker() {
     while (cursor < targets.length) {
       const i = cursor++
-      const { row, index } = targets[i]
+      const target = targets[i]
+      if (!target) continue
+      const { row, index } = target
+      const base = out[index]
+      if (!base) continue
       try {
         const meta = await getDocumentMeta(row.documentId!)
         const token = meta.cover?.token
         if (token) {
-          out[index] = {
-            ...out[index],
+          const next: ContentRow = {
+            ...base,
             coverToken: token,
-            coverUrl: mediaUrl(token),
             displaySetting: meta.display_setting || null,
-            revisionId: meta.revision_id,
             title:
-              out[index].title && out[index].title !== '未命名'
-                ? out[index].title
-                : meta.title || out[index].title
+              base.title && base.title !== '未命名'
+                ? base.title
+                : meta.title || base.title
           }
+          const url = mediaUrl(token)
+          if (url) next.coverUrl = url
+          if (meta.revision_id != null) next.revisionId = meta.revision_id
+          out[index] = next
         } else if (meta.display_setting || meta.revision_id) {
-          out[index] = {
-            ...out[index],
-            displaySetting: meta.display_setting || null,
-            revisionId: meta.revision_id
+          const next: ContentRow = {
+            ...base,
+            displaySetting: meta.display_setting || null
           }
+          if (meta.revision_id != null) next.revisionId = meta.revision_id
+          out[index] = next
         }
       } catch (e) {
         console.warn('[feishu] cover fill failed', row.documentId, e)
@@ -929,11 +1078,15 @@ export async function loadConfigMap(): Promise<Record<string, any>> {
       const enabled = isConfigRowEnabled(enabledRaw)
       let parsed = parseConfigValue(valueRaw)
 
-      // Feature flags: empty 配置值 + 启用 = treat as true (on)
+      // Feature flags / CUSTOM_MENU: empty 配置值 + 启用 = treat as true (on)
+      // CUSTOM_MENU is not in BOOLEAN_FEATURE_KEYS (unchecked = default ON, not force false),
+      // but when 启用 is on with empty 配置值, users mean "turn content menus on".
       if (
         enabled &&
         (parsed === '' || parsed == null) &&
-        BOOLEAN_FEATURE_KEYS.has(key)
+        (BOOLEAN_FEATURE_KEYS.has(key) ||
+          key === 'CUSTOM_MENU' ||
+          key === 'NEXT_PUBLIC_CUSTOM_MENU')
       ) {
         parsed = true
       }

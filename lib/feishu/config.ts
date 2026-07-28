@@ -28,6 +28,7 @@ const siteConfig = {
     configAppToken: env('FEISHU_CONFIG_APP_TOKEN', 'JGShbeVp9aGGV3s2J4qcMmGAn0b'),
     configTableId: env('FEISHU_CONFIG_TABLE_ID', 'tbl4qPlVgMLg5eaH'),
     listRoot: env('FEISHU_LIST_ROOT'),
+    siteRoot: env('FEISHU_SITE_ROOT') || env('FEISHU_LIST_ROOT'),
     rootDocumentId: env('FEISHU_ROOT_DOCUMENT_ID'),
   },
   fields: {

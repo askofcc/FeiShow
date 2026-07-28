@@ -173,11 +173,14 @@ interface BasePage {
 **链接规则（写主题时）：**
 
 ```text
-优先 post.href
-否则：
-  Post   → /article/${post.slug}
-  Page   → /${post.slug}
+优先 post.href（适配层已按 POST_URL_PREFIX 生成完整路径）
+飞书默认：
+  Post   → slug/href 形如 article/{node_token} 与 /article/{node_token}
+           （若 NEXT_PUBLIC_POST_URL_PREFIX 为空，则为 /{node_token}）
+  Page   → /{slug}
 ```
+
+实现见 `feishu.content.ts` 的 `postPathFromToken` / `makePostSlugHref`。
 
 不要自己拼飞书 `feishu.cn/wiki/...` 当站内链（除非外链按钮）。
 
