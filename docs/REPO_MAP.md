@@ -7,6 +7,7 @@
 | 路径 | 说明 |
 |---|---|
 | [README.md](../README.md) | 产品入口 |
+| [feishu/PROJECT_GUIDE.md](./feishu/PROJECT_GUIDE.md) | **通读总览** |
 | [docs/feishu/PROJECT_SOUL.md](./feishu/PROJECT_SOUL.md) | 为什么做 |
 | [docs/feishu/THEME_DATA_CONTRACT.md](./feishu/THEME_DATA_CONTRACT.md) | 主题如何用数据 |
 | [docs/feishu/STABLE_FEISHU_DATA.md](./feishu/STABLE_FEISHU_DATA.md) | 飞书 API 主路径 |
@@ -44,3 +45,16 @@
 | `PROJECT_COMPLETION_REPORT.md` 等根目录报告 | 上游工程产物 |
 
 贡献 FeishuNext：开 Issue/PR 到 **askofcc/FeishuNext**，不要按上游 CONTRIBUTING 往 notionnext-org 提。
+
+
+## 分支怎么看
+
+| 名字 | 是什么 |
+|---|---|
+| `feishu/main` | FeishuNext 产品线（日常开发） |
+| `main`（本地） | 历史上游锚点，勿当产品默认 |
+| `upstream/main` | NotionNext 官方主线（只读） |
+| `origin/*` | GitHub askofcc/FeishuNext |
+
+曾经 `git branch -a` 刷屏：因为 `fetch upstream` 默认拉了上游**全部**远程分支（deploy/codex/release…）。  
+现已限制为只获取 `upstream/main`。详情见 [feishu/PROJECT_GUIDE.md](./feishu/PROJECT_GUIDE.md) §3。

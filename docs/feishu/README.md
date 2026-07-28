@@ -6,6 +6,7 @@
 
 | 文档 | 内容 |
 |---|---|
+| [**PROJECT_GUIDE.md**](./PROJECT_GUIDE.md) | **总览：从为什么做到结构/分支/路线（通读第一篇）** |
 | [**PROJECT_SOUL.md**](./PROJECT_SOUL.md) | **项目灵魂：痛点 / 价值 / 结构化 / AI 就绪（后置）** |
 | [**THEME_DATA_CONTRACT.md**](./THEME_DATA_CONTRACT.md) | **主题/AI 开发：取数 → 结构 → 怎么调用** |
 | [TASKS.md](./TASKS.md) | 可执行任务与验收 |

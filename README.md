@@ -17,8 +17,9 @@
 
 一句话：官方飞书强在**编辑与权限**；FeishuNext 补齐**对外展示**（以及后续的 AI 就绪数据出口）。
 
-项目灵魂（必读）：[docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md)  
-主题开发数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md)
+**通读总览（推荐第一篇）：** [docs/feishu/PROJECT_GUIDE.md](./docs/feishu/PROJECT_GUIDE.md)  
+
+项目灵魂：[docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md) · 仓库地图：[docs/REPO_MAP.md](./docs/REPO_MAP.md)
 
 ---
 
