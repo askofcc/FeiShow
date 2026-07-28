@@ -46,20 +46,61 @@ https://test-d2al261ggga5.feishu.cn/wiki/Xk8gw3V1fiBzTukezRAcnylpn63?table=tbl4q
 | 启用 | 复选框 | 启用 / Enable | **仅 true 时生效** |
 | 备注 | 文本 | 备注 | 给人看的说明，程序可忽略 |
 
-### 读取伪代码（后续实现用）
+
+
+## 2.1 「启用」+「配置值」怎么理解（推荐模型）
+
+**布尔开关（THEME_SWITCH / CAN_COPY / WIDGET_PET…）**
+
+| 启用 | 配置值 | 站点实际效果 |
+|---|---|---|
+| ✓ 勾选 | `true`（推荐固定写 true） | **开 = true** |
+| 不勾选 | `true` | **关 = false**（不会回落 blog 默认 true） |
+
+口诀：
+
+> **配置值写「打开时是什么」——布尔项就写 `true`。**  
+> **后边「启用」才是开关：不点就是 false，点了才是 true。**
+
+不要再在配置值里写 `false` 表示「默认关」——那会和「启用」两套开关打架。
+
+**字符串配置（TITLE / LINK / THEME / AUTHOR / KEYWORDS…）**
+
+- `KEYWORDS` 未启用时：与 `TITLE` 类似，回落 **主配置页标题**（`siteBrand.title`），不再只吃 blog.config 默认词。
+
+
+| 启用 | 配置值 | 效果 |
+|---|---|---|
+| ✓ | 具体文案 | 使用该文案 |
+| 不勾选 | 任意 | **不用这行**，回落 env / blog 默认 |
+
+**实现要点（`loadConfigMap`）：**
+
+1. 飞书未勾选时 API 常**省略**「启用」字段 → 一律当 **未启用**。  
+2. 未启用 + 布尔类配置 → 强制写入 `false`（覆盖代码默认 true）。  
+3. 已启用 + 布尔配置值为空 → 当作 `true`。
+
+```bash
+# 检查/规范化表（可选）
+node scripts/fix-config-enable.mjs
+```
+
+
+### 读取伪代码（实现）
 
 ```text
 records = bitable records/search(table)
 config = {}
 for row in records:
-  if row.启用 is not true: continue
   key = row.配置名.strip()
   if not key: continue
-  val = row.配置值
-  config[key] = try_json_parse(val) or val
-if config.INLINE_CONFIG is object:
-  config = { **config, **config.INLINE_CONFIG }
-# 合并到站点：config 覆盖 env / site.config
+  enabled = (row.启用 is explicitly true)  # missing ⇒ false
+  val = parse(row.配置值)                  # 布尔项推荐恒为 true
+  if enabled:
+    config[key] = val if val != '' else true   # 布尔空值 → true
+  else if val is boolean OR key is feature-flag:
+    config[key] = false                        # 未启用 → 关
+  # else string/json: ignore row
 ```
 
 ### 已写入的演示键（节选）

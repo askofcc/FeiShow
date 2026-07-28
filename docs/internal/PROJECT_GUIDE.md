@@ -74,7 +74,7 @@ NotionNext 风格的站点壳（主题 / SEO / 列表 / 阅读）
 | ③ | 站点配置 | CONFIG 表（名/值/启用） | TITLE、开关等 |
 
 分类行只挂**父文档**，子文自动从 wiki 树拉出——这是相对 Notion 的简化优势。  
-详述：[PROJECT_BASELINE.md](./PROJECT_BASELINE.md)、[FEISHU_CONTENT_TABLE_CONTRACT.md](./FEISHU_CONTENT_TABLE_CONTRACT.md)
+详述：[PROJECT_BASELINE.md](./PROJECT_BASELINE.md)、[FEISHU_CONTENT_TABLE_CONTRACT.md](../feishu/FEISHU_CONTENT_TABLE_CONTRACT.md)
 
 ---
 
@@ -104,7 +104,7 @@ themes/*  Layout* 只吃 props
 ```
 
 **主题禁止**直接请求飞书 API；**禁止**把 `blockMap` 当 Notion recordMap 用。  
-契约：[THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md)
+契约：[THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md)
 
 ### 2.2 目录职责（改代码时看这张表）
 
@@ -119,7 +119,7 @@ themes/*  Layout* 只吃 props
 | `docs/user-guide/` `GOVERNANCE*` 等 | **上游遗留** | 不是 FeishuNext 运营文档 |
 | `docs/upstream/` | 备份 | 原版 NotionNext README |
 
-更短地图：[../REPO_MAP.md](../REPO_MAP.md)
+更短地图：[../REPO_MAP.md](./REPO_MAP.md)
 
 ### 2.3 主题能用的数据（摘要）
 
@@ -277,10 +277,10 @@ git log feishu/main..upstream/main --oneline -- themes components | head
 | 1 | **本文 PROJECT_GUIDE** | 全局叙事 |
 | 2 | [PROJECT_SOUL.md](./PROJECT_SOUL.md) | 痛点与价值 |
 | 3 | [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 三块数据与边界 |
-| 4 | [STABLE_FEISHU_DATA.md](./STABLE_FEISHU_DATA.md) | API 主路径 |
-| 5 | [THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md) | 主题/AI 怎么调数据 |
+| 4 | [STABLE_FEISHU_DATA.md](../feishu/STABLE_FEISHU_DATA.md) | API 主路径 |
+| 5 | [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题/AI 怎么调数据 |
 | 6 | [UPSTREAM.md](./UPSTREAM.md) | 怎么跟前端上游 |
-| 7 | [../REPO_MAP.md](../REPO_MAP.md) | 目录地图 |
+| 7 | [../REPO_MAP.md](./REPO_MAP.md) | 目录地图 |
 | 8 | 根 [README.md](../../README.md) | 克隆与启动 |
 
 单篇文档字段、块映射、验收记录等：同目录其它 `FEISHU_*.md`、`PHASE4_VERIFY.md`。

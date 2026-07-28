@@ -134,7 +134,15 @@ Docx 元信息（同一篇）：
 下载封面：与正文图片相同，走素材下载（§4）。
 
 **OpenAPI 文档 meta 不直接给「页面图标 emoji/图标文件」字段。**  
-图标若存在于 UI，多数属于客户端态；**稳定产品路径不要依赖「文档图标」OpenAPI 字段**（除非后续官方补充）。  
+图标若存在于 UI，多数属于客户端态；**不要依赖「文档图标」OpenAPI 字段**。
+
+**展示侧 pageIcon 兼容策略（adapter 已实现，见 `lib/feishu/page-icon.ts`）：**
+
+1. 内容表「图标」列（emoji / 图片 URL / `fas fa-xxx`）  
+2. 标题前导 emoji  
+3. 空（主题 `NotionIcon` 不渲染）  
+
+封面仍用 `cover.token` → `pageCoverThumbnail`。  
 NotionNext 的 `pageIcon` 在飞书侧应视为**可选增强**，无则空。
 
 ### 2.4 展示开关 display_setting（可选）

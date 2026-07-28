@@ -59,9 +59,9 @@ Notion 侧已有成熟方案 **NotionNext**：Notion 当 CMS，Next.js 做公开
 
 | # | 名称 | 飞书载体 | 读还是展示 | 契约文档 |
 |---|---|---|---|---|
-| ① | 文档正文 | Docx + 可选 Wiki 节点 | **展示** | [FEISHU_DOCUMENT_CONTRACT.md](./FEISHU_DOCUMENT_CONTRACT.md) |
+| ① | 文档正文 | Docx + 可选 Wiki 节点 | **展示** | [FEISHU_DOCUMENT_CONTRACT.md](../feishu/FEISHU_DOCUMENT_CONTRACT.md) |
 | ② | 内容索引/导航 | 多维表格「Notion 博客」 | **配置站结构**（少量字段驱动展示） | **本文 §3** |
-| ③ | 站点配置 | CONFIG-TABLE 多维表 / env | **只读配置** | [FEISHU_BITABLE_CONFIG_CONTRACT.md](./FEISHU_BITABLE_CONFIG_CONTRACT.md) |
+| ③ | 站点配置 | CONFIG-TABLE 多维表 / env | **只读配置** | [FEISHU_BITABLE_CONFIG_CONTRACT.md](../feishu/FEISHU_BITABLE_CONFIG_CONTRACT.md) |
 
 **原则：**
 
@@ -193,7 +193,7 @@ get_node(父) → list children(docx)
 
 ## 4. 文档正文（核心 #1）摘要
 
-完整字段见 [FEISHU_DOCUMENT_CONTRACT.md](./FEISHU_DOCUMENT_CONTRACT.md)。
+完整字段见 [FEISHU_DOCUMENT_CONTRACT.md](../feishu/FEISHU_DOCUMENT_CONTRACT.md)。
 
 实现时必须记住：
 
@@ -211,7 +211,7 @@ get_node(父) → list children(docx)
 
 ## 5. 站点前端配置（核心 #3）摘要
 
-完整见 [FEISHU_BITABLE_CONFIG_CONTRACT.md](./FEISHU_BITABLE_CONFIG_CONTRACT.md)。
+完整见 [FEISHU_BITABLE_CONFIG_CONTRACT.md](../feishu/FEISHU_BITABLE_CONFIG_CONTRACT.md)。
 
 - 表：CONFIG-TABLE（`配置名/配置值/启用/备注`）  
 - 逻辑同 NotionNext：仅启用行生效，可 JSON，可 `INLINE_CONFIG`  

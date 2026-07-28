@@ -1,10 +1,10 @@
 # FeishuNext（NotionNext 二开）
 
-产品入口见根目录 [README.md](./README.md)。通读总览：[docs/feishu/PROJECT_GUIDE.md](./docs/feishu/PROJECT_GUIDE.md)。
+产品入口见根目录 [README.md](./README.md)。通读总览：[docs/internal/PROJECT_GUIDE.md](./docs/internal/PROJECT_GUIDE.md)。
 
 本仓库 = [NotionNext](https://github.com/notionnext-org/NotionNext) 前端壳 + 飞书数据层。
 
-> **项目灵魂（必读）：** [docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md)  
+> **项目灵魂（必读）：** [docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md)  
 > 一句话：把飞书 API 的复杂 JSON 洗成**展示向**结构化数据；官方擅长编辑与权限，我们补齐对外展示（及未来 AI 就绪）。
 
 
@@ -40,7 +40,7 @@ lib/feishu/* ← OpenAPI 客户端
 ```
 
 契约：`docs/feishu/`  
-任务清单：`docs/feishu/TASKS.md`  
+任务清单：`docs/internal/TASKS.md`  
 **主题数据契约（新主题/AI 必读）：** `docs/feishu/THEME_DATA_CONTRACT.md`
 
 ## 旧仓

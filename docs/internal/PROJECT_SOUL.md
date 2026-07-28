@@ -150,10 +150,10 @@
 |---|---|
 | 本文 `PROJECT_SOUL.md` | 为什么做 / 补齐什么 / 阶段划分 |
 | [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 三块数据与实现总纲 |
-| [STABLE_FEISHU_DATA.md](./STABLE_FEISHU_DATA.md) | 稳定 API 主路径 |
-| [FEISHU_DOCUMENT_CONTRACT.md](./FEISHU_DOCUMENT_CONTRACT.md) | 单篇文档字段与权限 |
-| [FEISHU_BLOCK_MAPPING.md](./FEISHU_BLOCK_MAPPING.md) | 块 → 展示模型 |
-| [THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md) | 主题开发：取数→结构→调用 |
+| [STABLE_FEISHU_DATA.md](../feishu/STABLE_FEISHU_DATA.md) | 稳定 API 主路径 |
+| [FEISHU_DOCUMENT_CONTRACT.md](../feishu/FEISHU_DOCUMENT_CONTRACT.md) | 单篇文档字段与权限 |
+| [FEISHU_BLOCK_MAPPING.md](../feishu/FEISHU_BLOCK_MAPPING.md) | 块 → 展示模型 |
+| [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题开发：取数→结构→调用 |
 | [TASKS.md](./TASKS.md) | 可执行任务 |
 
 ---

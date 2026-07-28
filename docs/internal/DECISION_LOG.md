@@ -177,7 +177,7 @@ Notion 全字段镜像表
 - 主题**禁止**直连飞书 API  
 - 正文**唯一**走 `NotionPage` → Feishu 渲染  
 - 配置走 `siteConfig` + `NOTION_CONFIG`  
-- 详见 [THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md)
+- 详见 [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md)
 
 ### 5.4 品牌与开源义务
 
@@ -299,9 +299,9 @@ Notion 全字段镜像表
 | [PROJECT_GUIDE.md](./PROJECT_GUIDE.md) | 结构与路线通读 |
 | [PROJECT_SOUL.md](./PROJECT_SOUL.md) | 痛点与价值 |
 | [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 三块数据总纲 |
-| [THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md) | 主题如何调数据 |
+| [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题如何调数据 |
 | [UPSTREAM.md](./UPSTREAM.md) | 上游同步 |
-| [../REPO_MAP.md](../REPO_MAP.md) | 目录与分支 |
+| [../REPO_MAP.md](./REPO_MAP.md) | 目录与分支 |
 | 根 [README.md](../../README.md) | 克隆与启动 |
 | [NOTICE](../../NOTICE) / [LICENSE](../../LICENSE) | 致谢与许可 |
 

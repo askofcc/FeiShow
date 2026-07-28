@@ -17,10 +17,10 @@
 
 一句话：官方飞书强在**编辑与权限**；FeishuNext 补齐**对外展示**（以及后续的 AI 就绪数据出口）。
 
-**回看讨论与运维共识：** [docs/feishu/DECISION_LOG.md](./docs/feishu/DECISION_LOG.md)  
-**通读结构总览：** [docs/feishu/PROJECT_GUIDE.md](./docs/feishu/PROJECT_GUIDE.md)  
+**回看讨论与运维共识：** [docs/internal/DECISION_LOG.md](./docs/internal/DECISION_LOG.md)  
+**通读结构总览：** [docs/internal/PROJECT_GUIDE.md](./docs/internal/PROJECT_GUIDE.md)  
 
-项目灵魂：[docs/feishu/PROJECT_SOUL.md](./docs/feishu/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md) · 仓库地图：[docs/REPO_MAP.md](./docs/REPO_MAP.md)
+项目灵魂：[docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md) · 仓库地图：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
 
 ---
 
@@ -29,7 +29,7 @@
 - **前端壳 / 主题 / SEO / 布局**：大量基于 NotionNext 开源项目（MIT）。
 - **本仓库不是** NotionNext 官方 fork 维护分支；Issue / PR 请开到 **askofcc/FeishuNext**。
 - **数据源已替换为飞书**；不要按 Notion 官方教程填 `NOTION_PAGE_ID` 当主路径。
-- 上游同步策略：[docs/feishu/UPSTREAM.md](./docs/feishu/UPSTREAM.md)
+- 上游同步策略：[docs/internal/UPSTREAM.md](./docs/internal/UPSTREAM.md)
 - 原版 NotionNext README 备份：[docs/upstream/README.NotionNext.md](./docs/upstream/README.NotionNext.md)
 
 ### Credits
@@ -99,13 +99,13 @@ NEXT_PUBLIC_THEME=example
 
 ## 仓库怎么读（避免「乱」）
 
-1. 先读本 README + `docs/feishu/PROJECT_SOUL.md`  
+1. 先读本 README + `docs/internal/PROJECT_SOUL.md`  
 2. 接飞书：`docs/feishu/STABLE_FEISHU_DATA.md`、内容表/CONFIG 契约  
 3. 做主题：`docs/feishu/THEME_DATA_CONTRACT.md`  
-4. 跟上游前端：`docs/feishu/UPSTREAM.md`  
+4. 跟上游前端：`docs/internal/UPSTREAM.md`  
 5. 根目录大量 `GOVERNANCE*` / `MAINTAINERS*` / 上游 user-guide：**来自 NotionNext，不是 FeishuNext 运营文档**
 
-更细的目录说明：[docs/REPO_MAP.md](./docs/REPO_MAP.md)
+更细的目录说明：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
 
 ---
 
