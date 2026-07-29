@@ -152,3 +152,31 @@ curl -s "$BASE/rss/feed.xml" | head
 
 后续可增强：`llms-full` 内嵌全文、按 tag/category 的 agent feed、Webhook 增量、Cloudflare 扫描分数趋势入库。  
 **不改变数据层主路径**：仍是飞书官方 API → normalize → 中间模型。
+
+---
+
+## 8. 部署状态（2026-07-29 实测）
+
+代码已合入 `main`（含 C0–C2 与 SSG Clerk 修复）。
+
+线上 `https://feishu-next-beta.vercel.app` **在新构建成功前**仍可能是旧产物：
+
+| 现象 | 原因 |
+|---|---|
+| robots/sitemap/rss 仍是 localhost | 旧部署；新动态路由未上线 |
+| `/llms.txt` 404 | 同上 |
+| 新 Production 构建 Error | 1) Vercel 上飞书应用缺 `bitable:*` 权限 → `fetchSiteFromFeishu` 失败；2) 失败后 SSG `/en` 曾因 Clerk `useUser` 崩（已修 client-only sync） |
+
+### 你需要做的运维动作
+
+1. 打开飞书应用权限，开通 **bitable:app / bitable:app:readonly / base:record:retrieve**，并确保 Vercel 环境变量里的 `FEISHU_APP_ID/SECRET` 对应该应用。  
+2. 生产 `NEXT_PUBLIC_LINK` 不要设 `http://localhost:3460`（可留空或设 beta/正式域）。  
+3. 重新 Deploy 成功后跑本文第 5 节验收；再提交 Cloudflare URL Scanner（`agentReadiness: true`）。
+
+### Cloudflare Scanner
+
+本侧会话调用 Cloudflare URL Scanner API 时工具层异常（HTTP 200 被当成 error），未能可靠写入新 scan。可用 Dashboard Investigate 或官方 API 自行扫：
+
+`https://feishu-next-beta.vercel.app/`
+
+基线 scan id（修前）：`b207cd19-e34f-4303-9995-a118c8a31401`
