@@ -7,14 +7,27 @@ function env(name: string, fallback = ''): string {
 }
 
 const appId = env('FEISHU_APP_ID')
-const contentApp = env('FEISHU_CONTENT_APP_TOKEN', env('FEISHU_BITABLE_APP_TOKEN', 'TafHbLNMTazT6NsnFgEcTry6n8c'))
-const contentTable = env('FEISHU_CONTENT_TABLE_ID', env('FEISHU_BITABLE_TABLE_ID', 'tbl6eQEHZ6ShGBk5'))
+// No product hardcode for table tokens — env optional, otherwise discover from FEISHU_SITE_ROOT
+const contentApp = env('FEISHU_CONTENT_APP_TOKEN', env('FEISHU_BITABLE_APP_TOKEN'))
+const contentTable = env('FEISHU_CONTENT_TABLE_ID', env('FEISHU_BITABLE_TABLE_ID'))
 
 const siteConfig = {
   demo:
     process.env.FEISHU_DEMO === 'true' ||
     (process.env.CMS_PROVIDER === 'feishu' ? !appId : !appId),
-  revalidateSeconds: Number(process.env.NEXT_PUBLIC_REVALIDATE_SECOND || 60),
+  // Default 300s; prefer CONFIG-TABLE NEXT_REVALIDATE_SECOND over Vercel env
+  revalidateSeconds: Number(process.env.NEXT_PUBLIC_REVALIDATE_SECOND || process.env.NEXT_REVALIDATE_SECOND || 300),
+  /**
+   * Build/SSG light mode: skip per-doc summary/cover fan-out (avoids Feishu rate limits on Vercel).
+   * Override with FEISHU_BUILD_LIGHT=false to force full fill during build.
+   */
+  buildLight:
+    process.env.FEISHU_BUILD_LIGHT === 'false'
+      ? false
+      : process.env.FEISHU_BUILD_LIGHT === 'true' ||
+        process.env.BUILD_MODE === 'true' ||
+        process.env.NEXT_PHASE === 'phase-production-build' ||
+        process.env.npm_lifecycle_event === 'build',
   feishu: {
     appId,
     appSecret: env('FEISHU_APP_SECRET'),
@@ -25,8 +38,8 @@ const siteConfig = {
     contentAppToken: contentApp,
     contentTableId: contentTable,
     contentViewId: env('FEISHU_CONTENT_VIEW_ID') || env('FEISHU_BITABLE_VIEW_ID'),
-    configAppToken: env('FEISHU_CONFIG_APP_TOKEN', 'JGShbeVp9aGGV3s2J4qcMmGAn0b'),
-    configTableId: env('FEISHU_CONFIG_TABLE_ID', 'tbl4qPlVgMLg5eaH'),
+    configAppToken: env('FEISHU_CONFIG_APP_TOKEN'),
+    configTableId: env('FEISHU_CONFIG_TABLE_ID'),
     listRoot: env('FEISHU_LIST_ROOT'),
     siteRoot: env('FEISHU_SITE_ROOT') || env('FEISHU_LIST_ROOT'),
     rootDocumentId: env('FEISHU_ROOT_DOCUMENT_ID'),

@@ -13,6 +13,7 @@ import {
   applyCoverCascade,
   type ContentRow
 } from './feishu.content'
+import siteConfig from '@/lib/feishu/config'
 import { resolvePageIcon } from '@/lib/feishu/page-icon'
 import formatDate from '@/lib/utils/formatDate'
 
@@ -204,6 +205,16 @@ function buildMenus(rows: ContentRow[]): MenuItem[] {
  * Build NotionNext-compatible SiteData from Feishu content table + CONFIG table.
  */
 export async function fetchSiteFromFeishu(): Promise<SiteData> {
+  const siteRoot =
+    process.env.FEISHU_SITE_ROOT ||
+    process.env.FEISHU_LIST_ROOT ||
+    (siteConfig as any)?.feishu?.siteRoot ||
+    ''
+  if (!String(siteRoot).trim()) {
+    console.warn(
+      '[feishu] FEISHU_SITE_ROOT is empty — set the main wiki/doc root (required product input)'
+    )
+  }
   const configMap = await loadConfigMap()
   let rows = await loadContentRows()
   rows = await resolveDocumentIds(rows)
@@ -237,24 +248,36 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     coverToken: siteBrand.coverToken
   } as { pageCover: string; source: 'config' | 'site-root' | 'empty'; coverToken?: string }
   try {
+    // Drive meta (times/owner) — one batch API, keep on build
     allPostRows = await fillOfficialDriveFields(allPostRows)
     pageRowsFilled = await fillOfficialDriveFields(pageRowsFilled)
     noticeRowsFilled = await fillOfficialDriveFields(noticeRowsFilled)
 
-    allPostRows = await fillMissingSummaries(allPostRows, { concurrency: 4, maxLen: 120 })
-    pageRowsFilled = await fillMissingSummaries(pageRowsFilled, { concurrency: 3, maxLen: 120 })
-    noticeRowsFilled = await fillMissingSummaries(noticeRowsFilled, { concurrency: 2, maxLen: 120 })
-    allPostRows = await fillMissingCovers(allPostRows, { concurrency: 4 })
-    pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 3 })
-    noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
-    // category parent covers for cascade step 2
-    categoryRowsFilled = await fillMissingCovers(categoryRowsFilled, { concurrency: 3 })
-    // post cover: own → category → site
-    allPostRows = applyCoverCascade(
-      allPostRows,
-      categoryRowsFilled,
-      bannerEarly.pageCover
-    )
+    const buildLight = Boolean((siteConfig as any).buildLight ?? false)
+    if (buildLight) {
+      console.log(
+        '[feishu] BUILD_LIGHT: skip per-doc summary/cover fan-out (use table fields + site banner)'
+      )
+      // Still apply cascade from category rows that already have cover in table + site banner
+      allPostRows = applyCoverCascade(
+        allPostRows,
+        categoryRowsFilled,
+        bannerEarly.pageCover
+      )
+    } else {
+      allPostRows = await fillMissingSummaries(allPostRows, { concurrency: 3, maxLen: 120 })
+      pageRowsFilled = await fillMissingSummaries(pageRowsFilled, { concurrency: 2, maxLen: 120 })
+      noticeRowsFilled = await fillMissingSummaries(noticeRowsFilled, { concurrency: 2, maxLen: 120 })
+      allPostRows = await fillMissingCovers(allPostRows, { concurrency: 3 })
+      pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 2 })
+      noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
+      categoryRowsFilled = await fillMissingCovers(categoryRowsFilled, { concurrency: 2 })
+      allPostRows = applyCoverCascade(
+        allPostRows,
+        categoryRowsFilled,
+        bannerEarly.pageCover
+      )
+    }
   } catch (e) {
     console.warn('[feishu] fill drive/summary/cover skipped', e)
   }
@@ -310,7 +333,11 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     '飞书驱动的公开站点'
   ).toString().trim()
   const description = stripTitlePrefix(descriptionRaw, title) || descriptionRaw
-  const link = configMap.LINK || process.env.NEXT_PUBLIC_LINK || 'http://localhost:3460'
+  const link =
+    configMap.LINK ||
+    process.env.NEXT_PUBLIC_LINK ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
+    'http://localhost:3460'
   // KEYWORDS: same idea as TITLE — CONFIG off → 主配置页标题（siteBrand.title）
   const keywords = (
     configMap.KEYWORDS ||
@@ -369,6 +396,14 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
       AVATAR: configMap.AVATAR || configMap.ICON || siteBrand.authorAvatar || '',
       THEME: configMap.THEME || process.env.NEXT_PUBLIC_THEME || 'example',
       CMS_PROVIDER: 'feishu',
+      // Cache TTL: CONFIG-TABLE > env > 300s default (do not require Vercel env)
+      NEXT_REVALIDATE_SECOND: Number(
+        configMap.NEXT_REVALIDATE_SECOND ??
+          configMap.NEXT_PUBLIC_REVALIDATE_SECOND ??
+          process.env.NEXT_PUBLIC_REVALIDATE_SECOND ??
+          process.env.NEXT_REVALIDATE_SECOND ??
+          300
+      ),
       // so themes reading siteConfig('HOME_BANNER_IMAGE') also get fallback
       HOME_BANNER_IMAGE: banner.pageCover || configMap.HOME_BANNER_IMAGE || ''
     },

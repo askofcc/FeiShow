@@ -1,4 +1,5 @@
 import siteConfig from '@/lib/feishu/config'
+import { resolveFeishuTables } from '@/lib/feishu/bootstrap'
 import {
   extractDate,
   extractDocToken,
@@ -155,9 +156,15 @@ function toPostSlugAndHref(tokenOrSlug: string): { slug: string; href: string } 
 }
 
 export async function loadContentRows(): Promise<ContentRow[]> {
+  const tables = await resolveFeishuTables()
   const feishu = siteConfig.feishu as any
-  const appToken = feishu.contentAppToken || feishu.bitableAppToken
-  const tableId = feishu.contentTableId || feishu.bitableTableId
+  const appToken = tables.contentAppToken || feishu.contentAppToken || feishu.bitableAppToken
+  const tableId = tables.contentTableId || feishu.contentTableId || feishu.bitableTableId
+  if (!appToken || !tableId) {
+    throw new Error(
+      'Missing content table. Set FEISHU_SITE_ROOT (recommended) or FEISHU_CONTENT_APP_TOKEN + FEISHU_CONTENT_TABLE_ID'
+    )
+  }
   // Use table Grid/view order = what user sees in Feishu (no 排序 column needed)
   const viewId = await resolveBitableViewId(
     appToken,
@@ -698,7 +705,11 @@ export async function fillOfficialDriveFields(rows: ContentRow[]): Promise<Conte
     return next
   })
 
-  // Resolve author display names (best-effort; contact scope may be missing)
+  // Resolve author display names (best-effort; contact scope may be missing).
+  // Skip during buildLight to avoid extra Feishu fan-out on Vercel SSG.
+  if ((siteConfig as any).buildLight) {
+    return withMeta
+  }
   const authorIds = Array.from(
     new Set(withMeta.map(r => r.authorId).filter(Boolean) as string[])
   )
@@ -1058,10 +1069,14 @@ function isBooleanConfigValue(parsed: unknown, valueRaw: string, key: string): b
  * Do NOT put `false` in 配置值 to mean "default off" — leave 启用 unchecked instead.
  */
 export async function loadConfigMap(): Promise<Record<string, any>> {
+  const tables = await resolveFeishuTables()
   const feishu = siteConfig.feishu as any
-  const appToken = feishu.configAppToken
-  const tableId = feishu.configTableId
-  if (!appToken || !tableId) return {}
+  const appToken = tables.configAppToken || feishu.configAppToken
+  const tableId = tables.configTableId || feishu.configTableId
+  if (!appToken || !tableId) {
+    console.warn('[feishu] CONFIG table not resolved; site uses env/blog defaults only. Set FEISHU_SITE_ROOT or FEISHU_CONFIG_*')
+    return {}
+  }
   try {
     const records = await listBitableRecordsFrom(appToken, tableId)
     const map: Record<string, any> = {}
