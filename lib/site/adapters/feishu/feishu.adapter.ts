@@ -356,12 +356,35 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     '飞书驱动的公开站点'
   ).toString().trim()
   const description = stripTitlePrefix(descriptionRaw, title) || descriptionRaw
-  // LINK: CONFIG > explicit public link env > Vercel deployment URL (platform, not site brand)
+  // LINK: non-local CONFIG/env > Vercel URL > localhost (dev only)
+  // Localhost in CONFIG or NEXT_PUBLIC_LINK must not win on production deploys.
+  const pickPublicLink = (...values: Array<unknown>) => {
+    for (const value of values) {
+      if (value === undefined || value === null) continue
+      const raw = String(value).trim()
+      if (!raw) continue
+      try {
+        const withProto = /^(https?:)?\/\//i.test(raw) ? raw : `https://${raw}`
+        const host = new URL(withProto).hostname.toLowerCase()
+        if (!host || host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') {
+          continue
+        }
+        return raw.replace(/\/+$/, '')
+      } catch {
+        continue
+      }
+    }
+    return ''
+  }
   const link =
-    configMap.LINK ||
-    process.env.NEXT_PUBLIC_LINK ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
-    'http://localhost:3460'
+    pickPublicLink(
+      configMap.LINK,
+      process.env.NEXT_PUBLIC_LINK,
+      process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${String(process.env.VERCEL_PROJECT_PRODUCTION_URL).replace(/^https?:\/\//, '')}`
+        : '',
+      process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : ''
+    ) || 'http://localhost:3460'
   const keywords = (
     configMap.KEYWORDS ||
     configMap.NEXT_PUBLIC_KEYWORD ||

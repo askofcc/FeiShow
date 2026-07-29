@@ -164,3 +164,14 @@
 > **价值：** 清洗重组为展示向结构化数据，并挂上独立站能力。  
 > **现在：** 把「数据结构化」做对、做稳。  
 > **以后：** 在同一结构上提升「AI 就绪度」，而不是另起炉灶。
+
+---
+
+## Agent 就绪度（Stage C）
+
+结构化数据之后，需要让 **AI Agent / 机器读者** 能发现并低成本消费公开内容（robots、sitemap、llms.txt、JSON/Markdown 出口）。
+
+细则与验收见：[AGENT_READINESS.md](./AGENT_READINESS.md)。
+
+> 原则不变：不把飞书编辑态 JSON 直接喂给 Agent；先结构化，再分发。
+

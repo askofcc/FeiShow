@@ -2,6 +2,7 @@ import BLOG from '@/blog.config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
 import { generateRss, shouldGenerateRssForLocale } from '@/lib/utils/rss'
 import { Feed } from 'feed'
+import { resolvePublicSiteLink } from '@/lib/utils/publicSiteLink'
 
 /**
  * In-memory RSS cache to avoid regenerating on every request.
@@ -11,20 +12,25 @@ let rssCache = {
   xml: null,
   atomXml: null,
   json: null,
+  link: null,
   updatedAt: 0
 }
 
 const CACHE_TTL_MS = 10 * 60 * 1000 // 10 minutes
 
-function isCacheFresh() {
-  return rssCache.xml && Date.now() - rssCache.updatedAt < CACHE_TTL_MS
+function isCacheFresh(link) {
+  return (
+    rssCache.xml &&
+    rssCache.link === link &&
+    Date.now() - rssCache.updatedAt < CACHE_TTL_MS
+  )
 }
 
 /**
  * Generate RSS feed content from site data.
  * Reuses the same data pipeline as the homepage getStaticProps.
  */
-async function generateRssContent() {
+async function generateRssContent(req) {
   const locale = BLOG.LANG
   const defaultLocale = BLOG.LANG
   const pageId = BLOG.NOTION_PAGE_ID
@@ -58,7 +64,10 @@ async function generateRssContent() {
 
   const TITLE = siteInfo?.title || BLOG.AUTHOR
   const DESCRIPTION = siteInfo?.description || BLOG.BIO
-  const LINK = siteInfo?.link || BLOG.LINK
+  const LINK = resolvePublicSiteLink({
+    req,
+    candidates: [siteInfo?.link, BLOG.LINK, process.env.NEXT_PUBLIC_LINK]
+  })
   const AUTHOR = NOTION_CONFIG?.AUTHOR || BLOG.AUTHOR
   const LANG = NOTION_CONFIG?.LANG || BLOG.LANG
   const year = new Date().getFullYear()
@@ -98,11 +107,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!isCacheFresh()) {
-      const content = await generateRssContent()
+    const previewLink = resolvePublicSiteLink({
+      req,
+      candidates: [BLOG.LINK, process.env.NEXT_PUBLIC_LINK]
+    })
+    if (!isCacheFresh(previewLink)) {
+      const content = await generateRssContent(req)
       if (content) {
         rssCache = {
           ...content,
+          link: previewLink,
           updatedAt: Date.now()
         }
       }

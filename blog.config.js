@@ -21,11 +21,25 @@ const BLOG = {
 
   AUTHOR: process.env.NEXT_PUBLIC_AUTHOR || 'FeishuNext',
   BIO: process.env.NEXT_PUBLIC_BIO || '飞书内容的公开站点层',
-  // Prefer explicit LINK; on Vercel fall back to deployment URL (no need to set domain in env)
-  LINK:
-    process.env.NEXT_PUBLIC_LINK ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
-    'https://feishunext.srint.cn/',
+  // Prefer explicit non-local LINK; on Vercel fall back to deployment URL.
+  // NEXT_PUBLIC_LINK=http://localhost:* is ignored when VERCEL_URL is present.
+  LINK: (() => {
+    const raw = process.env.NEXT_PUBLIC_LINK || ''
+    const isLocal =
+      !raw ||
+      /localhost|127\.0\.0\.1/i.test(raw)
+    if (raw && !isLocal) return raw
+    if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+      const host = String(process.env.VERCEL_PROJECT_PRODUCTION_URL).replace(
+        /^https?:\/\//,
+        ''
+      )
+      return `https://${host}`
+    }
+    if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+    if (raw) return raw
+    return 'https://feishunext.srint.cn/'
+  })(),
   KEYWORDS: process.env.NEXT_PUBLIC_KEYWORD || '飞书,文档站,FeishuNext,博客,知识库',
   BLOG_FAVICON: process.env.NEXT_PUBLIC_FAVICON || '/favicon.ico', // blog favicon 配置, 默认使用 /public/favicon.ico，支持在线图片，如 https://img.imesong.com/favicon.png
   BEI_AN: process.env.NEXT_PUBLIC_BEI_AN || '', // 备案号 闽ICP备XXXXXX

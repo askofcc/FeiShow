@@ -77,6 +77,12 @@ const preBuild = (function () {
   if (process.env.NEXT_PRIVATE_BUILD_WORKER) {
     return
   }
+  const robotsPath = path.resolve(__dirname, 'public', 'robots.txt')
+  if (fs.existsSync(robotsPath)) {
+    fs.unlinkSync(robotsPath)
+    console.log('Deleted existing robots.txt from public directory (use dynamic /api/robots)')
+  }
+
   const sitemapPath = path.resolve(__dirname, 'public', 'sitemap.xml')
   if (fs.existsSync(sitemapPath)) {
     fs.unlinkSync(sitemapPath)
@@ -303,6 +309,18 @@ const nextConfig = {
       return [
         ...langsRewrites,
         // RSS fallback: when static file doesn't exist, route to API
+        {
+          source: '/robots.txt',
+          destination: '/api/robots'
+        },
+        {
+          source: '/llms.txt',
+          destination: '/api/llms'
+        },
+        {
+          source: '/llms-full.txt',
+          destination: '/api/llms?full=1'
+        },
         {
           source: '/rss/feed.xml',
           destination: '/api/rss'

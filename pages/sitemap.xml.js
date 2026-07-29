@@ -10,6 +10,7 @@ import {
 } from '@/lib/sitemap-utils'
 import { extractLangId, extractLangPrefix } from '@/lib/utils/pageId'
 import { getServerSideSitemap } from 'next-sitemap'
+import { resolvePublicSiteLink } from '@/lib/utils/publicSiteLink'
 
 export const getServerSideProps = async ctx => {
   let fields = []
@@ -24,11 +25,15 @@ export const getServerSideProps = async ctx => {
       pageId: id,
       from: 'sitemap.xml'
     })
-    const link = siteConfig(
+    const configured = siteConfig(
       'LINK',
       siteData?.siteInfo?.link,
       siteData.NOTION_CONFIG
     )
+    const link = resolvePublicSiteLink({
+      req: ctx.req,
+      candidates: [configured, siteData?.siteInfo?.link, BLOG.LINK]
+    })
     const localeFields = generateLocalesSitemap(link, siteData.allPages, locale)
     fields = fields.concat(localeFields)
   }

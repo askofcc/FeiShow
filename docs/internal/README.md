@@ -36,3 +36,4 @@
 
 产品只保留 **`main`**（`origin/main`）。  
 `upstream/main` 为 NotionNext 只读跟踪，不是功能分支。
+- [AGENT_READINESS.md](./AGENT_READINESS.md) — AI 智能体就绪度（C0–C2）
