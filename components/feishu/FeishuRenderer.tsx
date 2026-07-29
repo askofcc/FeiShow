@@ -153,8 +153,7 @@ function ListItemBody({
 }) {
   const children = (block.children || [])
     .map((id) => blockMap[id])
-    .filter(Boolean)
-    .filter((b) => b.type !== "table_cell");
+    .filter((b): b is FeishuBlock => Boolean(b) && b.type !== "table_cell");
 
   return (
     <li>
@@ -229,8 +228,7 @@ function BlockView({
 }) {
   const children = (block.children || [])
     .map((id) => blockMap[id])
-    .filter(Boolean)
-    .filter((b) => b.type !== "table_cell");
+    .filter((b): b is FeishuBlock => Boolean(b) && b.type !== "table_cell");
 
   switch (block.type) {
     case "page":
@@ -446,7 +444,7 @@ function BlockView({
               style={{ width: `${100 / total}%`, flexGrow: 1, flexShrink: 1 }}
             >
               <BlockChildren
-                blocks={(col.children || []).map((id) => blockMap[id]).filter(Boolean)}
+                blocks={(col.children || []).map((id) => blockMap[id]).filter((b): b is FeishuBlock => Boolean(b))}
                 blockMap={blockMap}
               />
               {idx < cols.length - 1 ? <div className="notion-spacer" /> : null}
