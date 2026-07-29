@@ -709,6 +709,7 @@ export async function fillOfficialDriveFields(rows: ContentRow[]): Promise<Conte
     while (cursor < authorIds.length) {
       const i = cursor++
       const id = authorIds[i]
+      if (!id) continue
       // pick any file token for view_records fallback
       const sample = withMeta.find(r => r.authorId === id && r.documentId)
       try {

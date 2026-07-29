@@ -57,6 +57,7 @@ export async function postsFromListRoot(
 
   for (let i = 0; i < docs.length; i += 1) {
     const node = docs[i];
+    if (!node) continue;
     const title = await resolveTitle(node, i);
     // Prefer stable ASCII wiki node_token as slug (avoids Chinese URL / encoding pitfalls).
     // Fall back to slugified title when token missing.

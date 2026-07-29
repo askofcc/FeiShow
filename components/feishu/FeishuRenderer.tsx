@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { FeishuBlock, FeishuPageContent, TextRun } from "@/lib/feishu/types";
 import { plainTextFromRuns } from "@/lib/feishu/text-utils";
 
@@ -21,6 +22,23 @@ function mapEmoji(id?: string): string {
   if (!/^[a-z0-9_]+$/i.test(id)) return id;
   return EMOJI_MAP[id] || EMOJI_MAP[id.toLowerCase()] || "💡";
 }
+
+/** Resolve child blocks without `filter(Boolean)` (TS does not narrow that). */
+function resolveChildBlocks(
+  ids: string[] | undefined,
+  blockMap: Record<string, FeishuBlock>,
+  opts?: { excludeTableCell?: boolean },
+): FeishuBlock[] {
+  const out: FeishuBlock[] = [];
+  for (const id of ids || []) {
+    const b = blockMap[id];
+    if (!b) continue;
+    if (opts?.excludeTableCell && b.type === "table_cell") continue;
+    out.push(b);
+  }
+  return out;
+}
+
 
 function EmbedCard({
   kind,
@@ -123,7 +141,7 @@ function RichText({ runs }: { runs?: TextRun[] }) {
   return (
     <>
       {runs.map((run, idx) => {
-        let node: React.ReactNode = run.text;
+        let node: ReactNode = run.text;
         const s = run.style;
         if (!s) return <span key={idx}>{node}</span>;
         if (s.inlineCode) node = <code className="notion-inline-code">{node}</code>;
@@ -151,15 +169,13 @@ function ListItemBody({
   block: FeishuBlock;
   blockMap: Record<string, FeishuBlock>;
 }) {
-  const children = (block.children || [])
-    .map((id) => blockMap[id])
-    .filter((b): b is FeishuBlock => Boolean(b) && b.type !== "table_cell");
+  const children = resolveChildBlocks(block.children, blockMap, { excludeTableCell: true });
 
   return (
     <li>
       <div className="notion-list-item">
         <span className="notion-list-item-body">
-          <RichText runs={block.text} />
+          <RichText runs={block.text ?? []} />
         </span>
       </div>
       {children.length ? (
@@ -179,18 +195,26 @@ function BlockChildren({
   blocks: FeishuBlock[];
   blockMap: Record<string, FeishuBlock>;
 }) {
-  const out: React.ReactNode[] = [];
+  const out: ReactNode[] = [];
   let i = 0;
   while (i < blocks.length) {
     const b = blocks[i];
+    if (!b) {
+      i += 1;
+      continue;
+    }
     if (b.type === "bullet") {
       const group: FeishuBlock[] = [];
-      while (i < blocks.length && blocks[i].type === "bullet") {
-        group.push(blocks[i]);
+      while (i < blocks.length) {
+        const cur = blocks[i];
+        if (!cur || cur.type !== "bullet") break;
+        group.push(cur);
         i += 1;
       }
+      const first = group[0];
+      if (!first) continue;
       out.push(
-        <ul key={`ul-${group[0].id}`} className="notion-list notion-list-disc">
+        <ul key={`ul-${first.id}`} className="notion-list notion-list-disc">
           {group.map((item) => (
             <ListItemBody key={item.id} block={item} blockMap={blockMap} />
           ))}
@@ -200,12 +224,16 @@ function BlockChildren({
     }
     if (b.type === "ordered") {
       const group: FeishuBlock[] = [];
-      while (i < blocks.length && blocks[i].type === "ordered") {
-        group.push(blocks[i]);
+      while (i < blocks.length) {
+        const cur = blocks[i];
+        if (!cur || cur.type !== "ordered") break;
+        group.push(cur);
         i += 1;
       }
+      const first = group[0];
+      if (!first) continue;
       out.push(
-        <ol key={`ol-${group[0].id}`} className="notion-list notion-list-numbered" start={1}>
+        <ol key={`ol-${first.id}`} className="notion-list notion-list-numbered" start={1}>
           {group.map((item) => (
             <ListItemBody key={item.id} block={item} blockMap={blockMap} />
           ))}
@@ -226,9 +254,7 @@ function BlockView({
   block: FeishuBlock;
   blockMap: Record<string, FeishuBlock>;
 }) {
-  const children = (block.children || [])
-    .map((id) => blockMap[id])
-    .filter((b): b is FeishuBlock => Boolean(b) && b.type !== "table_cell");
+  const children = resolveChildBlocks(block.children, blockMap, { excludeTableCell: true });
 
   switch (block.type) {
     case "page":
@@ -242,7 +268,7 @@ function BlockView({
       return (
         <h2 id={block.id} data-id={block.id} className="notion-h notion-h1">
           <span className="notion-h-title">
-            <RichText runs={block.text} />
+            <RichText runs={block.text ?? []} />
           </span>
         </h2>
       );
@@ -250,7 +276,7 @@ function BlockView({
       return (
         <h3 id={block.id} data-id={block.id} className="notion-h notion-h2">
           <span className="notion-h-title">
-            <RichText runs={block.text} />
+            <RichText runs={block.text ?? []} />
           </span>
         </h3>
       );
@@ -258,7 +284,7 @@ function BlockView({
       return (
         <h4 id={block.id} data-id={block.id} className="notion-h notion-h3">
           <span className="notion-h-title">
-            <RichText runs={block.text} />
+            <RichText runs={block.text ?? []} />
           </span>
         </h4>
       );
@@ -268,7 +294,7 @@ function BlockView({
       return (
         <h5 id={block.id} data-id={block.id} className="notion-h notion-h3">
           <span className="notion-h-title">
-            <RichText runs={block.text} />
+            <RichText runs={block.text ?? []} />
           </span>
         </h5>
       );
@@ -278,7 +304,7 @@ function BlockView({
       if (empty && !children.length) return <div className="notion-blank" />;
       return (
         <div className="notion-text">
-          <RichText runs={block.text} />
+          <RichText runs={block.text ?? []} />
           {children.length ? (
             <div className="notion-text-children">
               <BlockChildren blocks={children} blockMap={blockMap} />
@@ -320,7 +346,7 @@ function BlockView({
               </div>
             </div>
             <div className="notion-to-do-body">
-              <RichText runs={block.text} />
+              <RichText runs={block.text ?? []} />
             </div>
           </div>
           {children.length ? (
@@ -337,7 +363,7 @@ function BlockView({
         <blockquote className="notion-quote">
           {block.text?.length ? (
             <div>
-              <RichText runs={block.text} />
+              <RichText runs={block.text ?? []} />
             </div>
           ) : null}
           {children.length ? <BlockChildren blocks={children} blockMap={blockMap} /> : null}
@@ -353,7 +379,7 @@ function BlockView({
             </span>
           </div>
           <div className="notion-callout-text">
-            {block.text?.length ? <RichText runs={block.text} /> : null}
+            {block.text?.length ? <RichText runs={block.text ?? []} /> : null}
             {children.length ? <BlockChildren blocks={children} blockMap={blockMap} /> : null}
           </div>
         </div>
@@ -366,7 +392,7 @@ function BlockView({
           {lang ? <div className="notion-code-lang">{lang}</div> : null}
           <pre className="notion-code">
             <code className={lang ? `language-${lang}` : undefined}>
-              <RichText runs={block.text} />
+              <RichText runs={block.text ?? []} />
             </code>
           </pre>
         </div>
@@ -377,7 +403,7 @@ function BlockView({
       return (
         <div className="notion-equation notion-equation-block">
           <code>
-            <RichText runs={block.text} />
+            <RichText runs={block.text ?? []} />
           </code>
         </div>
       );
@@ -444,7 +470,7 @@ function BlockView({
               style={{ width: `${100 / total}%`, flexGrow: 1, flexShrink: 1 }}
             >
               <BlockChildren
-                blocks={(col.children || []).map((id) => blockMap[id]).filter((b): b is FeishuBlock => Boolean(b))}
+                blocks={resolveChildBlocks(col.children, blockMap)}
                 blockMap={blockMap}
               />
               {idx < cols.length - 1 ? <div className="notion-spacer" /> : null}
@@ -467,21 +493,18 @@ function BlockView({
       const token = block.embed?.token;
       const imageUrl = kind === "board" && token ? `/api/feishu/board/${token}` : undefined;
       const preview = block.embed?.preview;
+      const subtitle = imageUrl
+        ? "画板预览（官方 export image）"
+        : preview
+          ? "数据预览"
+          : "飞书嵌入块 · 阅读态预览";
       return (
         <EmbedCard
           kind={kind}
           title={title}
-          subtitle={
-            imageUrl
-              ? "画板预览（官方 export image）"
-              : preview
-                ? "数据预览"
-                : token
-                  ? "飞书嵌入块 · 阅读态预览"
-                  : "飞书嵌入块 · 阅读态预览"
-          }
-          imageUrl={imageUrl}
-          preview={preview}
+          subtitle={subtitle}
+          {...(imageUrl ? { imageUrl } : {})}
+          {...(preview ? { preview } : {})}
         />
       );
     }
@@ -529,7 +552,7 @@ function BlockView({
       if (block.text?.length) {
         return (
           <div className="notion-text">
-            <RichText runs={block.text} />
+            <RichText runs={block.text ?? []} />
           </div>
         );
       }

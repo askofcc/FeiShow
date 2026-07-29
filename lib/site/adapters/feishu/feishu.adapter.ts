@@ -220,7 +220,7 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     if (!postMap.has(p.slug)) postMap.set(p.slug, p)
   }
   // Official drive meta times/owner first, then summary/cover fill
-  let allPostRows = [...postMap.values()]
+  let allPostRows = Array.from(postMap.values())
   let pageRowsFilled = pageRows
   let noticeRowsFilled = noticeRows
   let categoryRowsFilled = categoryRows
@@ -419,7 +419,7 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
       feishuContent: null,
       pageCoverThumbnail: page.pageCoverThumbnail || null,
       password: null
-    })
+    }) as BasePage & Record<string, any>
   }
   const body = await loadFeishuArticleBody({
     documentId,
@@ -510,7 +510,7 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
       source: 'feishu'
     },
     password: null
-  })
+  }) as BasePage & Record<string, any>
 }
 
 export async function findFeishuPageBySlug(

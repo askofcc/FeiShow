@@ -5,12 +5,15 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function slugify(input: string): string {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{L}\p{N}]+/gu, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 80) || "untitled";
+  return (
+    input
+      .trim()
+      .toLowerCase()
+      // Keep letters/numbers/CJK; collapse the rest to "-"
+      .replace(/[^a-z0-9\u4e00-\u9fff]+/gi, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80) || "untitled"
+  );
 }
 
 export function absoluteUrl(path: string, base: string): string {
