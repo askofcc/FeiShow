@@ -19,7 +19,6 @@ import BLOG from '@/blog.config'
 import ExternalPlugins from '@/components/ExternalPlugins'
 import SEO from '@/components/SEO'
 import { zhCN } from '@clerk/localizations'
-import dynamic from 'next/dynamic'
 import { ClerkProvider } from '@clerk/nextjs'
 // Static import: dynamic() ClerkProvider can omit context during SSG and
 // crash useUser() with "Cannot destructure property 'auth'".
