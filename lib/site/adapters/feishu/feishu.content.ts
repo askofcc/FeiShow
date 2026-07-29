@@ -1,5 +1,6 @@
 import siteConfig from '@/lib/feishu/config'
 import { resolveFeishuTables } from '@/lib/feishu/bootstrap'
+import { memoAsync } from '@/lib/feishu/memo'
 import {
   extractDate,
   extractDocToken,
@@ -268,18 +269,17 @@ export async function loadContentRows(): Promise<ContentRow[]> {
 }
 
 export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow[]> {
-  const out: ContentRow[] = []
-  for (const row of rows) {
-    if (!row.docToken) {
-      out.push(row)
-      continue
-    }
+  const concurrency = Math.min(6, Math.max(1, rows.length || 1))
+  const out: ContentRow[] = new Array(rows.length)
+  let cursor = 0
+
+  async function resolveOne(row: ContentRow): Promise<ContentRow> {
+    if (!row.docToken) return row
     try {
       const node = await resolveWikiNode(row.docToken)
       if (node) {
         const nodeToken = node.node_token || row.docToken
         const documentId = node.obj_token || row.docToken
-        // Posts: stable node_token. Pages/Notice: prefer table slug (about/links/notice).
         let stableSlug =
           row.type === 'page' || row.type === 'notice'
             ? row.customSlug || nodeToken || documentId || row.slug
@@ -290,17 +290,17 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         if (row.type === 'page') {
           href = `/${stableSlug}`
         } else if (row.type === 'post') {
-          const p = toPostSlugAndHref(stableSlug)
-          stableSlug = p.slug
-          href = p.href
+          const path = toPostSlugAndHref(stableSlug)
+          stableSlug = path.slug
+          href = path.href
         } else if (row.type === 'notice') {
           if (row.customSlug) {
             href = `/${row.customSlug}`
             stableSlug = row.customSlug
           } else {
-            const p = toPostSlugAndHref(stableSlug)
-            stableSlug = p.slug
-            href = p.href
+            const path = toPostSlugAndHref(stableSlug)
+            stableSlug = path.slug
+            href = path.href
           }
         }
         const editTs = node.obj_edit_time
@@ -309,7 +309,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         const createTs = node.obj_create_time
           ? Number(node.obj_create_time) * (Number(node.obj_create_time) < 1e12 ? 1000 : 1)
           : undefined
-        out.push({
+        return {
           ...row,
           nodeToken,
           documentId,
@@ -324,45 +324,56 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
               : createTs && Number.isFinite(createTs)
                 ? new Date(createTs).toISOString()
                 : row.date)
-        })
-      } else {
-        const documentId = row.docToken
-        let stableSlug =
-          row.type === 'page' || row.type === 'notice'
-            ? row.customSlug || documentId || row.slug
-            : row.type === 'post'
-              ? documentId || row.slug
-              : row.customSlug || row.slug
-        let href = row.href
-        if (row.type === 'page') {
-          href = `/${stableSlug}`
-        } else if (row.type === 'post') {
-          const p = toPostSlugAndHref(stableSlug)
-          stableSlug = p.slug
-          href = p.href
-        } else if (row.type === 'notice') {
-          if (row.customSlug) {
-            href = `/${row.customSlug}`
-            stableSlug = row.customSlug
-          } else {
-            const p = toPostSlugAndHref(stableSlug)
-            stableSlug = p.slug
-            href = p.href
-          }
         }
-        out.push({
-          ...row,
-          documentId,
-          nodeToken: row.docToken,
-          slug: stableSlug,
-          href
-        })
+      }
+
+      const documentId = row.docToken
+      let stableSlug =
+        row.type === 'page' || row.type === 'notice'
+          ? row.customSlug || documentId || row.slug
+          : row.type === 'post'
+            ? documentId || row.slug
+            : row.customSlug || row.slug
+      let href = row.href
+      if (row.type === 'page') {
+        href = `/${stableSlug}`
+      } else if (row.type === 'post') {
+        const path = toPostSlugAndHref(stableSlug)
+        stableSlug = path.slug
+        href = path.href
+      } else if (row.type === 'notice') {
+        if (row.customSlug) {
+          href = `/${row.customSlug}`
+          stableSlug = row.customSlug
+        } else {
+          const path = toPostSlugAndHref(stableSlug)
+          stableSlug = path.slug
+          href = path.href
+        }
+      }
+      return {
+        ...row,
+        documentId,
+        nodeToken: row.docToken,
+        slug: stableSlug,
+        href
       }
     } catch {
-      out.push({ ...row, documentId: row.docToken, nodeToken: row.docToken })
+      return { ...row, documentId: row.docToken, nodeToken: row.docToken }
     }
   }
-  return out
+
+  async function worker() {
+    while (cursor < rows.length) {
+      const i = cursor++
+      const row = rows[i]
+      if (!row) continue
+      out[i] = await resolveOne(row)
+    }
+  }
+
+  await Promise.all(Array.from({ length: concurrency }, () => worker()))
+  return out.filter(Boolean) as ContentRow[]
 }
 
 /** Expand category rows: parent wiki children become posts. */
@@ -854,7 +865,7 @@ export async function fillMissingCovers(
   return out
 }
 
-export async function loadFeishuArticleBody(opts: {
+async function loadFeishuArticleBodyUncached(opts: {
   documentId: string
   title?: string
 }): Promise<{
@@ -1055,6 +1066,15 @@ function isBooleanConfigValue(parsed: unknown, valueRaw: string, key: string): b
   if (BOOLEAN_FEATURE_KEYS.has(key)) return true
   const s = (valueRaw || '').trim().toLowerCase()
   return s === 'true' || s === 'false'
+}
+
+export async function loadFeishuArticleBody(opts: {
+  documentId: string
+  title?: string
+}): Promise<Awaited<ReturnType<typeof loadFeishuArticleBodyUncached>>> {
+  return memoAsync('article-body', String(opts.documentId || ''), () =>
+    loadFeishuArticleBodyUncached(opts)
+  )
 }
 
 /**

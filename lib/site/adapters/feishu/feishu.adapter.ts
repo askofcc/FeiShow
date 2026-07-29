@@ -203,8 +203,26 @@ function buildMenus(rows: ContentRow[]): MenuItem[] {
 
 /**
  * Build NotionNext-compatible SiteData from Feishu content table + CONFIG table.
+ * Process-local memo: parallel getStaticProps must not fan out identical site fetches.
  */
+let siteDataMemo: SiteData | null = null
+let siteDataInflight: Promise<SiteData> | null = null
+
 export async function fetchSiteFromFeishu(): Promise<SiteData> {
+  if (siteDataMemo) return siteDataMemo
+  if (siteDataInflight) return siteDataInflight
+  siteDataInflight = fetchSiteFromFeishuUncached()
+    .then(data => {
+      siteDataMemo = data
+      return data
+    })
+    .finally(() => {
+      siteDataInflight = null
+    })
+  return siteDataInflight
+}
+
+async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
   const siteRoot =
     process.env.FEISHU_SITE_ROOT ||
     process.env.FEISHU_LIST_ROOT ||
@@ -248,10 +266,16 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     coverToken: siteBrand.coverToken
   } as { pageCover: string; source: 'config' | 'site-root' | 'empty'; coverToken?: string }
   try {
-    // Drive meta (times/owner) — one batch API, keep on build
-    allPostRows = await fillOfficialDriveFields(allPostRows)
-    pageRowsFilled = await fillOfficialDriveFields(pageRowsFilled)
-    noticeRowsFilled = await fillOfficialDriveFields(noticeRowsFilled)
+    // Drive meta once for all rows (batch API), then split back
+    const driveFilled = await fillOfficialDriveFields([
+      ...allPostRows,
+      ...pageRowsFilled,
+      ...noticeRowsFilled
+    ])
+    const byRecord = new Map(driveFilled.map(r => [r.recordId, r]))
+    allPostRows = allPostRows.map(r => byRecord.get(r.recordId) || r)
+    pageRowsFilled = pageRowsFilled.map(r => byRecord.get(r.recordId) || r)
+    noticeRowsFilled = noticeRowsFilled.map(r => byRecord.get(r.recordId) || r)
 
     const buildLight = Boolean((siteConfig as any).buildLight ?? false)
     if (buildLight) {
@@ -318,31 +342,29 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
     for (const t of p.tags || []) tagCount.set(t, (tagCount.get(t) || 0) + 1)
   }
 
+  // Site identity: CONFIG-TABLE > 主配置文档 > code default. Not Vercel env.
   const title = (
     configMap.TITLE ||
     configMap.NEXT_PUBLIC_TITLE ||
-    process.env.NEXT_PUBLIC_TITLE ||
     siteBrand.title ||
     'FeishuNext'
   ).toString().trim()
   const descriptionRaw = (
     configMap.DESCRIPTION ||
     configMap.NEXT_PUBLIC_DESCRIPTION ||
-    process.env.NEXT_PUBLIC_DESCRIPTION ||
     siteBrand.description ||
     '飞书驱动的公开站点'
   ).toString().trim()
   const description = stripTitlePrefix(descriptionRaw, title) || descriptionRaw
+  // LINK: CONFIG > explicit public link env > Vercel deployment URL (platform, not site brand)
   const link =
     configMap.LINK ||
     process.env.NEXT_PUBLIC_LINK ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '') ||
     'http://localhost:3460'
-  // KEYWORDS: same idea as TITLE — CONFIG off → 主配置页标题（siteBrand.title）
   const keywords = (
     configMap.KEYWORDS ||
     configMap.NEXT_PUBLIC_KEYWORD ||
-    process.env.NEXT_PUBLIC_KEYWORD ||
     siteBrand.title ||
     title ||
     'FeishuNext'
@@ -377,16 +399,8 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
       DESCRIPTION: description,
       LINK: link,
       KEYWORDS: keywords,
-      AUTHOR:
-        configMap.AUTHOR ||
-        process.env.NEXT_PUBLIC_AUTHOR ||
-        siteBrand.authorName ||
-        'FeishuNext',
-      SINCE:
-        configMap.SINCE ||
-        process.env.NEXT_PUBLIC_SINCE ||
-        siteBrand.createdYear ||
-        new Date().getFullYear(),
+      AUTHOR: configMap.AUTHOR || siteBrand.authorName || 'FeishuNext',
+      SINCE: configMap.SINCE || siteBrand.createdYear || new Date().getFullYear(),
       ICON: configMap.ICON || siteBrand.authorAvatar || '',
       BLOG_FAVICON:
         configMap.BLOG_FAVICON ||
@@ -394,14 +408,12 @@ export async function fetchSiteFromFeishu(): Promise<SiteData> {
         siteBrand.authorAvatar ||
         '/favicon.ico',
       AVATAR: configMap.AVATAR || configMap.ICON || siteBrand.authorAvatar || '',
-      THEME: configMap.THEME || process.env.NEXT_PUBLIC_THEME || 'example',
+      THEME: configMap.THEME || 'example',
       CMS_PROVIDER: 'feishu',
-      // Cache TTL: CONFIG-TABLE > env > 300s default (do not require Vercel env)
+      // Cache TTL only from CONFIG-TABLE (or 300s default) — not a Vercel requirement
       NEXT_REVALIDATE_SECOND: Number(
         configMap.NEXT_REVALIDATE_SECOND ??
           configMap.NEXT_PUBLIC_REVALIDATE_SECOND ??
-          process.env.NEXT_PUBLIC_REVALIDATE_SECOND ??
-          process.env.NEXT_REVALIDATE_SECOND ??
           300
       ),
       // so themes reading siteConfig('HOME_BANNER_IMAGE') also get fallback

@@ -67,7 +67,7 @@ export async function feishuFetch<T>(
       });
     } catch (err) {
       if (attempt < maxRetries) {
-        await sleep(300 * attempt * attempt);
+        await sleep(400 * attempt * attempt);
         continue;
       }
       throw new Error(
@@ -106,7 +106,9 @@ export async function feishuFetch<T>(
       (RETRYABLE_CODES.has(json.code) || isRetryableHttp(res.status)) &&
       attempt < maxRetries
     ) {
-      await sleep(300 * attempt * attempt);
+      // Frequency limits need longer gaps than network blips
+      const base = RETRYABLE_CODES.has(json.code) ? 800 : 300;
+      await sleep(base * attempt * attempt);
       continue;
     }
 

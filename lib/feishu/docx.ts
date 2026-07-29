@@ -1,4 +1,5 @@
 import { feishuFetch } from "./client";
+import { memoAsync } from "./memo";
 import { resolveWikiToDocumentId } from "./wiki";
 
 /**
@@ -113,15 +114,17 @@ async function listDocumentBlocksOnce(documentId: string): Promise<FeishuRawBloc
  * falls back to official wiki get_node → obj_token, then retries once.
  */
 export async function listDocumentBlocks(documentId: string): Promise<FeishuRawBlock[]> {
-  try {
-    return await listDocumentBlocksOnce(documentId);
-  } catch (firstError) {
-    const resolved = await resolveWikiToDocumentId(documentId);
-    if (resolved && resolved !== documentId) {
-      return listDocumentBlocksOnce(resolved);
+  return memoAsync("docx-blocks", documentId, async () => {
+    try {
+      return await listDocumentBlocksOnce(documentId);
+    } catch (firstError) {
+      const resolved = await resolveWikiToDocumentId(documentId);
+      if (resolved && resolved !== documentId) {
+        return listDocumentBlocksOnce(resolved);
+      }
+      throw firstError;
     }
-    throw firstError;
-  }
+  });
 }
 
 /** Full document meta from official docx API (cover + display_setting included). */
@@ -172,15 +175,17 @@ async function fetchDocumentMetaOnce(documentId: string): Promise<FeishuDocument
  * If `documentId` is a wiki token, resolve via get_node once.
  */
 export async function getDocumentMeta(documentId: string): Promise<FeishuDocumentMeta> {
-  try {
-    return await fetchDocumentMetaOnce(documentId);
-  } catch {
-    const resolved = await resolveWikiToDocumentId(documentId);
-    if (resolved && resolved !== documentId) {
-      return fetchDocumentMetaOnce(resolved);
+  return memoAsync("docx-meta", documentId, async () => {
+    try {
+      return await fetchDocumentMetaOnce(documentId);
+    } catch {
+      const resolved = await resolveWikiToDocumentId(documentId);
+      if (resolved && resolved !== documentId) {
+        return fetchDocumentMetaOnce(resolved);
+      }
+      throw new Error(`Feishu document meta failed for ${documentId}`);
     }
-    throw new Error(`Feishu document meta failed for ${documentId}`);
-  }
+  });
 }
 
 /**
