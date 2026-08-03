@@ -3471,10 +3471,10 @@ create-jest@^29.7.0:
     jest-util "^29.7.0"
     prompts "^2.0.1"
 
-critters@^0.0.23:
-  version "0.0.23"
-  resolved "https://registry.npmjs.org/critters/-/critters-0.0.23.tgz"
-  integrity sha512-/MCsQbuzTPA/ZTOjjyr2Na5o3lRpr8vd0MZE8tMP0OBNg/VrLxWHteVKalQ8KR+fBmUadbJLdoyEz9sT+q84qg==
+critters@^0.0.25:
+  version "0.0.25"
+  resolved "https://registry.yarnpkg.com/critters/-/critters-0.0.25.tgz#8568e6add4a8f68d0b1dbe0c4839286947b37888"
+  integrity sha512-ROF/tjJyyRdM8/6W0VqoN5Ql05xAGnkf5b7f3sTEl1bI5jTQQf8O918RD/V9tEb9pRY/TKcvJekDbJtniHyPtQ==
   dependencies:
     chalk "^4.1.0"
     css-select "^5.1.0"
