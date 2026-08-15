@@ -64,5 +64,6 @@
 | `github/ISSUE_TEMPLATE/*`、`pull_request_template.md` | 把人送到 NotionNext Discussions |
 | `config-examples/netlify.toml` | 产品走 Vercel |
 | `docs/vitepress-public/` | 文档站已不构建 |
+| `__tests__/scripts/translate/` | 上游文档翻译单测，脚本已不在主树 |
 
 产品入口只认根目录 `README.md`。
