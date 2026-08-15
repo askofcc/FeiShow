@@ -67,3 +67,17 @@
 | `__tests__/scripts/translate/` | 上游文档翻译单测，脚本已不在主树 |
 
 产品入口只认根目录 `README.md`。
+
+## VitePress 整套已归档（不再构建）
+
+产品不用 GitHub / VitePress 文档站。相关文件都在 `old/`：
+
+| 路径 | 原来是什么 |
+|---|---|
+| `vitepress/` | 原 `.vitepress` 主题与配置 |
+| `docs/vitepress-public/` | 文档站静态资源 |
+| `github/deploy-docs-site.yml` | 上游文档站 workflow |
+| `scripts/generate-theme-user-docs.mjs` | 给 VitePress 生成主题文档 |
+
+根目录 `package.json` 已去掉 `vitepress` 依赖；CI 不再跑 `docs:site:build`。
+

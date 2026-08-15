@@ -47,17 +47,3 @@ jobs:
           node-version-file: .nvmrc
           cache: yarn
       - run: yarn deps:check-lockfile
-
-  docs-site:
-    name: VitePress build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: yarn
-      - run: yarn install --frozen-lockfile
-      - run: yarn docs:site:build
-        env:
-          VITE_GISCUS_ENABLED: 'false'
