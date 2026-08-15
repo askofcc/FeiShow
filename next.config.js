@@ -14,9 +14,14 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const themes = scanSubdirectories(path.resolve(__dirname, 'themes'))
 // 检测用户开启的多语言
 const locales = (function () {
-  // 根据BLOG_NOTION_PAGE_ID 检查支持多少种语言数据.
-  // 支持如下格式配置多个语言的页面id xxx,zh:xxx,en:xxx
+  // FeishuNext: do not inherit NotionNext multi-locale page IDs.
+  // Those generate /en prerender paths and break Vercel SSG.
   const langs = [BLOG.LANG]
+  if (String(BLOG.CMS_PROVIDER || 'feishu').toLowerCase() === 'feishu') {
+    return langs
+  }
+  // Notion 兼容：根据 NOTION_PAGE_ID 检查支持多少种语言数据.
+  // 支持如下格式配置多个语言的页面id xxx,zh:xxx,en:xxx
   if (BLOG.NOTION_PAGE_ID.indexOf(',') > 0) {
     const siteIds = BLOG.NOTION_PAGE_ID.split(',')
     for (const siteId of siteIds) {
