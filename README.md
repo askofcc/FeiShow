@@ -21,7 +21,8 @@
 **通读结构总览：** [docs/internal/PROJECT_GUIDE.md](./docs/internal/PROJECT_GUIDE.md)  
 **阶段 A 完成 / 部署前总检：** [docs/internal/PHASE_A_COMPLETE.md](./docs/internal/PHASE_A_COMPLETE.md)  
 
-项目灵魂：[docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md) · 仓库地图：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
+项目灵魂：[docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md)  
+**拿走结构化数据（JSON / Markdown）：** [docs/feishu/AGENT_API.md](./docs/feishu/AGENT_API.md) · 仓库地图：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
 
 ---
 
@@ -31,7 +32,7 @@
 - **本仓库不是** NotionNext 官方 fork 维护分支；Issue / PR 请开到 **askofcc/FeishuNext**。
 - **数据源已替换为飞书**；不要按 Notion 官方教程填 `NOTION_PAGE_ID` 当主路径。
 - 上游同步策略：[docs/internal/UPSTREAM.md](./docs/internal/UPSTREAM.md)
-- 原版 NotionNext README 备份：[docs/upstream/README.NotionNext.md](./docs/upstream/README.NotionNext.md)
+- 原版 NotionNext README 备份：[old/docs/upstream/README.NotionNext.md](./old/docs/upstream/README.NotionNext.md)
 
 ### Credits
 
@@ -40,39 +41,41 @@
 
 ---
 
-## 快速开始
+## 部署（最少步骤）
+
+用户只配 **3 个变量**。详细图文：[最少步骤部署](./docs/deploy/feishu-minimal.md)
+
+1. 准备一个飞书知识库**根页**（下挂内容表 + 可选 CONFIG 表）  
+2. 创建企业自建应用，开通文档/知识库/多维表格**读权限并发布**  
+3. 一键部署到 Vercel，只填：
+
+| 变量 | 含义 |
+|---|---|
+| `FEISHU_APP_ID` | 开放平台 App ID |
+| `FEISHU_APP_SECRET` | App Secret |
+| `FEISHU_SITE_ROOT` | 根页链接 `https://xxx.feishu.cn/wiki/…` |
+
+4. 把该应用加成根页的**可阅读**协作者  
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/askofcc/FeishuNext&env=FEISHU_APP_ID,FEISHU_APP_SECRET,FEISHU_SITE_ROOT&envDescription=Only%20three%20vars%3A%20App%20ID%2C%20Secret%2C%20wiki%20root%20URL&project-name=feishunext&repository-name=FeishuNext)
+
+仓库若为私有：先 Fork 到自己的 GitHub，再用 fork 地址导入 Vercel。  
+部署后打开 `/api/feishu/health` 看中文自检。全绿再打开首页。
+
+`CMS_PROVIDER` 默认为 `feishu`。内容表 / CONFIG 表会从根页自动发现，不必手抄 table id。
+
+### 本地开发
 
 ```bash
 git clone https://github.com/askofcc/FeishuNext.git
 cd FeishuNext
-# 依赖（仓库声明 yarn）
 npx yarn@1.22.22 install
-
 cp .env.feishu.example .env.local
-# 填写 FEISHU_APP_ID / FEISHU_APP_SECRET
-# 以及内容表、CONFIG 表 token（见下）
-
+# 同样只填 FEISHU_APP_ID / FEISHU_APP_SECRET / FEISHU_SITE_ROOT
 npx yarn@1.22.22 dev
-# 或: npx next dev -H 127.0.0.1 -p 3460
 ```
 
-### 必填环境变量
-
-```bash
-CMS_PROVIDER=feishu
-FEISHU_APP_ID=
-FEISHU_APP_SECRET=
-FEISHU_CONTENT_APP_TOKEN=   # 内容表（菜单/文章/页面/分类）
-FEISHU_CONTENT_TABLE_ID=
-FEISHU_CONFIG_APP_TOKEN=    # 站点 CONFIG 表
-FEISHU_CONFIG_TABLE_ID=
-NEXT_PUBLIC_LINK=https://feishunext.srint.cn/
-NEXT_PUBLIC_THEME=example
-```
-
-完整示例：[.env.feishu.example](./.env.feishu.example)
-
-飞书应用需具备文档/多维表格/云空间等读权限，并把对应知识库与表格授权给应用。
+进阶变量（覆盖自动发现等）见 [.env.feishu.example](./.env.feishu.example)。
 
 ---
 
@@ -93,8 +96,7 @@ NEXT_PUBLIC_THEME=example
 | `components/feishu/` | 正文渲染 |
 | `themes/` | 主题（可跟随上游更新） |
 | `docs/feishu/` | **产品与数据契约（优先读这里）** |
-| `docs/upstream/` | 上游 NotionNext 文档备份 |
-| `docs/user-guide/` 等 | 多为上游用户文档，未全面改写 |
+| `old/docs/` | 上游 NotionNext 文档（已移出主线） |
 
 ---
 
@@ -104,9 +106,10 @@ NEXT_PUBLIC_THEME=example
 2. 接飞书：`docs/feishu/STABLE_FEISHU_DATA.md`、内容表/CONFIG 契约  
 3. 做主题：`docs/feishu/THEME_DATA_CONTRACT.md`  
 4. 跟上游前端：`docs/internal/UPSTREAM.md`  
-5. 根目录大量 `GOVERNANCE*` / `MAINTAINERS*` / 上游 user-guide：**来自 NotionNext，不是 FeishuNext 运营文档**
+5. 上游文档与治理包装在 `old/`，不要当 FeishuNext 产品文档读
 
-更细的目录说明：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
+更细的目录说明：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)  
+上游遗留已集中到 [old/README.md](./old/README.md)。
 
 ---
 

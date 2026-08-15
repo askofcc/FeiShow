@@ -1,3 +1,5 @@
+**FeishuNext 用户请走：[最少步骤部署](./feishu-minimal.md)**（不要用下面的 Notion 旧教程当主路径。）
+
 # 部署指南索引
 
 > 仓库根目录 [DEPLOYMENT.md](https://github.com/notionnext-org/NotionNext/blob/main/DEPLOYMENT.md) 含更完整的平台说明与排错。
