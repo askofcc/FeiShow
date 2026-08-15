@@ -105,5 +105,6 @@ https://你的域名/api/feishu/health
 - 不要再填一串 `tbl` / `bas`（除非自动发现失败再覆盖）  
 - 不要按 NotionNext 的 `NOTION_PAGE_ID` 教程走  
 - 不要把 App Secret 写进飞书表格或公开仓库  
+- 不要把 TITLE / THEME / 作者 / SEO 塞进 Vercel，那些走飞书 CONFIG 表  
 
 进阶变量见仓库根目录 `.env.feishu.example`。

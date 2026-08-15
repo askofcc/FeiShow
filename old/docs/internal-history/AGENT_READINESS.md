@@ -93,7 +93,7 @@ Agent 就绪不是另起炉灶，而是在结构化数据之上补齐**发现协
 | `GET /api/agent/posts/:slug?format=md` | Markdown 导出 |
 | `Accept: text/markdown` | 同上 |
 
-Markdown 优先飞书官方 `docs/v1/content?content_type=markdown`，失败则回退 `feishuPlainText`。
+Markdown / JSON 正文都从同一份 `feishuContent`（blocks）投影，`markdownSource=feishu-blocks`。不走官方 Markdown 导出。
 
 ---
 

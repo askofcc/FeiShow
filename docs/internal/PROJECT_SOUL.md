@@ -80,7 +80,7 @@
 
 ## 4. 当前进展（分两层）
 
-### 4.1 第一点（已明确，正在做 / 已有底座）——数据结构化
+### 4.1 第一点（已完成）——数据结构化
 
 **定义：** 解决「飞书文档 JSON 难以直接使用」的问题。
 
@@ -100,25 +100,19 @@
 
 > 现阶段所有工程决策，优先服务「结构化是否正确、是否可维护」，而不是堆主题皮肤。
 
-### 4.2 第二点（已立项，后置）——AI 就绪度（AI-ready）
+### 4.2 第二点——AI 就绪度（数据出口，第一刀已落地）
 
-**定义（暂定，后续可细化）：** 在「结构化」之上，让内容进一步适合：
+在同一份结构化数据上，给机器只读出口。不是问答机器人，也不是再打一遍飞书。
 
-- 检索 / 摘要 / 问答  
-- Agent 引用（带标题、锚点、来源 URL）  
-- `llms.txt`、纯文本/Markdown 导出、结构化 JSON API  
-- 分块 embedding、更新增量  
+| 已有 | 说明 |
+|---|---|
+| `/llms.txt` | 发现 |
+| `/api/agent/posts` | 列表 JSON（同一份站点索引） |
+| `/api/agent/posts/:slug` | 单篇 JSON + Markdown（同一份 `feishuContent`） |
 
-**原则：**
+调用说明：[AGENT_API.md](../feishu/AGENT_API.md)
 
-- **不抢第一阶段的焦点**；没有干净结构，谈 AI 就绪是空中楼阁  
-- AI 就绪 = 结构化的**下游能力**，不是另一套飞书编辑协议  
-- 具体指标（chunk 策略、引用格式、是否向量库）**待确认后再开任务**，本文只占位
-
-```text
-阶段 A（现在）：可读结构化 → 人能看的站
-阶段 B（以后）：AI 就绪    → 机器能稳用的内容出口
-```
+**后置：** 向量库、RAG、站内问答、写回飞书。
 
 ---
 
@@ -130,7 +124,7 @@
 | 飞书官方 | 权威内容与权限真相 | 编辑器、完整权限后台、protobuf 网页接口当基座 |
 
 **不做：** 再造飞书文档编辑器。  
-**要做：** 展示向的「飞书 → 结构化数据 → Web（→ 未来 AI）」。
+**要做：** 展示向的「飞书 → 结构化数据 → Web + 机器出口」。
 
 ---
 
@@ -139,7 +133,7 @@
 1. **任何新功能先问：** 是展示路径需要，还是在模仿编辑/管理？后者默认不做。  
 2. **中间模型优先于主题：** 主题可换；`Post` / `FeishuBlock` 契约要稳。  
 3. **官方 API 主路径：** 不稳定网页接口不进灵魂路径。  
-4. **AI 能力后置：** 未完成结构化验收前，不把向量库/Agent 当主里程碑。  
+4. **AI 只做数据出口：** 列表/单篇 JSON+MD 可以；向量库/问答不当主里程碑。  
 5. **复杂度只加在「清洗与适配」：** 壳尽量二开复用，不从头手搓 UI 宇宙。
 
 ---
@@ -149,12 +143,12 @@
 | 文档 | 角色 |
 |---|---|
 | 本文 `PROJECT_SOUL.md` | 为什么做 / 补齐什么 / 阶段划分 |
-| [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 三块数据与实现总纲 |
+| [NEXT_FRAMEWORK.md](./NEXT_FRAMEWORK.md) | 已完成 / 下一步 |
 | [STABLE_FEISHU_DATA.md](../feishu/STABLE_FEISHU_DATA.md) | 稳定 API 主路径 |
 | [FEISHU_DOCUMENT_CONTRACT.md](../feishu/FEISHU_DOCUMENT_CONTRACT.md) | 单篇文档字段与权限 |
 | [FEISHU_BLOCK_MAPPING.md](../feishu/FEISHU_BLOCK_MAPPING.md) | 块 → 展示模型 |
-| [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题开发：取数→结构→调用 |
-| [TASKS.md](./TASKS.md) | 可执行任务 |
+| [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题：取数→结构→调用 |
+| [AGENT_API.md](../feishu/AGENT_API.md) | 机器 JSON / Markdown |
 
 ---
 
@@ -162,16 +156,7 @@
 
 > **痛点：** 飞书 JSON 为编辑与权限而生，展示不可直接用。  
 > **价值：** 清洗重组为展示向结构化数据，并挂上独立站能力。  
-> **现在：** 把「数据结构化」做对、做稳。  
-> **以后：** 在同一结构上提升「AI 就绪度」，而不是另起炉灶。
+> **现在：** 结构化数据 + 人读站 + 机器 JSON/Markdown 出口。  
+> **下一步：** 部署收敛（用户只填少量参数）；AI 侧先稳这个出口，不另起炉灶。
 
----
-
-## Agent 就绪度（Stage C）
-
-结构化数据之后，需要让 **AI Agent / 机器读者** 能发现并低成本消费公开内容（robots、sitemap、llms.txt、JSON/Markdown 出口）。
-
-细则与验收见：[AGENT_READINESS.md](./AGENT_READINESS.md)。
-
-> 原则不变：不把飞书编辑态 JSON 直接喂给 Agent；先结构化，再分发。
 

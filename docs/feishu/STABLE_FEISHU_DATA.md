@@ -240,7 +240,7 @@ Markdown 旁路（**不作为主渲染**，仅调试/降级）：
 GET /open-apis/docs/v1/content?doc_token={id}&doc_type=docx&content_type=markdown
 ```
 
-代码：`src/lib/feishu/docx.ts` → `listDocumentBlocks` / `getDocumentMeta` / `getDocumentMarkdown`。
+代码：`lib/feishu/docx.ts` → `listDocumentBlocks` / `getDocumentMeta`。站点正文与 Agent Markdown 都走 blocks → `feishuContent`，不使用官方 Markdown 导出。
 
 ### 4.4 Wiki token → document_id（官方、可选但推荐支持）
 

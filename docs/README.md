@@ -1,11 +1,11 @@
 # FeishuNext 文档
 
-当前产品文档只在这几个目录：
+只保留现行入口。过程稿在 [`../old/docs/internal-history/`](../old/docs/internal-history/)。
 
-| 目录 | 内容 |
+| 目录 | 看什么 |
 |---|---|
-| [feishu/](./feishu/) | 数据契约：怎么取数、处理后长什么样、主题怎么调 |
-| [internal/](./internal/) | 决策、结构总览、仓库约定 |
-| [deploy/](./deploy/) | 部署（Vercel 最少变量、飞书最少步骤） |
+| [feishu/](./feishu/) | 数据怎么取、处理后长什么样、主题/Agent 怎么调 |
+| [internal/](./internal/) | 为什么做、当前进度、仓库约定 |
+| [deploy/](./deploy/) | 最少步骤部署 |
 
-上游 NotionNext 文档站已整包挪到 [`../old/docs/`](../old/docs/)。
+上游 NotionNext 文档在 [`../old/docs/`](../old/docs/)。

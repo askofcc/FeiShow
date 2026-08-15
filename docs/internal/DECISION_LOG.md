@@ -17,7 +17,7 @@
 | 产品与数据怎么定的 | §5 |
 | 品牌与仓库 | §6 |
 | **现在运维要注意什么** | **§8** |
-| 代码与契约细节 | [PROJECT_GUIDE.md](./PROJECT_GUIDE.md) 及其链接 |
+| 代码与契约细节 | [NEXT_FRAMEWORK.md](./NEXT_FRAMEWORK.md)、[../feishu/](../feishu/) |
 
 ---
 
@@ -275,7 +275,7 @@ Notion 全字段镜像表
 ### 8.5 文档维护
 
 1. **战略与共识** → 本文 `DECISION_LOG.md`（有新重大决定就追加一节，注明日期）。  
-2. **技术总览** → `PROJECT_GUIDE.md`。  
+2. **技术总览** → `NEXT_FRAMEWORK.md` + `docs/feishu/`。  
 3. **接口与字段** → 各 `FEISHU_*_CONTRACT.md` / `STABLE_FEISHU_DATA.md`。  
 4. 代码与文档冲突时：**先改契约再改代码**（或同一 PR 内对齐），避免口头约定漂移。
 
@@ -296,12 +296,12 @@ Notion 全字段镜像表
 | 文档 | 角色 |
 |---|---|
 | **本文 DECISION_LOG** | 讨论共识、阶段、运维注意 |
-| [PROJECT_GUIDE.md](./PROJECT_GUIDE.md) | 结构与路线通读 |
+| [NEXT_FRAMEWORK.md](./NEXT_FRAMEWORK.md) | 做到哪 / 下一步 |
 | [PROJECT_SOUL.md](./PROJECT_SOUL.md) | 痛点与价值 |
-| [PROJECT_BASELINE.md](./PROJECT_BASELINE.md) | 三块数据总纲 |
+| [../feishu/THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题 / 中间模型 |
 | [THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题如何调数据 |
 | [UPSTREAM.md](./UPSTREAM.md) | 上游同步 |
-| [../REPO_MAP.md](./REPO_MAP.md) | 目录与分支 |
+| [REPO_MAP.md](./REPO_MAP.md) | 目录与分支 |
 | 根 [README.md](../../README.md) | 克隆与启动 |
 | [NOTICE](../../NOTICE) / [LICENSE](../../LICENSE) | 致谢与许可 |
 
@@ -323,5 +323,5 @@ Notion 全字段镜像表
 - 本地主工程与 `origin/main`（askofcc/FeishuNext）对齐检查；产品分支仅 **main**。  
 - 未提交增强（站点根品牌、作者头像、pageIcon、菜单默认等）纳入代码并文档化。  
 - 明确：`tsc` 在 exactOptionalPropertyTypes 下噪音多，**部署以 Next build 为准**。  
-- 总检文档：[PHASE_A_COMPLETE.md](./PHASE_A_COMPLETE.md)。  
+- 阶段过程稿已归档到 `old/docs/internal-history/`。  
 - 下一动作：生产部署验证 → 阶段 B 体验/运维增强；AI 就绪仍后置。

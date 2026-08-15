@@ -1,62 +1,39 @@
-> **本地路径与分支纪律：** 见 [LOCAL_WORKSPACE.md](./LOCAL_WORKSPACE.md)（`Documents/FeishuNext` = 唯一产品目录，仅 `main`）。
+# 仓库地图
 
-# 仓库地图（FeishuNext）
+本地目录与分支纪律见 [LOCAL_WORKSPACE.md](./LOCAL_WORKSPACE.md)。
 
-> 解决「clone 下来不知道先看哪」的问题。
-
-## 优先阅读（FeishuNext 自有）
+## 先读
 
 | 路径 | 说明 |
 |---|---|
-| [README.md](../README.md) | 产品入口 |
-| [feishu/PROJECT_GUIDE.md](./feishu/PROJECT_GUIDE.md) | 结构总览 |
-| [feishu/DECISION_LOG.md](./feishu/DECISION_LOG.md) | **决策/共识/运维（回看讨论）** |
-| [docs/feishu/PROJECT_SOUL.md](./feishu/PROJECT_SOUL.md) | 为什么做 |
-| [docs/feishu/THEME_DATA_CONTRACT.md](./feishu/THEME_DATA_CONTRACT.md) | 主题如何用数据 |
-| [docs/feishu/STABLE_FEISHU_DATA.md](./feishu/STABLE_FEISHU_DATA.md) | 飞书 API 主路径 |
-| [docs/feishu/UPSTREAM.md](./feishu/UPSTREAM.md) | 如何跟 NotionNext 前端 |
-| `.env.feishu.example` | 环境变量模板 |
+| [README.md](../../README.md) | 产品入口 |
+| [PROJECT_SOUL.md](./PROJECT_SOUL.md) | 为什么做 |
+| [NEXT_FRAMEWORK.md](./NEXT_FRAMEWORK.md) | 做到哪、下一步 |
+| [../feishu/AGENT_API.md](../feishu/AGENT_API.md) | JSON / Markdown 出口 |
+| [../feishu/THEME_DATA_CONTRACT.md](../feishu/THEME_DATA_CONTRACT.md) | 主题怎么调数据 |
+| [../feishu/STABLE_FEISHU_DATA.md](../feishu/STABLE_FEISHU_DATA.md) | 飞书 API 主路径 |
+| [../deploy/feishu-minimal.md](../deploy/feishu-minimal.md) | 部署 |
+| [UPSTREAM.md](./UPSTREAM.md) | 怎么跟 NotionNext |
+| `.env.feishu.example` | 环境变量 |
 
-## 自有代码（改飞书逻辑时动这里）
+## 改飞书逻辑时动这里
 
 | 路径 | 说明 |
 |---|---|
-| `lib/feishu/` | OpenAPI 客户端与 normalize |
+| `lib/feishu/` | OpenAPI、normalize、`contentToMarkdown` |
 | `lib/site/adapters/feishu/` | SiteData 组装 |
-| `components/FeishuPage.js` / `components/feishu/` | 正文 |
-| `pages/api/feishu/` | 媒体代理 |
-| `scripts/feishu-*.mjs` / `phase4-verify.mjs` | 探测与验收 |
+| `lib/agent/` | 列表/单篇投影 |
+| `components/FeishuPage.js` / `components/feishu/` | 正文 HTML |
+| `pages/api/agent/` | 机器出口 |
+| `pages/api/feishu/` | 媒体与 health |
 
-## 二开基座（尽量少改，可跟 upstream）
+## 二开基座（少改，可跟 upstream）
 
-| 路径 | 说明 |
-|---|---|
-| `themes/` | 主题 |
-| `pages/` | 路由壳（已接 feishu 分支的除外） |
-| `components/` | 通用 UI（PoweredBy/SEO 已产品化） |
-| `conf/` / `blog.config.js` | 配置 |
+`themes/`、`pages/`、`components/`、`conf/`、`blog.config.js`
 
-## 上游遗留（不要当 FeishuNext 文档）
+## 不要当现行文档
 
 | 路径 | 说明 |
 |---|---|
-| `docs/user-guide/` | NotionNext 用户指南 |
-| `docs/developer/` 部分 | 上游开发者文档 |
-| `GOVERNANCE*` `MAINTAINERS*` `CONTRIBUTING*` | 上游社区治理 |
-| `docs/upstream/` | 我们备份的上游 README |
-| `PROJECT_COMPLETION_REPORT.md` 等根目录报告 | 上游工程产物 |
-
-贡献 FeishuNext：开 Issue/PR 到 **askofcc/FeishuNext**，不要按上游 CONTRIBUTING 往 notionnext-org 提。
-
-
-## 分支怎么看
-
-| 名字 | 是什么 |
-|---|---|
-| `main` | FeishuNext 产品线（日常开发） |
-| `main`（本地） | 历史上游锚点，勿当产品默认 |
-| `upstream/main` | NotionNext 官方主线（只读） |
-| `origin/*` | GitHub askofcc/FeishuNext |
-
-曾经 `git branch -a` 刷屏：因为 `fetch upstream` 默认拉了上游**全部**远程分支（deploy/codex/release…）。  
-现已限制为只获取 `upstream/main`。详情见 [feishu/PROJECT_GUIDE.md](./feishu/PROJECT_GUIDE.md) §3。
+| [`old/docs/`](../../old/docs/) | 上游 NotionNext 文档站 |
+| [`old/docs/internal-history/`](../../old/docs/internal-history/) | 本项目过程稿（计划、阶段清单） |

@@ -50,4 +50,4 @@
 | 管什么 | 菜单/文章/页面/分类 | TITLE、开关、FEISHU_LIST_ROOT… |
 | 是否展示为文章 | 文章/页面会 | 否 |
 
-总纲见 [PROJECT_BASELINE.md](../internal/PROJECT_BASELINE.md)。
+全站怎么调这些行见 [THEME_DATA_CONTRACT.md](./THEME_DATA_CONTRACT.md)。

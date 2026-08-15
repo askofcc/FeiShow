@@ -17,12 +17,10 @@
 
 一句话：官方飞书强在**编辑与权限**；FeishuNext 补齐**对外展示**（以及后续的 AI 就绪数据出口）。
 
-**回看讨论与运维共识：** [docs/internal/DECISION_LOG.md](./docs/internal/DECISION_LOG.md)  
-**通读结构总览：** [docs/internal/PROJECT_GUIDE.md](./docs/internal/PROJECT_GUIDE.md)  
-**阶段 A 完成 / 部署前总检：** [docs/internal/PHASE_A_COMPLETE.md](./docs/internal/PHASE_A_COMPLETE.md)  
-
-项目灵魂：[docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md) · 主题数据契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md)  
-**拿走结构化数据（JSON / Markdown）：** [docs/feishu/AGENT_API.md](./docs/feishu/AGENT_API.md) · 仓库地图：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)
+**为什么做：** [docs/internal/PROJECT_SOUL.md](./docs/internal/PROJECT_SOUL.md)  
+**做到哪 / 下一步：** [docs/internal/NEXT_FRAMEWORK.md](./docs/internal/NEXT_FRAMEWORK.md)  
+**拿走 JSON / Markdown：** [docs/feishu/AGENT_API.md](./docs/feishu/AGENT_API.md)  
+决策备忘：[docs/internal/DECISION_LOG.md](./docs/internal/DECISION_LOG.md) · 主题契约：[docs/feishu/THEME_DATA_CONTRACT.md](./docs/feishu/THEME_DATA_CONTRACT.md)
 
 ---
 
