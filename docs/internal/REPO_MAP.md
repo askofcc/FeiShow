@@ -15,7 +15,6 @@
 | [docs/feishu/THEME_DATA_CONTRACT.md](./feishu/THEME_DATA_CONTRACT.md) | 主题如何用数据 |
 | [docs/feishu/STABLE_FEISHU_DATA.md](./feishu/STABLE_FEISHU_DATA.md) | 飞书 API 主路径 |
 | [docs/feishu/UPSTREAM.md](./feishu/UPSTREAM.md) | 如何跟 NotionNext 前端 |
-| [FEISHU.md](../FEISHU.md) | 开发速查（可与 README 互补） |
 | `.env.feishu.example` | 环境变量模板 |
 
 ## 自有代码（改飞书逻辑时动这里）

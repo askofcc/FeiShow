@@ -36,3 +36,18 @@
 | `config-examples/` | 原 `.env.example`（Notion `NOTION_PAGE_ID` 主路径） |
 
 飞书环境变量模板仍在根上：`.env.feishu.example`。
+
+## 2026-08-15 再收一层
+
+从主树挪走会**自动造分支**或和产品入口重复的东西：
+
+| 文件 | 原因 |
+|---|---|
+| `github/dependabot.yml` | 每周自动开依赖升级分支，当前不需要 |
+| `github/bump-version-on-main.yml` | 每次推 main 会再建 `chore/bump-package-version` |
+| `github/sync.yaml` | 每天尝试把上游 NotionNext 合进来，会冲飞书主线 |
+| `github/pushUrl.yml` + `scripts/pushUrl.py` | 上游百度推送 |
+| `root-docs/FEISHU.md` | 与根 README 重复，且「旧仓」段落已过时 |
+| `lighthouserc.js` / `validation-report.json` | 上游性能脚手架 |
+
+产品入口只认根目录 `README.md`。

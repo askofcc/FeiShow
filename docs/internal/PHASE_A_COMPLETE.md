@@ -45,7 +45,7 @@
 | 仓库地图 | [REPO_MAP.md](./REPO_MAP.md) |
 | Phase4 验收 | [PHASE4_VERIFY.md](./PHASE4_VERIFY.md) |
 
-**沟通信息是否落实：** 战略、边界、数据三块、主题契约、运维注意已进 `docs/internal` + `docs/feishu`；根 README / FEISHU.md 可回看入口齐全。
+**沟通信息是否落实：** 战略、边界、数据三块、主题契约、运维注意已进 `docs/internal` + `docs/feishu`；根 README 可回看入口齐全。
 
 ---
 
@@ -105,6 +105,9 @@ npx yarn@1.22.22 build  # 或项目 package.json 的 build
 ---
 
 ## 5. 部署检查清单（下一动作）
+
+用户向最短路径：[最少步骤部署](../user-guide/deploy/feishu-minimal.md)（3 个环境变量 + `/api/feishu/health`）。
+
 
 1. 托管平台（Vercel/等）连 **askofcc/FeishuNext** 的 `main`  
 2. 环境变量：`CMS_PROVIDER=feishu` + App 凭证 + 内容表/CONFIG 表 token  
