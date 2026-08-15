@@ -217,20 +217,3 @@ export async function listDocumentBlocksFirstPage(
   }
 }
 
-/**
- * Optional simpler path: pure markdown content (not primary renderer).
- * Official: GET /open-apis/docs/v1/content?doc_token=...&doc_type=docx&content_type=markdown
- */
-export async function getDocumentMarkdown(documentId: string): Promise<string | null> {
-  try {
-    const qs = new URLSearchParams({
-      doc_token: documentId,
-      doc_type: "docx",
-      content_type: "markdown",
-    });
-    const data = await feishuFetch<{ content?: string }>(`/open-apis/docs/v1/content?${qs.toString()}`);
-    return data.content || null;
-  } catch {
-    return null;
-  }
-}

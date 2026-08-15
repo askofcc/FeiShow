@@ -1,5 +1,6 @@
 import BLOG from '@/blog.config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
+import { agentPaths } from '@/lib/agent/serialize'
 import {
   buildPublicUrl,
   resolvePublicSiteLink
@@ -97,12 +98,9 @@ export default async function handler(req, res) {
         } else {
           lines.push(`- [${p.title || p.slug}](${url})`)
         }
-        lines.push(
-          `  - json: ${link}/api/agent/posts/${encodeURIComponent(p.slug)}`
-        )
-        lines.push(
-          `  - markdown: ${link}/api/agent/posts/${encodeURIComponent(p.slug)}?format=md`
-        )
+        const paths = agentPaths(link, p)
+        lines.push(`  - json: ${paths.json}`)
+        lines.push(`  - markdown: ${paths.markdown}`)
       }
       if (!full && posts.length > list.length) {
         lines.push(
