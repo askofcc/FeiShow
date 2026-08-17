@@ -11,8 +11,6 @@ import {
   type BitableRecord
 } from '@/lib/feishu/bitable'
 import {
-  isDocxObjType,
-  listChildrenFromListRoot,
   listWikiChildren,
   parseWikiToken,
   resolveWikiNode,
@@ -158,77 +156,12 @@ function toPostSlugAndHref(tokenOrSlug: string): { slug: string; href: string } 
   return { slug, href: `/${slug}` }
 }
 
-function wikiTimeToIso(value?: string): string | undefined {
-  if (!value) return undefined
-  const n = Number(value)
-  if (!Number.isFinite(n) || n <= 0) return undefined
-  const ms = n < 1e12 ? n * 1000 : n
-  return new Date(ms).toISOString()
-}
-
-function classifyWikiChild(node: WikiNode): ContentRowType | 'skip' {
-  const ot = String(node.obj_type ?? '').toLowerCase()
-  if (ot.includes('bitable') || ot.includes('sheet') || ot.includes('mindnote')) return 'skip'
-  const title = (node.title || '').trim()
-  if (node.has_child) return 'category'
-  if (/公告|notice/i.test(title)) return 'notice'
-  if (/关于|about|友链|links?|页面/i.test(title)) return 'page'
-  return 'post'
-}
-
-/**
- * SITE_ROOT children as the content index when no content bitable exists.
- * Folders become categories; their children are expanded later.
- */
-export async function contentRowsFromSiteRoot(siteRoot: string): Promise<ContentRow[]> {
-  const { parent, children } = await listChildrenFromListRoot(siteRoot)
-  const rows: ContentRow[] = []
-  for (const child of children) {
-    const kind = classifyWikiChild(child)
-    if (kind === 'skip') continue
-    if (!isDocxObjType(child.obj_type) && kind !== 'category') continue
-    const token = child.node_token || child.obj_token
-    if (!token) continue
-    const path = toPostSlugAndHref(token)
-    rows.push({
-      recordId: `wiki:${token}`,
-      title: child.title || '未命名文档',
-      type: kind,
-      typeRaw:
-        kind === 'category' ? '分类' : kind === 'notice' ? '公告' : kind === 'page' ? '页面' : '文章',
-      slug: path.slug,
-      date: wikiTimeToIso(child.obj_edit_time || child.obj_create_time || child.node_create_time),
-      category: parent.title || undefined,
-      tags: [],
-      docToken: child.node_token,
-      nodeToken: child.node_token,
-      documentId: child.obj_token,
-      href: path.href,
-      order: rows.length
-    })
-  }
-  console.log('[feishu] content from SITE_ROOT wiki children', {
-    root: parent.title,
-    rows: rows.length
-  })
-  return rows
-}
-
 export async function loadContentRows(): Promise<ContentRow[]> {
   const tables = await resolveFeishuTables()
   const feishu = siteConfig.feishu as any
   const appToken = tables.contentAppToken || feishu.contentAppToken || feishu.bitableAppToken
   const tableId = tables.contentTableId || feishu.contentTableId || feishu.bitableTableId
   if (!appToken || !tableId) {
-    const siteRoot =
-      process.env.FEISHU_SITE_ROOT ||
-      process.env.FEISHU_LIST_ROOT ||
-      feishu.siteRoot ||
-      feishu.listRoot ||
-      ''
-    if (String(siteRoot).trim()) {
-      return contentRowsFromSiteRoot(String(siteRoot).trim())
-    }
     throw new Error(
       'Missing content table. Set FEISHU_SITE_ROOT (recommended) or FEISHU_CONTENT_APP_TOKEN + FEISHU_CONTENT_TABLE_ID'
     )
