@@ -280,28 +280,20 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     const buildLight = Boolean((siteConfig as any).buildLight ?? false)
     if (buildLight) {
       console.log(
-        '[feishu] BUILD_LIGHT: skip per-doc summary/cover fan-out (use table fields + site banner)'
-      )
-      // Still apply cascade from category rows that already have cover in table + site banner
-      allPostRows = applyCoverCascade(
-        allPostRows,
-        categoryRowsFilled,
-        bannerEarly.pageCover
+        '[feishu] BUILD_LIGHT: skip per-doc summaries; still fill document covers'
       )
     } else {
       allPostRows = await fillMissingSummaries(allPostRows, { concurrency: 3, maxLen: 120 })
       pageRowsFilled = await fillMissingSummaries(pageRowsFilled, { concurrency: 2, maxLen: 120 })
       noticeRowsFilled = await fillMissingSummaries(noticeRowsFilled, { concurrency: 2, maxLen: 120 })
-      allPostRows = await fillMissingCovers(allPostRows, { concurrency: 3 })
-      pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 2 })
-      noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
-      categoryRowsFilled = await fillMissingCovers(categoryRowsFilled, { concurrency: 2 })
-      allPostRows = applyCoverCascade(
-        allPostRows,
-        categoryRowsFilled,
-        bannerEarly.pageCover
-      )
     }
+    // List cards use each document/category cover. Do not stamp the site banner
+    // onto every post — that banner belongs on the header only.
+    categoryRowsFilled = await fillMissingCovers(categoryRowsFilled, { concurrency: 2 })
+    allPostRows = await fillMissingCovers(allPostRows, { concurrency: 3 })
+    pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 2 })
+    noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
+    allPostRows = applyCoverCascade(allPostRows, categoryRowsFilled, null)
   } catch (e) {
     console.warn('[feishu] fill drive/summary/cover skipped', e)
   }
