@@ -4,6 +4,7 @@ import { siteConfig } from '@/lib/config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
 import {
   buildSitemapLoc,
+  isPublicSitemapPage,
   normalizeSitemapBaseUrl,
   normalizeSitemapLocale,
   toSitemapDateString
@@ -13,6 +14,26 @@ import { getServerSideSitemap } from 'next-sitemap'
 import { resolvePublicSiteLink } from '@/lib/utils/publicSiteLink'
 
 export const getServerSideProps = async ctx => {
+  const cms = String(BLOG.CMS_PROVIDER || process.env.CMS_PROVIDER || '').toLowerCase()
+  if (cms === 'feishu') {
+    const siteData = await fetchGlobalAllData({ from: 'sitemap.xml' })
+    const configured = siteConfig(
+      'LINK',
+      siteData?.siteInfo?.link,
+      siteData.NOTION_CONFIG
+    )
+    const link = resolvePublicSiteLink({
+      req: ctx.req,
+      candidates: [configured, siteData?.siteInfo?.link, BLOG.LINK]
+    })
+    const fields = getUniqueFields(generateLocalesSitemap(link, siteData.allPages, ''))
+    ctx.res.setHeader(
+      'Cache-Control',
+      'public, max-age=3600, stale-while-revalidate=59'
+    )
+    return getServerSideSitemap(ctx, fields)
+  }
+
   let fields = []
   const siteIds = BLOG.NOTION_PAGE_ID.split(',')
 
@@ -114,9 +135,13 @@ function generateLocalesSitemap(link, allPages, locale) {
 
   const postFields =
     allPages
-      ?.filter(p => p.status === BLOG.NOTION_PROPERTY_NAME.status_publish)
-      // 过滤掉外部链接(http开头)和锚点链接(#开头)
-      ?.filter(p => p.slug && !p.slug.startsWith('http') && !p.slug.startsWith('#'))
+      ?.filter(p => {
+        const published = BLOG.NOTION_PROPERTY_NAME?.status_publish
+        if (published && p.status && p.status !== published && p.status !== 'Published') {
+          return false
+        }
+        return isPublicSitemapPage(p)
+      })
       ?.map(post => {
         const loc = buildSitemapLoc({
           baseUrl: normalizedLink,

@@ -5,8 +5,8 @@ export function EmptyData(pageId?: string): SiteData {
   return {
     NOTION_CONFIG: {},
     siteInfo: {
-      title: 'NotionNext BLOG',
-      description: '无法获取 Notion 数据',
+      title: 'FeishuNext',
+      description: '无法获取飞书数据',
       pageCover: '/bg_image.jpg',
       icon: '/avatar.svg',
       link: BLOG.LINK

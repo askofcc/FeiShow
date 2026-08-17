@@ -1,5 +1,6 @@
 import {
   buildSitemapLoc,
+  isPublicSitemapPage,
   normalizeSitemapBaseUrl,
   normalizeSitemapLocale,
   toSitemapDateString
@@ -94,5 +95,17 @@ describe('sitemap-utils', () => {
       )
     })
   })
-})
 
+  describe('isPublicSitemapPage', () => {
+    it('keeps published posts and pages', () => {
+      expect(isPublicSitemapPage({ type: 'Post', slug: 'article/abc' })).toBe(true)
+      expect(isPublicSitemapPage({ type: 'Page', slug: 'about' })).toBe(true)
+    })
+
+    it('drops menus, locale switches, and record-id slugs', () => {
+      expect(isPublicSitemapPage({ type: 'Menu', slug: 'en' })).toBe(false)
+      expect(isPublicSitemapPage({ type: 'Post', slug: 'en' })).toBe(false)
+      expect(isPublicSitemapPage({ type: 'Page', slug: 'recvsy6CyRJXhV' })).toBe(false)
+    })
+  })
+})

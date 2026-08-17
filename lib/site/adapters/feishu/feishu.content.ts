@@ -11,6 +11,7 @@ import {
   type BitableRecord
 } from '@/lib/feishu/bitable'
 import {
+  isDocxObjType,
   listWikiChildren,
   parseWikiToken,
   resolveWikiNode,
@@ -387,6 +388,8 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
       if (!parent?.space_id || !parent.node_token) continue
       const children = await listWikiChildren(parent.space_id, parent.node_token)
       for (const child of children) {
+        // Category folders can contain bitables/sheets/files. Site only renders docx articles.
+        if (!isDocxObjType(child.obj_type)) continue
         const nodeToken = child.node_token
         const documentId = child.obj_token
         if (!nodeToken && !documentId) continue
