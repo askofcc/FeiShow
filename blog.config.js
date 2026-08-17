@@ -1,21 +1,18 @@
 // FeishuNext site config. Env overrides defaults. Feishu CMS: set CMS_PROVIDER=feishu (default).
 
 const BLOG = {
-  // feishu | notion — when feishu, SiteData comes from Feishu tables/docs
+  // 主路径 feishu；CMS_PROVIDER=notion 时才走遗留 Notion 数据层
   CMS_PROVIDER: process.env.CMS_PROVIDER || 'feishu',
 
-  API_BASE_URL: process.env.API_BASE_URL || 'https://www.notion.so/api/v3', // API默认请求地址,可以配置成自己的地址例如：https://[xxxxx].notion.site/api/v3
-  // Important page_id！！！Duplicate Template from  https://tanghh.notion.site/02ab3b8678004aa69e9e415905ef32a5
-  NOTION_PAGE_ID:
-    process.env.NOTION_PAGE_ID ||
-    '02ab3b8678004aa69e9e415905ef32a5,en:7c1d570661754c8fbc568e00a01fd70e',
-  THEME: process.env.NEXT_PUBLIC_THEME || 'example', // 当前主题，在themes文件夹下可找到所有支持的主题；主题名称就是文件夹名，例如 claude,endspace,example,fukasawa,fuwari,gitbook,heo,hexo,landing,matery,medium,next,nobelium,plog,simple
+  API_BASE_URL: process.env.API_BASE_URL || 'https://www.notion.so/api/v3', // only when CMS_PROVIDER=notion
+  NOTION_PAGE_ID: process.env.NOTION_PAGE_ID || '', // only when CMS_PROVIDER=notion
+  THEME: process.env.NEXT_PUBLIC_THEME || 'example', // themes/ 下文件夹名
   LANG: process.env.NEXT_PUBLIC_LANG || 'zh-CN', // e.g 'zh-CN','en-US'  see /lib/lang.js for more.
   SINCE: process.env.NEXT_PUBLIC_SINCE || 2021, // e.g if leave this empty, current year will be used.
 
   PSEUDO_STATIC: process.env.NEXT_PUBLIC_PSEUDO_STATIC || false, // 伪静态路径，开启后所有文章URL都以 .html 结尾。
-  NEXT_REVALIDATE_SECOND: process.env.NEXT_PUBLIC_REVALIDATE_SECOND || process.env.NEXT_REVALIDATE_SECOND || 300, // prefer CONFIG-TABLE; default 5min // 更新缓存间隔 单位(秒)；即每个页面有60秒的纯静态期、此期间无论多少次访问都不会抓取notion数据；调大该值有助于节省Vercel资源、同时提升访问速率，但也会使文章更新有延迟。
-  REVALIDATION_TOKEN: process.env.REVALIDATION_TOKEN || '', // On-Demand Revalidation Token，设置后可通过 POST /api/revalidate 立即刷新页面缓存（解决 Notion 内容更新延迟问题）
+  NEXT_REVALIDATE_SECOND: process.env.NEXT_PUBLIC_REVALIDATE_SECOND || process.env.NEXT_REVALIDATE_SECOND || 300, // prefer CONFIG-TABLE; default 5min // 更新缓存间隔 单位(秒)；即每个页面有60秒的纯静态期、此期间无论多少次访问都不会重新拉内容源；调大该值有助于节省Vercel资源、同时提升访问速率，但也会使文章更新有延迟。
+  REVALIDATION_TOKEN: process.env.REVALIDATION_TOKEN || '', // On-Demand Revalidation Token，设置后可通过 POST /api/revalidate 立即刷新页面缓存（按需刷新 ISR 缓存）
   APPEARANCE: process.env.NEXT_PUBLIC_APPEARANCE || 'light', // ['light', 'dark', 'auto'], // light 日间模式 ， dark夜间模式， auto根据时间和主题自动夜间模式
   APPEARANCE_DARK_TIME: process.env.NEXT_PUBLIC_APPEARANCE_DARK_TIME || [18, 6], // 夜间模式起至时间，false时关闭根据时间自动切换夜间模式
 
@@ -69,7 +66,7 @@ const BLOG = {
 
   // 高级用法
   ...require('./conf/layout-map.config'), // 路由与布局映射自定义，例如自定义特定路由的页面布局
-  ...require('./conf/notion.config'), // 读取notion数据库相关的扩展配置，例如自定义表头
+  ...require('./conf/notion.config'), // 遗留 Notion 字段枚举名；飞书路径仅共用 type/status 等命名
   ...require('./conf/dev.config'), // 开发、调试时需要关注的配置
 
   // 自定义外部脚本，外部样式

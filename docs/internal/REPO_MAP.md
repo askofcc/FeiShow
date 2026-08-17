@@ -35,5 +35,4 @@
 
 | 路径 | 说明 |
 |---|---|
-| [`old/docs/`](../../old/docs/) | 上游 NotionNext 文档站 |
-| [`old/docs/internal-history/`](../../old/docs/internal-history/) | 本项目过程稿（计划、阶段清单） |
+| [`../upstream/`](../upstream/) | 上游 NotionNext README 备份（非产品文档） |

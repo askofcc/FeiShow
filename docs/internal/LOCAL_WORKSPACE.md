@@ -73,3 +73,9 @@ git push origin main
 - 打开产品：工作区根目录选 **`Documents/FeishuNext`**  
 - 不要同时把 legacy 归档目录当可写主仓  
 - `feishu-ops` 仅在「操作飞书表/文档」任务时使用  
+
+
+## 6. 仓库内不再放 `old/`
+
+2026-08-17 起，Git 产品树**不再包含**上游 NotionNext 文档站 / 配图 / 治理包装（原 `old/`，约 173MB）。  
+上游 README 备份仅在 `docs/upstream/`；本地历史目录仍可在 `Documents/_archive/`。

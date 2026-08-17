@@ -1,6 +1,6 @@
 # FeishuNext 文档
 
-只保留现行入口。过程稿在 [`../old/docs/internal-history/`](../old/docs/internal-history/)。
+只保留现行入口。过程稿在 [`./internal/`](./internal/)。
 
 | 目录 | 看什么 |
 |---|---|
@@ -8,4 +8,4 @@
 | [internal/](./internal/) | 为什么做、当前进度、仓库约定 |
 | [deploy/](./deploy/) | 最少步骤部署 |
 
-上游 NotionNext 文档在 [`../old/docs/`](../old/docs/)。
+上游 README 备份在 [upstream/](./upstream/)。

@@ -30,7 +30,7 @@
 - **本仓库不是** NotionNext 官方 fork 维护分支；Issue / PR 请开到 **askofcc/FeishuNext**。
 - **数据源已替换为飞书**；不要按 Notion 官方教程填 `NOTION_PAGE_ID` 当主路径。
 - 上游同步策略：[docs/internal/UPSTREAM.md](./docs/internal/UPSTREAM.md)
-- 原版 NotionNext README 备份：[old/docs/upstream/README.NotionNext.md](./old/docs/upstream/README.NotionNext.md)
+- 上游 README 备份与致谢：[docs/upstream/](./docs/upstream/)
 
 ### Credits
 
@@ -94,7 +94,7 @@ npx yarn@1.22.22 dev
 | `components/feishu/` | 正文渲染 |
 | `themes/` | 主题（可跟随上游更新） |
 | `docs/feishu/` | **产品与数据契约（优先读这里）** |
-| `old/docs/` | 上游 NotionNext 文档（已移出主线） |
+| `docs/upstream/` | 上游 NotionNext README 备份（非产品文档） |
 
 ---
 
@@ -104,10 +104,10 @@ npx yarn@1.22.22 dev
 2. 接飞书：`docs/feishu/STABLE_FEISHU_DATA.md`、内容表/CONFIG 契约  
 3. 做主题：`docs/feishu/THEME_DATA_CONTRACT.md`  
 4. 跟上游前端：`docs/internal/UPSTREAM.md`  
-5. 上游文档与治理包装在 `old/`，不要当 FeishuNext 产品文档读
+5. 产品文档只看根 README、`docs/feishu/`、`docs/deploy/`、`docs/internal/`；`docs/upstream/` 仅为 MIT 致谢备份
 
 更细的目录说明：[docs/internal/REPO_MAP.md](./docs/internal/REPO_MAP.md)  
-上游遗留已集中到 [old/README.md](./old/README.md)。
+上游关系见 [docs/internal/UPSTREAM.md](./docs/internal/UPSTREAM.md)；勿再维护平行 Notion 文档树。
 
 ---
 
@@ -116,7 +116,7 @@ npx yarn@1.22.22 dev
 ```bash
 git fetch upstream
 # 优先看 themes / 壳修复；不要无脑全量当 Notion 数据层更新
-git log feishu/main..upstream/main -- themes components
+git log main..upstream/main -- themes components
 ```
 
 冲突时保护：`lib/feishu/**`、`lib/site/adapters/feishu/**`、`components/feishu/**`、飞书分流逻辑。

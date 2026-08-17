@@ -1,7 +1,7 @@
 /**
- * 读取Notion相关的配置
- * 如果需要在Notion中添加自定义字段，可以修改此文件
- * 此文件内容可以通过环境变量覆盖，但是不支持用NOTION_CONFIG覆盖
+ * 遗留 Notion 数据源字段映射（仅 CMS_PROVIDER=notion）。
+ * 飞书主路径不读数据库视图；type/status 等枚举名仍被主题与 SiteData 共用。
+ * 可用环境变量覆盖；不支持用 NOTION_CONFIG 覆盖本文件。
  */
 module.exports = {
   // Notion数据库索引，取notion的第几个视图作为站点数据和排序依据

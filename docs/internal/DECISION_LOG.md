@@ -323,5 +323,15 @@ Notion 全字段镜像表
 - 本地主工程与 `origin/main`（askofcc/FeishuNext）对齐检查；产品分支仅 **main**。  
 - 未提交增强（站点根品牌、作者头像、pageIcon、菜单默认等）纳入代码并文档化。  
 - 明确：`tsc` 在 exactOptionalPropertyTypes 下噪音多，**部署以 Next build 为准**。  
-- 阶段过程稿已归档到 `old/docs/internal-history/`。  
+- 阶段结论见 `docs/internal/`（过程稿已不再放在产品主树）。  
 - 下一动作：生产部署验证 → 阶段 B 体验/运维增强；AI 就绪仍后置。
+
+
+---
+
+## 2026-08-17 产品树去 NotionNext 噪音
+
+- 从仓库主树移除 `old/`（上游文档站 / 治理包装 / 过程稿，约 173MB）。
+- 仅保留 `docs/upstream/` 两份上游 README 备份 + `LICENSE`/`NOTICE` + [UPSTREAM.md](./UPSTREAM.md)。
+- `package.json` bugs 指向 askofcc/FeishuNext；去掉默认 Notion 演示 `NOTION_PAGE_ID`。
+- 运行时仍依赖的 `lib/db/notion/*`、`conf/notion.config.js`、主题壳 **暂留**（前端 import 链），见 UPSTREAM「不能硬拆」说明。

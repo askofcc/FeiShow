@@ -113,8 +113,7 @@
     "uuid": "^11.1.1"
   },
   "bugs": {
-    "url": "https://github.com/tangly/NotionNext/issues",
-    "email": "tlyong1992@hotmail.com"
+    "url": "https://github.com/askofcc/FeishuNext/issues"
   },
-  "description": "FeishuNext — turn Feishu docs/bitable into a public site (frontend based on NotionNext)"
+  "description": "FeishuNext — publish Feishu docs and bitable as a public site"
 }

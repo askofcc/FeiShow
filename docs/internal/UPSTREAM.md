@@ -51,3 +51,19 @@ git fetch upstream --prune
 ```
 
 本产品日常只使用本地 **`main`**。
+
+
+## 产品树里仍会看到的 Notion 字样（有意保留）
+
+| 路径 | 原因 |
+|---|---|
+| `themes/` `pages/` `components/` | 我们用的就是这套前端壳 |
+| `conf/*`（含 `notion.config.js`） | `blog.config.js` 会 require；type/Menu 等枚举名共用 |
+| `lib/db/notion/` | `SiteDataApi.js` 仍静态引用；**运行主路径是飞书** |
+| `notion-client` / `react-notion-x` 依赖 | 主题组件与遗留 Notion 路径仍 import |
+| `docs/upstream/` | MIT 致谢：上游 README 备份（不是产品手册） |
+| 根 `LICENSE` / `NOTICE` | 法务要求保留版权声明 |
+
+要拆 `lib/db/notion`，需先改 `SiteDataApi.js` 为纯动态/条件 import，再删依赖——那是独立重构，不是文档清理。
+
+~~`old/`~~：已从产品仓库移除（2026-08-17）。过程稿见 `docs/internal/`。
