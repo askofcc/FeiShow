@@ -1,5 +1,5 @@
 import { getTenantAccessToken } from '@/lib/feishu/auth'
-import { parseWikiToken, resolveWikiNode } from '@/lib/feishu/wiki'
+import { listWikiChildren, parseWikiToken, resolveWikiNode } from '@/lib/feishu/wiki'
 import { resolveFeishuTables } from '@/lib/feishu/bootstrap'
 
 function explain(err) {
@@ -129,12 +129,40 @@ export default async function handler(req, res) {
           `已发现 ${tables.contentAppToken}/${tables.contentTableId}（${tables.source}）`
         )
       } else {
-        fail(
-          'content',
-          '内容表',
-          '根页下没找到内容多维表格',
-          '在根页下建一张多维表格，至少含「标题」「类型」「文档」列（或表名带「内容/博客」）。也可手动设 FEISHU_CONTENT_APP_TOKEN / FEISHU_CONTENT_TABLE_ID。'
-        )
+        const token = parseWikiToken(siteRoot)
+        let childDocs = 0
+        if (token) {
+          try {
+            const node = await resolveWikiNode(token)
+            if (node?.space_id && node.node_token) {
+              const kids = await listWikiChildren(node.space_id, node.node_token, {
+                pageSize: 50,
+                maxPages: 2
+              })
+              childDocs = kids.filter(k => {
+                const t = String(k.obj_type || '').toLowerCase()
+                return t === 'docx' || t === 'doc'
+              }).length
+            }
+          } catch (e) {
+            checks.push({
+              id: 'content-scan',
+              ok: true,
+              title: '内容扫描',
+              detail: e instanceof Error ? e.message : String(e)
+            })
+          }
+        }
+        if (childDocs > 0) {
+          pass('content', '内容', `根页下 ${childDocs} 个子文档（无内容表，走页面树）`)
+        } else {
+          fail(
+            'content',
+            '内容表',
+            '根页下没找到内容多维表格，也没有可展示的子文档',
+            '在根页下挂文章子页面，或建一张含「标题」「类型」「文档」列的内容表。'
+          )
+        }
       }
       if (tables.configAppToken && tables.configTableId) {
         pass(

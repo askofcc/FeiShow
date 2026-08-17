@@ -79,20 +79,29 @@ function classifyByFields(fieldNames: string[], tableName = ''): FeishuTableRef[
 /**
  * Resolve content/config bitable refs.
  * Priority:
- * 1) explicit env tokens (no hardcoded product defaults)
- * 2) discover bitables under FEISHU_SITE_ROOT wiki children
+ * 1) discover bitables under FEISHU_SITE_ROOT
+ * 2) env table tokens only if SITE_ROOT is empty
  */
 export async function resolveFeishuTables(): Promise<ResolvedTables> {
   if (cache) return cache
   if (inflight) return inflight
 
   inflight = (async () => {
-    const envContentApp =
-      envOrEmpty('FEISHU_CONTENT_APP_TOKEN') || envOrEmpty('FEISHU_BITABLE_APP_TOKEN')
-    const envContentTable =
-      envOrEmpty('FEISHU_CONTENT_TABLE_ID') || envOrEmpty('FEISHU_BITABLE_TABLE_ID')
-    const envConfigApp = envOrEmpty('FEISHU_CONFIG_APP_TOKEN')
-    const envConfigTable = envOrEmpty('FEISHU_CONFIG_TABLE_ID')
+    const siteRoot =
+      envOrEmpty('FEISHU_SITE_ROOT') ||
+      envOrEmpty('FEISHU_LIST_ROOT') ||
+      String((siteConfig as any)?.feishu?.siteRoot || '')
+
+    // Product input is SITE_ROOT + app credentials. Table tokens are leftover
+    // overrides only when no root is configured.
+    const envContentApp = siteRoot
+      ? ''
+      : envOrEmpty('FEISHU_CONTENT_APP_TOKEN') || envOrEmpty('FEISHU_BITABLE_APP_TOKEN')
+    const envContentTable = siteRoot
+      ? ''
+      : envOrEmpty('FEISHU_CONTENT_TABLE_ID') || envOrEmpty('FEISHU_BITABLE_TABLE_ID')
+    const envConfigApp = siteRoot ? '' : envOrEmpty('FEISHU_CONFIG_APP_TOKEN')
+    const envConfigTable = siteRoot ? '' : envOrEmpty('FEISHU_CONFIG_TABLE_ID')
 
     let contentAppToken = envContentApp
     let contentTableId = envContentTable
@@ -105,11 +114,7 @@ export async function resolveFeishuTables(): Promise<ResolvedTables> {
           ? 'mixed'
           : 'empty'
 
-    const needDiscover = !contentAppToken || !contentTableId || !configAppToken || !configTableId
-    const siteRoot =
-      envOrEmpty('FEISHU_SITE_ROOT') ||
-      envOrEmpty('FEISHU_LIST_ROOT') ||
-      String((siteConfig as any)?.feishu?.siteRoot || '')
+    const needDiscover = Boolean(siteRoot) && (!contentAppToken || !contentTableId || !configAppToken || !configTableId)
 
     if (needDiscover && siteRoot) {
       try {
