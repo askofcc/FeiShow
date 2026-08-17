@@ -1,5 +1,7 @@
 import siteConfig from '@/lib/feishu/config'
+import { extractDocToken, extractTextField, listBitableRecordsFrom } from './bitable'
 import { feishuFetch } from './client'
+import { listDocumentBlocks } from './docx'
 import { listWikiChildren, parseWikiToken, resolveWikiNode } from './wiki'
 
 export type FeishuTableRef = {
@@ -55,6 +57,102 @@ async function listFields(appToken: string, tableId: string): Promise<BitableFie
   return data.items || []
 }
 
+function parseEmbeddedBitableToken(raw: string): { appToken: string; tableId?: string } | null {
+  const token = String(raw || '').trim()
+  if (!token) return null
+  const m = token.match(/^(.+?)_(tbl[A-Za-z0-9]+)$/)
+  if (m?.[1] && m[2]) return { appToken: m[1], tableId: m[2] }
+  if (/^[A-Za-z0-9_-]{10,}$/.test(token)) return { appToken: token }
+  return null
+}
+
+async function inspectAppTables(appToken: string, titleHint = ''): Promise<FeishuTableRef[]> {
+  const out: FeishuTableRef[] = []
+  const tables = await listTables(appToken)
+  for (const t of tables) {
+    if (!t.table_id) continue
+    let kind: FeishuTableRef['kind'] = 'unknown'
+    try {
+      const fields = await listFields(appToken, t.table_id)
+      kind = classifyByFields(
+        fields.map(f => String(f.field_name || '')),
+        t.name || titleHint
+      )
+    } catch {
+      kind = classifyByFields([], t.name || titleHint)
+    }
+    out.push({
+      appToken,
+      tableId: t.table_id,
+      tableName: t.name || titleHint,
+      kind
+    })
+  }
+  return out
+}
+
+async function collectEmbeddedTables(documentId: string): Promise<FeishuTableRef[]> {
+  const blocks = await listDocumentBlocks(documentId)
+  const seen = new Set<string>()
+  const out: FeishuTableRef[] = []
+  for (const block of blocks) {
+    const raw = (block as { bitable?: { token?: string } }).bitable?.token
+    const parsed = parseEmbeddedBitableToken(String(raw || ''))
+    if (!parsed) continue
+    const key = `${parsed.appToken}/${parsed.tableId || ''}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    try {
+      if (parsed.tableId) {
+        let kind: FeishuTableRef['kind'] = 'unknown'
+        try {
+          const fields = await listFields(parsed.appToken, parsed.tableId)
+          kind = classifyByFields(fields.map(f => String(f.field_name || '')))
+        } catch {
+          kind = 'unknown'
+        }
+        out.push({
+          appToken: parsed.appToken,
+          tableId: parsed.tableId,
+          tableName: parsed.tableId,
+          kind
+        })
+      } else {
+        out.push(...(await inspectAppTables(parsed.appToken)))
+      }
+    } catch (e) {
+      console.warn('[feishu] inspect embedded bitable failed', parsed.appToken, e)
+    }
+  }
+  return out
+}
+
+async function resolveConfigFromContentTable(
+  appToken: string,
+  tableId: string
+): Promise<FeishuTableRef | null> {
+  const records = await listBitableRecordsFrom(appToken, tableId, { pageSize: 100, maxPages: 5 })
+  for (const record of records) {
+    const typeRaw = extractTextField(
+      (record.fields || {})['类型'] ?? (record.fields || {})['type']
+    ).trim()
+    const type = typeRaw.toLowerCase()
+    if (typeRaw !== '配置' && type !== 'config') continue
+    const docToken = extractDocToken((record.fields || {})['文档'] ?? (record.fields || {})['document'])
+    if (!docToken) continue
+    const node = await resolveWikiNode(docToken)
+    if (!node?.obj_token || !isBitableObjType(node.obj_type)) continue
+    const tables = await inspectAppTables(String(node.obj_token), node.title || '配置中心')
+    return (
+      tables.find(t => t.kind === 'config') ||
+      tables.find(t => (t.tableName || '').includes('配置') || (t.tableName || '').toUpperCase().includes('CONFIG')) ||
+      tables[0] ||
+      null
+    )
+  }
+  return null
+}
+
 function classifyByFields(fieldNames: string[], tableName = ''): FeishuTableRef['kind'] {
   const names = fieldNames.map(n => n.trim())
   const set = new Set(names)
@@ -79,8 +177,9 @@ function classifyByFields(fieldNames: string[], tableName = ''): FeishuTableRef[
 /**
  * Resolve content/config bitable refs.
  * Priority:
- * 1) discover bitables under FEISHU_SITE_ROOT
- * 2) env table tokens only if SITE_ROOT is empty
+ * 1) content table: bitable embedded in FEISHU_SITE_ROOT, else wiki child
+ * 2) CONFIG table: content row type=配置 → 文档 column
+ * 3) env table tokens only if SITE_ROOT is empty
  */
 export async function resolveFeishuTables(): Promise<ResolvedTables> {
   if (cache) return cache
@@ -122,62 +221,59 @@ export async function resolveFeishuTables(): Promise<ResolvedTables> {
         if (token) {
           const root = await resolveWikiNode(token)
           if (root?.space_id && root.node_token) {
+            const found: FeishuTableRef[] = []
+
+            // Cloneable content table lives in the root doc body, not the wiki sidebar.
+            if (root.obj_token && !isBitableObjType(root.obj_type)) {
+              try {
+                found.push(...(await collectEmbeddedTables(String(root.obj_token))))
+              } catch (e) {
+                console.warn('[feishu] scan root embedded bitable failed', e)
+              }
+            }
+
             const children = await listWikiChildren(root.space_id, root.node_token, {
               pageSize: 50,
               maxPages: 5
             })
-            const bitables = children.filter(c => isBitableObjType(c.obj_type) && c.obj_token)
-            const found: FeishuTableRef[] = []
-
-            for (const node of bitables) {
-              const appToken = String(node.obj_token)
+            for (const node of children.filter(c => isBitableObjType(c.obj_type) && c.obj_token)) {
               try {
-                const tables = await listTables(appToken)
-                for (const t of tables) {
-                  if (!t.table_id) continue
-                  let kind: FeishuTableRef['kind'] = 'unknown'
-                  try {
-                    const fields = await listFields(appToken, t.table_id)
-                    kind = classifyByFields(
-                      fields.map(f => String(f.field_name || '')),
-                      t.name || node.title || ''
-                    )
-                  } catch {
-                    kind = classifyByFields([], t.name || node.title || '')
-                  }
-                  found.push({
-                    appToken,
-                    tableId: t.table_id,
-                    tableName: t.name || node.title,
-                    kind
-                  })
-                }
+                found.push(...(await inspectAppTables(String(node.obj_token), node.title || '')))
               } catch (e) {
-                console.warn('[feishu] list tables failed for wiki bitable', appToken, e)
+                console.warn('[feishu] list tables failed for wiki bitable', node.obj_token, e)
               }
             }
 
             const content =
               found.find(f => f.kind === 'content') ||
               found.find(f => (f.tableName || '').includes('内容') || (f.tableName || '').includes('博客'))
-            const config =
-              found.find(f => f.kind === 'config') ||
-              found.find(f => (f.tableName || '').toUpperCase().includes('CONFIG'))
 
             if (!contentAppToken && content) contentAppToken = content.appToken
             if (!contentTableId && content) contentTableId = content.tableId
-            if (!configAppToken && config) configAppToken = config.appToken
-            if (!configTableId && config) configTableId = config.tableId
 
-            if (content || config) {
+            // CONFIG is pointed to by the content table, not "whatever config-like
+            // bitable happens to sit next to the root page".
+            if (contentAppToken && contentTableId && (!configAppToken || !configTableId)) {
+              try {
+                const config = await resolveConfigFromContentTable(contentAppToken, contentTableId)
+                if (config) {
+                  if (!configAppToken) configAppToken = config.appToken
+                  if (!configTableId) configTableId = config.tableId
+                }
+              } catch (e) {
+                console.warn('[feishu] resolve CONFIG from content table failed', e)
+              }
+            }
+
+            if (contentAppToken || configAppToken) {
               source =
                 envContentApp || envContentTable || envConfigApp || envConfigTable
                   ? 'mixed'
                   : 'site-root'
               console.log('[feishu] tables resolved from site root', {
                 source,
-                content: content ? `${content.appToken}/${content.tableId}` : null,
-                config: config ? `${config.appToken}/${config.tableId}` : null
+                content: contentAppToken && contentTableId ? `${contentAppToken}/${contentTableId}` : null,
+                config: configAppToken && configTableId ? `${configAppToken}/${configTableId}` : null
               })
             }
           }
