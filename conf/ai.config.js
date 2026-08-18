@@ -23,7 +23,7 @@ module.exports = {
   COZE_SRC_URL:
     process.env.NEXT_PUBLIC_COZE_SRC_URL ||
     'https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/0.1.0-beta.6/libs/cn/index.js',
-  COZE_TITLE: process.env.NEXT_PUBLIC_COZE_TITLE || 'NotionNext助手',
+  COZE_TITLE: process.env.NEXT_PUBLIC_COZE_TITLE || 'FeishuNext 助手',
 
   // Chatbase 机器人 @see https://www.chatbase.co/
   CHATBASE_ID: process.env.NEXT_PUBLIC_CHATBASE_ID || null,

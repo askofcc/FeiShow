@@ -4,7 +4,7 @@
  * 这是一个空白主题，方便您用作创建新主题时的模板，从而开发出您自己喜欢的主题
  * 1. 禁用了代码质量检查功能，提高了代码的宽容度；您可以使用标准的html写法
  * 2. 内容大部分是在此文件中写死，notion数据从props参数中传进来
- * 3. 您可在此网站找到更多喜欢的组件 https://www.tailwind-kit.com/
+ * 3. 您可在此网站找到更多喜欢的组件 https://github.com/askofcc/FeishuNext
  */
 import Loading from '@/components/Loading'
 import NotionPage from '@/components/NotionPage'

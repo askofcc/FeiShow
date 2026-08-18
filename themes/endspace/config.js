@@ -17,7 +17,7 @@
  * 3. 设置 Title 为你想要的菜单名称
  * 4. 设置 Slug 为对应的路径
  * 5. 在 Notion 中创建对应的页面内容
- * 具体可参考NotionNext的帮助手册：https://docs.tangly1024.com/article/notion-next-secondary-menu
+ * 二级菜单见主题说明；数据契约见 docs/feishu/THEME_DATA_CONTRACT.md
  * 
  * 示例配置：
  * | Type | Title     | Slug       |
@@ -45,7 +45,7 @@ const CONFIG = {
   ENDSPACE_LOADING_TEXT_SWEEPING: 'LAUNCHING', // 扫描阶段显示的文字
   ENDSPACE_LOADING_TEXT_FADEOUT: 'WELCOME', // 淡出阶段显示的文字
   
-  // 加载动画中的图片，可以使用public目录下的图片如'/images/logo.png'，也可以使用url如https://example.com/image.png
+  // 加载动画中的图片，可以使用public目录下的图片如'/images/logo.png'，也可以使用url如https://github.com/askofcc/FeishuNext
   ENDSPACE_LOADING_IMAGE: '/favicon.svg', // 加载动画中显示的图片（默认使用站点 favicon SVG）
 
   // ============================================

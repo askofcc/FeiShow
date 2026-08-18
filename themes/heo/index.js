@@ -1,9 +1,9 @@
 /**
  *   HEO 主题说明
  *  > 主题设计者 [张洪](https://zhheo.com/)
- *  > 主题开发者 [tangly1024](https://github.com/tangly1024)
+ *  > 本仓库已适配 FeishuNext 数据层
  *  1. 开启方式 在blog.config.js 将主题配置为 `HEO`
- *  2. 更多说明参考此[文档](https://docs.tangly1024.com/article/notionnext-heo)
+ *  2. 数据契约见 docs/feishu/THEME_DATA_CONTRACT.md
  */
 
 import Comment from '@/components/Comment'
@@ -387,7 +387,7 @@ const Layout404 = props => {
               <LazyImage
                 className='error-img h-60 md:h-full p-4'
                 src={
-                  'https://bu.dusays.com/2023/03/03/6401a7906aa4a.gif'
+                  'https://github.com/askofcc/FeishuNext'
                 }></LazyImage>
 
               {/* 右侧文字 */}

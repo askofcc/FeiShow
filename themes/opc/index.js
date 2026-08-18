@@ -52,11 +52,11 @@ const OpcFooter = () => (
   <footer className='opc-footer px-5 pb-8 text-xs md:px-10'>
     <div className='mx-auto flex max-w-6xl flex-col gap-2 border-t pt-5 sm:flex-row sm:items-center sm:justify-between'>
       <div className='opc-muted'>
-        由 <SmartLink href='https://notionnext.tangly1024.com/'>NotionNext</SmartLink> 开发 · 主题 OPC
+        由 <SmartLink href='https://github.com/askofcc/FeishuNext'>FeishuNext</SmartLink> 驱动 · 主题 OPC
       </div>
       <div className='flex flex-wrap gap-3'>
-        <SmartLink href='https://notionnext.tangly1024.com/user-guide/start-here'>NotionNext 帮助</SmartLink>
-        <SmartLink href='https://notionnext.tangly1024.com/user-guide/themes/opc'>OPC 主题文档</SmartLink>
+        <SmartLink href='https://github.com/askofcc/FeishuNext'>FeishuNext 仓库</SmartLink>
+        <SmartLink href='https://github.com/askofcc/FeishuNext'>项目文档</SmartLink>
       </div>
     </div>
   </footer>

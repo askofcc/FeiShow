@@ -1,5 +1,5 @@
 /**
- * Rewrite Feishu CONFIG-TABLE to mirror official NotionNext demo-style keys.
+ * Rewrite Feishu CONFIG-TABLE to mirror FeishuNext / Example theme CONFIG keys.
  * Usage: node scripts/sync_official_config_table.mjs
  */
 import fs from 'fs'
@@ -17,19 +17,19 @@ const domain = process.env.FEISHU_DOMAIN || 'https://open.feishu.cn'
 const app = process.env.FEISHU_CONFIG_APP_TOKEN || 'JGShbeVp9aGGV3s2J4qcMmGAn0b'
 const table = process.env.FEISHU_CONFIG_TABLE_ID || 'tbl4qPlVgMLg5eaH'
 
-// 1:1 style keys from official NotionNext demo / blog.config defaults + Example theme console
+// 1:1 style keys from FeishuNext blog.config defaults / blog.config defaults + Example theme console
 const ROWS = [
   // —— 站点基础（官方配置中心常见）——
-  ['TITLE', 'NotionNext', true, '站点标题'],
-  ['DESCRIPTION', '一个使用 NotionNext 构建的站点', true, '站点描述'],
-  ['AUTHOR', 'NotionNext', true, '作者名（站点级；文章作者优先文档）'],
+  ['TITLE', 'FeishuNext', true, '站点标题'],
+  ['DESCRIPTION', '一个使用 FeishuNext 构建的站点', true, '站点描述'],
+  ['AUTHOR', 'FeishuNext', true, '作者名（站点级；文章作者优先文档）'],
   ['BIO', '一个普通的干饭人🍚', true, '作者简介'],
   ['KEYWORDS', 'Notion, 博客', true, 'SEO 关键词，逗号分隔'],
   ['LINK', 'http://localhost:3460', true, '站点 URL'],
   ['LANG', 'zh-CN', true, '语言'],
   ['SINCE', '2021', true, '建站年份'],
   ['BLOG_FAVICON', '/favicon.ico', true, '站点图标'],
-  ['HOME_BANNER_IMAGE', 'https://cdn.tangly1024.com/images/page-cover/nasa_robert_stewart_spacewalk_2.jpg', true, '首页封面图'],
+  ['HOME_BANNER_IMAGE', '/bg_image.jpg', true, '首页封面图'],
 
   // —— 外观 / 主题 ——
   ['APPEARANCE', 'light', true, 'light | dark | system'],
