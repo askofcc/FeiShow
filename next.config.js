@@ -285,7 +285,7 @@ const nextConfig = {
     : () => {
       // 处理多语言重定向
       const langsRewrites = []
-      if (BLOG.NOTION_PAGE_ID.indexOf(',') > 0) {
+      if (String(BLOG.CMS_PROVIDER || 'feishu').toLowerCase() !== 'feishu' && BLOG.NOTION_PAGE_ID.indexOf(',') > 0) {
         const siteIds = BLOG.NOTION_PAGE_ID.split(',')
         const langs = []
         for (const siteId of siteIds) {
