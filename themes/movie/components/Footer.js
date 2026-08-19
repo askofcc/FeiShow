@@ -36,9 +36,9 @@ export const Footer = props => {
           <span className='dark:text-gray-200 no-underline ml-4'>
             Powered by
             <a
-              href='https://github.com/askofcc/FeishuNext'
+              href='https://github.com/askofcc/FeiShow'
               className=' hover:underline'>
-              FeishuNext {siteConfig('VERSION')}
+              FeiShow {siteConfig('VERSION')}
             </a>
           </span>
         </div>

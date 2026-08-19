@@ -134,11 +134,11 @@ export const Footer = props => {
                   <p className='text-base text-gray-7'>
                     Designed and Developed by
                     <a
-                      href='https://github.com/askofcc/FeishuNext'
+                      href='https://github.com/askofcc/FeiShow'
                       rel='nofollow noopner noreferrer'
                       target='_blank'
                       className='px-1 text-gray-1 hover:underline'>
-                      FeishuNext {siteConfig('VERSION')}
+                      FeiShow {siteConfig('VERSION')}
                     </a>
                   </p>
                 </div>

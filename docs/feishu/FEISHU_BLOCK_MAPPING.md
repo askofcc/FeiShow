@@ -1,6 +1,6 @@
 # 飞书 Docx 块类型映射
 
-> FeishuNext **不**走 Notion `recordMap` + `react-notion-x`。
+> FeiShow **不**走 Notion `recordMap` + `react-notion-x`。
 > 路径：`官方 Docx blocks` → `normalize` → `FeishuBlock` → `FeishuRenderer`。
 > 目标是**阅读页观感**接近 NotionNext，而不是内部数据结构相同。
 
@@ -93,7 +93,7 @@ GET /docx/v1/documents/:id/blocks
 
 ## 与 NotionNext 观感对齐点（v1）
 
-| 维度 | NotionNext 参考 | FeishuNext 实现 |
+| 维度 | NotionNext 参考 | FeiShow 实现 |
 |---|---|---|
 | 正文宽度 | ~720px | 文章主栏 `max-w-[720px]` |
 | 字号行高 | 16px / ~1.7 | `.feishu-doc` 16px / 1.75 |

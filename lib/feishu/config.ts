@@ -1,5 +1,5 @@
 /**
- * Compatibility shape with FeishuNext site.config for lib/feishu/*
+ * Compatibility shape with FeiShow site.config for lib/feishu/*
  */
 function env(name: string, fallback = ''): string {
   const v = process.env[name]

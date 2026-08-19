@@ -1,6 +1,6 @@
 # 飞书知识库：如何拿到「文档列表」
 
-目标：从**当前知识库**拿到文档标题、链接、token 等，供多维表格索引 / FeishuNext 站点使用。
+目标：从**当前知识库**拿到文档标题、链接、token 等，供多维表格索引 / FeiShow 站点使用。
 
 结论先说：
 
@@ -99,7 +99,7 @@ POST /open-apis/wiki/v2/nodes/search
 
 ---
 
-## 2. 推荐调用顺序（FeishuNext / 同步服务）
+## 2. 推荐调用顺序（FeiShow / 同步服务）
 
 ```text
 1) 用户配置：WIKI 根链接 或 space_id + 根 node_token
@@ -165,11 +165,11 @@ Wiki 新建文档
 
 | 方案 | 做法 | 鉴权放哪 | 模板友好度 |
 |---|---|---|---|
-| A. 站点侧同步（推荐） | FeishuNext 定时/Webhook：wiki nodes → 写 bitable 或直接当索引 | `.env` 里 APP_ID/SECRET | 高：表格只是数据，密钥在站点部署处 |
+| A. 站点侧同步（推荐） | FeiShow 定时/Webhook：wiki nodes → 写 bitable 或直接当索引 | `.env` 里 APP_ID/SECRET | 高：表格只是数据，密钥在站点部署处 |
 | B. 表格自动化 | 自动化 HTTP 调 wiki OpenAPI 写本表 | 自动化配置里的密钥变量 | 中：每个复制者要自己填密钥 |
 | C. 半自动 | 人不填表，只在飞书写 wiki；站点直接读 wiki 树当列表 | 站点 `.env` | 高；但缺 status/slug 等业务字段，需另约定 |
 
-FeishuNext 当前主模型仍是：**Bitable = 发布索引，Wiki/Docx = 正文**。  
+FeiShow 当前主模型仍是：**Bitable = 发布索引，Wiki/Docx = 正文**。  
 Wiki 列表 API 适合：
 
 - 自动补全「文档」列 / 标题  
@@ -226,7 +226,7 @@ curl -s "https://open.feishu.cn/open-apis/wiki/v2/spaces/SPACE_ID/nodes?page_siz
 
 ---
 
-## 7. 和 FeishuNext 现有代码
+## 7. 和 FeiShow 现有代码
 
 | 能力 | 现状 |
 |---|---|

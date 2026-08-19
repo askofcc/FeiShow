@@ -1,0 +1,16 @@
+# Local / self-host smoke. Secrets come from .env.docker.local — do not commit that file.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: feishow:local
+    ports:
+      - "3460:3000"
+    env_file:
+      - .env.docker.local
+    environment:
+      NODE_ENV: production
+      CMS_PROVIDER: feishu
+      NEXT_PUBLIC_LINK: http://127.0.0.1:3460
+    restart: unless-stopped

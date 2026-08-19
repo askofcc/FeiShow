@@ -14,7 +14,7 @@ const CONFIG = {
 
   MAGZINE_HOME_TITLE: '立即开创您的在线业务。完全免费。',
   MAGZINE_HOME_DESCRIPTION:
-    '借助 FeishuNext，把飞书内容变成可经营的公开站点。',
+    '借助 FeiShow，把飞书内容变成可经营的公开站点。',
   MAGZINE_HOME_TIPS: 'AI时代来临，这是属于超级个体的狂欢盛宴！',
 
   MAGZINE_HERO_SUB_POST_COUNT: 2, // 首屏英雄区次要文章数量，通常2篇，如果关闭Banner，推荐改为3篇
@@ -41,7 +41,7 @@ const CONFIG = {
   MAGZINE_SOCIAL_CARD_TITLE_1: '交流频道',
   MAGZINE_SOCIAL_CARD_TITLE_2: '加入社群讨论分享',
   MAGZINE_SOCIAL_CARD_TITLE_3: '点击加入社群',
-  MAGZINE_SOCIAL_CARD_URL: 'https://github.com/askofcc/FeishuNext',
+  MAGZINE_SOCIAL_CARD_URL: 'https://github.com/askofcc/FeiShow',
 
   // 页脚菜单
   MAGZINE_FOOTER_LINKS: [
@@ -50,33 +50,33 @@ const CONFIG = {
       menus: [
         {
           title: 'Tangly的学习笔记',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
-          title: 'FeishuNext',
-          href: 'https://github.com/askofcc/FeishuNext'
+          title: 'FeiShow',
+          href: 'https://github.com/askofcc/FeiShow'
         }
       ]
     },
     {
       name: '开发者',
       menus: [
-        { title: 'Github', href: 'https://github.com/askofcc/FeishuNext' },
+        { title: 'Github', href: 'https://github.com/askofcc/FeiShow' },
         {
           title: '开发帮助',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
           title: '功能反馈',
-          href: 'https://github.com/askofcc/FeishuNext/issues/new/choose'
+          href: 'https://github.com/askofcc/FeiShow/issues/new/choose'
         },
         {
           title: '技术讨论',
-          href: 'https://github.com/askofcc/FeishuNext/discussions'
+          href: 'https://github.com/askofcc/FeiShow/discussions'
         },
         {
           title: '关于作者',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         }
       ]
     },
@@ -85,28 +85,28 @@ const CONFIG = {
       menus: [
         {
           title: '站长社群',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
           title: '咨询与定制',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
           title: '升级手册',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
           title: '安装教程',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
-        { title: 'SEO推广', href: 'https://github.com/askofcc/FeishuNext' }
+        { title: 'SEO推广', href: 'https://github.com/askofcc/FeiShow' }
       ]
     },
     {
       name: '解决方案',
       menus: [
-        { title: '建站工具', href: 'https://github.com/askofcc/FeishuNext' },
-        { title: 'FeishuNext', href: 'https://github.com/askofcc/FeishuNext' }
+        { title: '建站工具', href: 'https://github.com/askofcc/FeiShow' },
+        { title: 'FeiShow', href: 'https://github.com/askofcc/FeiShow' }
       ]
     }
   ],

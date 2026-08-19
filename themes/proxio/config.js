@@ -18,14 +18,14 @@ const CONFIG = {
   // 英雄区两个按钮，如果TEXT留空则隐藏按钮
   PROXIO_HERO_BUTTON_1_TEXT: '开始体验', // 英雄区按钮
   PROXIO_HERO_BUTTON_1_URL:
-    'https://github.com/askofcc/FeishuNext', // 英雄区按钮
+    'https://github.com/askofcc/FeiShow', // 英雄区按钮
   PROXIO_HERO_BUTTON_2_TEXT: '在Github上关注', // 英雄区按钮
-  PROXIO_HERO_BUTTON_2_URL: 'https://github.com/askofcc/FeishuNext', // 英雄区按钮
+  PROXIO_HERO_BUTTON_2_URL: 'https://github.com/askofcc/FeiShow', // 英雄区按钮
   PROXIO_HERO_BUTTON_2_ICON: '/images/starter/github-mark.svg', // 英雄区按钮2的图标，不需要则留空
 
   // 英雄区配图，如需隐藏，改为空值即可 ''
   PROXIO_HERO_BANNER_IMAGE: '', // hero区背景，默认是获取Notion背景，如需另外配置图片可以填写在这里
-  PROXIO_HERO_BANNER_IFRAME_URL: '', // hero背景区内嵌背景网页 ，可以配置一个网页地址，例如动画网页https://github.com/askofcc/FeishuNext'作品',
+  PROXIO_HERO_BANNER_IFRAME_URL: '', // hero背景区内嵌背景网页 ，可以配置一个网页地址，例如动画网页https://github.com/askofcc/FeiShow'作品',
   PROXIO_BLOG_COUNT: 4, // 首页博文区块展示前4篇文章
   PROXIO_BLOG_TEXT_1: '我的最新动态',
   PROXIO_BLOG_AUTO_SHOW_COVER: false, // 首页博文区块是否默认显示文章主图；false 时保持悬浮显示主图的旧效果
@@ -63,7 +63,7 @@ const CONFIG = {
     '精益求精雕琢每个元素，确保成品精致统一，令人过目难忘',
 
   PROXIO_FEATURE_BUTTON_TEXT: '了解更多', // 按钮文字
-  PROXIO_FEATURE_BUTTON_URL: 'https://github.com/askofcc/FeishuNext', // 按钮跳转
+  PROXIO_FEATURE_BUTTON_URL: 'https://github.com/askofcc/FeiShow', // 按钮跳转
 
   // 首页生涯区块
   PROXIO_CAREER_ENABLE: true, // 区块开关
@@ -94,7 +94,7 @@ const CONFIG = {
   PROXIO_TESTIMONIALS_TITLE: '用户反馈',
   PROXIO_TESTIMONIALS_TEXT_1: '我们的用户怎么说',
   PROXIO_TESTIMONIALS_TEXT_2:
-    'FeishuNext 帮你把飞书内容变成可访问的独立站；按仓库文档配置应用权限与内容表即可上线。',
+    'FeiShow 帮你把飞书内容变成可访问的独立站；按仓库文档配置应用权限与内容表即可上线。',
 
   // 用户测评处的跳转按钮
   PROXIO_TESTIMONIALS_BUTTON_URL: '/about',
@@ -109,7 +109,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F22de3fcb-d90d-4271-bc01-f815f476122b%2F4FE0A0C0-E487-4C74-BF8E-6F01A27461B8-14186-000008094BC289A6.jpg?table=collection&id=a320a2cc-6ebe-4a8d-95cc-ea94e63bced9&width=200',
       PROXIO_TESTIMONIALS_ITEM_NICKNAME: 'Ryan_G',
       PROXIO_TESTIMONIALS_ITEM_DESCRIPTION: 'Ryan`Log 站长',
-      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       PROXIO_TESTIMONIALS_ITEM_TEXT:
@@ -118,7 +118,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F0d33d169-f932-41ff-ac6b-88a923c08e02%2F%25E5%25A4%25B4%25E5%2583%258F.jfif?table=collection&id=7787658d-d5c0-4f34-8e32-60c523dfaba3&width=400',
       PROXIO_TESTIMONIALS_ITEM_NICKNAME: 'Asenkits',
       PROXIO_TESTIMONIALS_ITEM_DESCRIPTION: '阿森的百宝袋 站长',
-      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       PROXIO_TESTIMONIALS_ITEM_TEXT:
@@ -126,7 +126,7 @@ const CONFIG = {
       PROXIO_TESTIMONIALS_ITEM_AVATAR: '/avatar.png',
       PROXIO_TESTIMONIALS_ITEM_NICKNAME: 'DWIND',
       PROXIO_TESTIMONIALS_ITEM_DESCRIPTION: '且听风吟 站长',
-      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       PROXIO_TESTIMONIALS_ITEM_TEXT:
@@ -135,7 +135,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fd52f6766-3e32-4c3d-8529-46e1f214360f%2Ffavicon.svg?table=collection&id=7d76aad5-a2c4-4d9a-887c-c7913fae4eed&width=400',
       PROXIO_TESTIMONIALS_ITEM_NICKNAME: '迪升disheng ',
       PROXIO_TESTIMONIALS_ITEM_DESCRIPTION: 'AI资源分享 Blog',
-      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       PROXIO_TESTIMONIALS_ITEM_TEXT:
@@ -143,14 +143,14 @@ const CONFIG = {
       PROXIO_TESTIMONIALS_ITEM_AVATAR: '/avatar.png',
       PROXIO_TESTIMONIALS_ITEM_NICKNAME: 'AnJhon',
       PROXIO_TESTIMONIALS_ITEM_DESCRIPTION: 'Anjhon`s Blog 站长',
-      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       PROXIO_TESTIMONIALS_ITEM_TEXT: '用好久了，太感谢了',
       PROXIO_TESTIMONIALS_ITEM_AVATAR: '/avatar.png',
       PROXIO_TESTIMONIALS_ITEM_NICKNAME: 'LUCEN',
       PROXIO_TESTIMONIALS_ITEM_DESCRIPTION: 'LUCEN考验辅导 站长',
-      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      PROXIO_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     }
   ],
 
@@ -161,12 +161,12 @@ const CONFIG = {
   PROXIO_FAQ_TEXT_2: '我们收集了常见的用户疑问',
   PROXIO_FAQS: [
     {
-      q: 'FeishuNext 有说明文档吗？',
-      a: 'FeishuNext 提供了<a href="https://github.com/askofcc/FeishuNext" className="underline">帮助文档</a>，操作<a href="https://github.com/askofcc/FeishuNext" className="underline">演示视频</a>，以及<a href="https://github.com/askofcc/FeishuNext" className="underline">交流社群</a>来协助您完成网站的搭建部署'
+      q: 'FeiShow 有说明文档吗？',
+      a: 'FeiShow 提供了<a href="https://github.com/askofcc/FeiShow" className="underline">帮助文档</a>，操作<a href="https://github.com/askofcc/FeiShow" className="underline">演示视频</a>，以及<a href="https://github.com/askofcc/FeiShow" className="underline">交流社群</a>来协助您完成网站的搭建部署'
     },
     {
       q: '部署后要如何编写文章？',
-      a: '您可以在飞书内容表中维护文章与页面，内容将同步到站点中；详见<a className="underline" href="https://github.com/askofcc/FeishuNext">《帮助文档》</a>'
+      a: '您可以在飞书内容表中维护文章与页面，内容将同步到站点中；详见<a className="underline" href="https://github.com/askofcc/FeiShow">《帮助文档》</a>'
     },
     {
       q: '站点部署失败，更新失败？',
@@ -216,33 +216,33 @@ const CONFIG = {
       menus: [
         {
           title: 'Tangly的学习笔记',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
-          title: 'FeishuNext',
-          href: 'https://github.com/askofcc/FeishuNext'
+          title: 'FeiShow',
+          href: 'https://github.com/askofcc/FeiShow'
         }
       ]
     },
     {
       name: '开发者',
       menus: [
-        { title: 'Github', href: 'https://github.com/askofcc/FeishuNext' },
+        { title: 'Github', href: 'https://github.com/askofcc/FeiShow' },
         {
           title: '开发帮助',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         },
         {
           title: '功能反馈',
-          href: 'https://github.com/askofcc/FeishuNext/issues/new/choose'
+          href: 'https://github.com/askofcc/FeiShow/issues/new/choose'
         },
         {
           title: '技术讨论',
-          href: 'https://github.com/askofcc/FeishuNext/discussions'
+          href: 'https://github.com/askofcc/FeiShow/discussions'
         },
         {
           title: '关于作者',
-          href: 'https://github.com/askofcc/FeishuNext'
+          href: 'https://github.com/askofcc/FeiShow'
         }
       ]
     }
@@ -269,13 +269,13 @@ const CONFIG = {
   PROXIO_CTA_TITLE: '与我建立联系',
   PROXIO_CTA_TITLE_2: '让我们立刻启动您的项目',
   PROXIO_CTA_DESCRIPTION:
-    '查看 FeishuNext 仓库与文档，按飞书应用与内容表完成站点配置。',
+    '查看 FeiShow 仓库与文档，按飞书应用与内容表完成站点配置。',
   PROXIO_CTA_BUTTON: true, // 是否显示按钮
   PROXIO_CTA_BUTTON_URL: '/about',
   PROXIO_CTA_BUTTON_TEXT: '联系我',
 
   PROXIO_POST_REDIRECT_ENABLE: true, // 默認開啟重定向
-  PROXIO_POST_REDIRECT_URL: 'https://github.com/askofcc/FeishuNext', // 重定向域名
-  PROXIO_NEWSLETTER: process.env.NEXT_PUBLIC_THEME_PROXIO_NEWSLETTER || false // 是否开启邮件订阅 请先配置mailchimp功能 https://github.com/askofcc/FeishuNext
+  PROXIO_POST_REDIRECT_URL: 'https://github.com/askofcc/FeiShow', // 重定向域名
+  PROXIO_NEWSLETTER: process.env.NEXT_PUBLIC_THEME_PROXIO_NEWSLETTER || false // 是否开启邮件订阅 请先配置mailchimp功能 https://github.com/askofcc/FeiShow
 }
 export default CONFIG

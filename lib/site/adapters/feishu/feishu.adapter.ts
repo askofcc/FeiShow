@@ -339,7 +339,7 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     configMap.TITLE ||
     configMap.NEXT_PUBLIC_TITLE ||
     siteBrand.title ||
-    'FeishuNext'
+    'FeiShow'
   ).toString().trim()
   const descriptionRaw = (
     configMap.DESCRIPTION ||
@@ -382,7 +382,7 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     configMap.NEXT_PUBLIC_KEYWORD ||
     siteBrand.title ||
     title ||
-    'FeishuNext'
+    'FeiShow'
   )
     .toString()
     .trim()
@@ -414,7 +414,7 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
       DESCRIPTION: description,
       LINK: link,
       KEYWORDS: keywords,
-      AUTHOR: configMap.AUTHOR || siteBrand.authorName || 'FeishuNext',
+      AUTHOR: configMap.AUTHOR || siteBrand.authorName || 'FeiShow',
       SINCE: configMap.SINCE || siteBrand.createdYear || new Date().getFullYear(),
       ICON: configMap.ICON || siteBrand.authorAvatar || '',
       BLOG_FAVICON:

@@ -187,7 +187,7 @@ NotionNext 的 `pageIcon` 在飞书侧应视为**可选增强**，无则空。
 
 官方 `block_type`（节选，完整见开放平台）：
 
-| 值 | 含义 | FeishuNext 处理 |
+| 值 | 含义 | FeiShow 处理 |
 |---|---|---|
 | 1 | page | 根 |
 | 2 | text | 段落 |
@@ -300,7 +300,7 @@ NotionNext 的 `pageIcon` 在飞书侧应视为**可选增强**，无则空。
 - 用户在飞书 UI 可对文档设访问密码 / 加密分享。  
 - **开放平台没有稳定的「password 字段读出来再在站点校验」的主路径。**  
 - 应用侧表现通常是：**无权限 → 拉 meta/blocks 失败（403 / permission denied）**。  
-- FeishuNext 策略：  
+- FeiShow 策略：  
   - 不实现 Notion 式「输入 123456 解锁」伪密码字段；  
   - **把飞书权限失败映射为页面级 `accessError` / PostLock**；  
   - 要阅读：把应用加成文档协作者，或文档对应用可见。

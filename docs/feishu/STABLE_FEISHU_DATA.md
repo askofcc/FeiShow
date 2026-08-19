@@ -1,6 +1,6 @@
 # 飞书稳定数据请求主路径
 
-> 目标：FeishuNext 的列表 / 正文 / 图片**必须**建立在飞书开放平台官方 OpenAPI 上，而不是网页端会话 API、clientvars 或 protobuf gateway。
+> 目标：FeiShow 的列表 / 正文 / 图片**必须**建立在飞书开放平台官方 OpenAPI 上，而不是网页端会话 API、clientvars 或 protobuf gateway。
 >
 > 对照样本：
 > - 官方形态：`docs/samples/feishu-bitable-records-official.json`、`docs/samples/feishu-docx-blocks-official.json`
@@ -389,7 +389,7 @@ curl -X POST "$SITE/api/revalidate" \
 
 ## 8. 与 NotionNext 数据路径对照
 
-| 步骤 | NotionNext | FeishuNext（稳定） |
+| 步骤 | NotionNext | FeiShow（稳定） |
 |---|---|---|
 | 鉴权 | 多为公开页 / integration | tenant_access_token |
 | 列表 | collection / DB query | bitable records/search |
@@ -472,7 +472,7 @@ curl -sL \
 
 ---
 
-*文档与 FeishuNext 实现同步维护；接口字段以 [飞书开放平台](https://open.feishu.cn/document/) 当前文档为准。*
+*文档与 FeiShow 实现同步维护；接口字段以 [飞书开放平台](https://open.feishu.cn/document/) 当前文档为准。*
 
 
 相关：文档字段与权限总契约见 [FEISHU_DOCUMENT_CONTRACT.md](./FEISHU_DOCUMENT_CONTRACT.md)。

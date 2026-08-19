@@ -1,4 +1,4 @@
-// FeishuNext site config. Env overrides defaults. Feishu CMS: set CMS_PROVIDER=feishu (default).
+// FeiShow site config. Env overrides defaults. Feishu CMS: set CMS_PROVIDER=feishu (default).
 
 const BLOG = {
   // 主路径 feishu；CMS_PROVIDER=notion 时才走遗留 Notion 数据层
@@ -16,7 +16,7 @@ const BLOG = {
   APPEARANCE: process.env.NEXT_PUBLIC_APPEARANCE || 'light', // ['light', 'dark', 'auto'], // light 日间模式 ， dark夜间模式， auto根据时间和主题自动夜间模式
   APPEARANCE_DARK_TIME: process.env.NEXT_PUBLIC_APPEARANCE_DARK_TIME || [18, 6], // 夜间模式起至时间，false时关闭根据时间自动切换夜间模式
 
-  AUTHOR: process.env.NEXT_PUBLIC_AUTHOR || 'FeishuNext',
+  AUTHOR: process.env.NEXT_PUBLIC_AUTHOR || 'FeiShow',
   BIO: process.env.NEXT_PUBLIC_BIO || '飞书内容的公开站点层',
   // Prefer explicit non-local LINK; on Vercel fall back to deployment URL.
   // NEXT_PUBLIC_LINK=http://localhost:* is ignored when VERCEL_URL is present.
@@ -35,9 +35,9 @@ const BLOG = {
     }
     if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
     if (raw) return raw
-    return 'https://feishunext.srint.cn/'
+    return 'https://feishow.srint.cn/'
   })(),
-  KEYWORDS: process.env.NEXT_PUBLIC_KEYWORD || '飞书,文档站,FeishuNext,博客,知识库',
+  KEYWORDS: process.env.NEXT_PUBLIC_KEYWORD || '飞书,文档站,FeiShow,博客,知识库',
   BLOG_FAVICON: process.env.NEXT_PUBLIC_FAVICON || '/favicon.ico', // blog favicon 配置, 默认使用 /public/favicon.ico，支持在线图片，如 https://img.imesong.com/favicon.png
   BEI_AN: process.env.NEXT_PUBLIC_BEI_AN || '', // 备案号 闽ICP备XXXXXX
   BEI_AN_LINK: process.env.NEXT_PUBLIC_BEI_AN_LINK || 'https://beian.miit.gov.cn/', // 备案查询链接，如果用了萌备等备案请在这里填写
@@ -74,7 +74,7 @@ const BLOG = {
   CUSTOM_EXTERNAL_CSS: [''], // e.g. ['http://xx.com/style.css','http://xx.com/style.css']
 
   // 自定义菜单
-  // FeishuNext: default ON (content-table 菜单/子菜单). Set env false or CONFIG 启用+false to turn off.
+  // FeiShow: default ON (content-table 菜单/子菜单). Set env false or CONFIG 启用+false to turn off.
   CUSTOM_MENU:
     process.env.NEXT_PUBLIC_CUSTOM_MENU === undefined ||
     process.env.NEXT_PUBLIC_CUSTOM_MENU === ''

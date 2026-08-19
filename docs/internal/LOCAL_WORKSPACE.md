@@ -9,14 +9,14 @@
 
 | | |
 |---|---|
-| **本地文件夹** | `/Users/qiushuanglong/Documents/FeishuNext` |
-| **GitHub** | https://github.com/askofcc/FeishuNext （可私有） |
+| **本地文件夹** | `/Users/qiushuanglong/Documents/FeiShow` |
+| **GitHub** | https://github.com/askofcc/FeiShow （可私有） |
 | **产品分支** | **仅 `main`**（`origin/main`） |
-| **演示** | https://feishunext.srint.cn/ |
+| **演示** | https://feishow.srint.cn/ |
 | **上游只读** | `upstream` → https://github.com/notionnext-org/NotionNext （跟踪主题/壳，不在此开功能分支） |
 
 ```bash
-cd /Users/qiushuanglong/Documents/FeishuNext
+cd /Users/qiushuanglong/Documents/FeiShow
 git status -sb          # 应在 main，跟踪 origin/main
 git branch -r           # 产品侧只应看到 origin/main（外加 upstream/* 只读）
 ```
@@ -27,8 +27,8 @@ git branch -r           # 产品侧只应看到 origin/main（外加 upstream/* 
 
 | 路径 | 处理 |
 |---|---|
-| `Documents/_archive/FeishuNext-legacy-app-router-2026-07` | 早期 App Router 实验 + 旧文档样本，**归档** |
-| 曾用名 `Documents/notionnext-feishu` | **已改名为** `Documents/FeishuNext`（与仓库名一致） |
+| `Documents/_archive/FeiShow-legacy-app-router-2026-07` | 早期 App Router 实验 + 旧文档样本，**归档** |
+| 曾用名 `Documents/notionnext-feishu` | **已改名为** `Documents/FeiShow`（与仓库名一致） |
 | `Documents/feishu-ops` | 独立小工具（填表/建表 CLI·MCP），**不是站点产品仓** |
 
 归档说明：`Documents/_archive/README.md`。
@@ -57,7 +57,7 @@ git fetch --prune origin
 ## 4. 日常最小命令
 
 ```bash
-cd /Users/qiushuanglong/Documents/FeishuNext
+cd /Users/qiushuanglong/Documents/FeiShow
 git checkout main
 git pull origin main
 # 开发…
@@ -70,7 +70,7 @@ git push origin main
 
 ## 5. 和 Codex / 多工作区
 
-- 打开产品：工作区根目录选 **`Documents/FeishuNext`**  
+- 打开产品：工作区根目录选 **`Documents/FeiShow`**  
 - 不要同时把 legacy 归档目录当可写主仓  
 - `feishu-ops` 仅在「操作飞书表/文档」任务时使用  
 

@@ -22,9 +22,9 @@ const CONFIG = {
   // 英雄区两个按钮，如果TEXT留空则隐藏按钮
   STARTER_HERO_BUTTON_1_TEXT: '开始体验', // 英雄区按钮
   STARTER_HERO_BUTTON_1_URL:
-    'https://github.com/askofcc/FeishuNext', // 英雄区按钮
+    'https://github.com/askofcc/FeiShow', // 英雄区按钮
   STARTER_HERO_BUTTON_2_TEXT: '在Github上关注', // 英雄区按钮
-  STARTER_HERO_BUTTON_2_URL: 'https://github.com/askofcc/FeishuNext', // 英雄区按钮
+  STARTER_HERO_BUTTON_2_URL: 'https://github.com/askofcc/FeiShow', // 英雄区按钮
   STARTER_HERO_BUTTON_2_ICON: '/images/starter/github.svg', // 英雄区按钮2的图标，不需要则留空
 
   // 英雄区配图，如需隐藏，改为空值即可 ''
@@ -41,38 +41,38 @@ const CONFIG = {
   // 特性区块
   STARTER_FEATURE_ENABLE: true, // 特性区块开关
   STARTER_FEATURE_TITLE: '特性', // 特性
-  STARTER_FEATURE_TEXT_1: 'FeishuNext 的主要特性', // 特性
+  STARTER_FEATURE_TEXT_1: 'FeiShow 的主要特性', // 特性
   STARTER_FEATURE_TEXT_2:
-    'FeishuNext 的目标是帮你把飞书内容稳定发布成独立站点，放大内容与品牌价值。 ', // 特性
+    'FeiShow 的目标是帮你把飞书内容稳定发布成独立站点，放大内容与品牌价值。 ', // 特性
 
   STARTER_FEATURE_1_TITLE_1: '免费且开源', // 特性1
   STARTER_FEATURE_1_TEXT_1: '项目源码在Github上完全开放共享，遵循MIT协议', // 特性1
   STARTER_FEATURE_1_BUTTON_TEXT: '了解更多', // 特性1
-  STARTER_FEATURE_1_BUTTON_URL: 'https://github.com/askofcc/FeishuNext', // 特性1
+  STARTER_FEATURE_1_BUTTON_URL: 'https://github.com/askofcc/FeiShow', // 特性1
 
   STARTER_FEATURE_2_TITLE_1: '多种主题定制', // 特性2
   STARTER_FEATURE_2_TEXT_1: '数十种主题,适用于不同场景，总有一款适合你', // 特性2
   STARTER_FEATURE_2_BUTTON_TEXT: '了解更多', // 特性2
   STARTER_FEATURE_2_BUTTON_URL:
-    'https://github.com/askofcc/FeishuNext', // 特性2
+    'https://github.com/askofcc/FeiShow', // 特性2
 
   STARTER_FEATURE_3_TITLE_1: '优秀的性能', // 特性3
   STARTER_FEATURE_3_TEXT_1: '基于NextJS开发，更快的响应速度，更好的SEO', // 特性3
   STARTER_FEATURE_3_BUTTON_TEXT: '了解更多', // 特性3
-  STARTER_FEATURE_3_BUTTON_URL: 'https://github.com/askofcc/FeishuNext', // 特性3
+  STARTER_FEATURE_3_BUTTON_URL: 'https://github.com/askofcc/FeiShow', // 特性3
 
   STARTER_FEATURE_4_TITLE_1: '便捷的写作体验', // 特性4
   STARTER_FEATURE_4_TEXT_1: '只需在Notion笔记中编修，自动同步到网站', // 特性4
   STARTER_FEATURE_4_BUTTON_TEXT: '了解更多', // 特性4
-  STARTER_FEATURE_4_BUTTON_URL: 'https://github.com/askofcc/FeishuNext', // 特性4
+  STARTER_FEATURE_4_BUTTON_URL: 'https://github.com/askofcc/FeiShow', // 特性4
 
   // 首页ABOUT区块
   STARTER_ABOUT_ENABLE: true, // ABOUT区块开关
   STARTER_ABOUT_TITLE: '一套轻量实用的建站解决方案',
   STARTER_ABOUT_TEXT:
-    'FeishuNext 面向已在飞书写作的团队与个人：用飞书维护内容，最低成本发布独立站，把产品与故事高效传达出去。<br /> <br /> 飞书文档 + 多维表格作为后台，Next.js 站点壳负责展示与 SEO。',
+    'FeiShow 面向已在飞书写作的团队与个人：用飞书维护内容，最低成本发布独立站，把产品与故事高效传达出去。<br /> <br /> 飞书文档 + 多维表格作为后台，Next.js 站点壳负责展示与 SEO。',
   STARTER_ABOUT_BUTTON_TEXT: '了解更多',
-  STARTER_ABOUT_BUTTON_URL: 'https://github.com/askofcc/FeishuNext',
+  STARTER_ABOUT_BUTTON_URL: 'https://github.com/askofcc/FeiShow',
   STARTER_ABOUT_IMAGE_1: '/images/starter/about/about-image-01.jpg',
   STARTER_ABOUT_IMAGE_2: '/images/starter/about/about-image-02.jpg',
   STARTER_ABOUT_TIPS_1: '7000+',
@@ -84,7 +84,7 @@ const CONFIG = {
   STARTER_PRICING_TITLE: '价格表',
   STARTER_PRICING_TEXT_1: '很棒的定价计划',
   STARTER_PRICING_TEXT_2:
-    '这里仅演示主题中的订阅/定价区块样式，FeishuNext 本身开源；请勿对示例付款链接下单。',
+    '这里仅演示主题中的订阅/定价区块样式，FeiShow 本身开源；请勿对示例付款链接下单。',
 
   STARTER_PRICING_1_TITLE: '入门版',
   STARTER_PRICING_1_PRICE: '19.9',
@@ -93,7 +93,7 @@ const CONFIG = {
   STARTER_PRICING_1_HEADER: '功能点',
   STARTER_PRICING_1_FEATURES: '所有的主题,免费更新,帮助手册', // 英文逗号隔开
   STARTER_PRICING_1_BUTTON_TEXT: '立即购买',
-  STARTER_PRICING_1_BUTTON_URL: 'https://github.com/askofcc/FeishuNext',
+  STARTER_PRICING_1_BUTTON_URL: 'https://github.com/askofcc/FeiShow',
 
   STARTER_PRICING_2_TAG: '推荐',
   STARTER_PRICING_2_TITLE: '基础版',
@@ -103,7 +103,7 @@ const CONFIG = {
   STARTER_PRICING_2_HEADER: '功能点',
   STARTER_PRICING_2_FEATURES: '包含入门版,项目源码,内部社群,技术咨询,SEO优化', // 英文逗号隔开
   STARTER_PRICING_2_BUTTON_TEXT: '立即购买',
-  STARTER_PRICING_2_BUTTON_URL: 'https://github.com/askofcc/FeishuNext',
+  STARTER_PRICING_2_BUTTON_URL: 'https://github.com/askofcc/FeiShow',
 
   STARTER_PRICING_3_TITLE: '高级版',
   STARTER_PRICING_3_PRICE: '59.9',
@@ -112,14 +112,14 @@ const CONFIG = {
   STARTER_PRICING_3_HEADER: '功能点',
   STARTER_PRICING_3_FEATURES: '包含基础版,功能定制开发', // 英文逗号隔开
   STARTER_PRICING_3_BUTTON_TEXT: '立即购买',
-  STARTER_PRICING_3_BUTTON_URL: 'https://github.com/askofcc/FeishuNext',
+  STARTER_PRICING_3_BUTTON_URL: 'https://github.com/askofcc/FeiShow',
 
   // 首页用户测评区块
   STARTER_TESTIMONIALS_ENABLE: true, // 测评区块开关
   STARTER_TESTIMONIALS_TITLE: '用户反馈',
   STARTER_TESTIMONIALS_TEXT_1: '我们的用户怎么说',
   STARTER_TESTIMONIALS_TEXT_2:
-    'FeishuNext 帮你把飞书内容变成可访问的独立站；按仓库文档配置应用权限与内容表即可上线。',
+    'FeiShow 帮你把飞书内容变成可访问的独立站；按仓库文档配置应用权限与内容表即可上线。',
   STARTER_TESTIMONIALS_STAR_ICON: '/images/starter/testimonials/icon-star.svg', // 评分图标
 
   // 这里不支持CONFIG和环境变量，需要一一修改此处代码。
@@ -131,7 +131,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F22de3fcb-d90d-4271-bc01-f815f476122b%2F4FE0A0C0-E487-4C74-BF8E-6F01A27461B8-14186-000008094BC289A6.jpg?table=collection&id=a320a2cc-6ebe-4a8d-95cc-ea94e63bced9&width=200',
       STARTER_TESTIMONIALS_ITEM_NICKNAME: 'Ryan_G',
       STARTER_TESTIMONIALS_ITEM_DESCRIPTION: 'Ryan`Log 站长',
-      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       STARTER_TESTIMONIALS_ITEM_TEXT:
@@ -140,7 +140,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2F0d33d169-f932-41ff-ac6b-88a923c08e02%2F%25E5%25A4%25B4%25E5%2583%258F.jfif?table=collection&id=7787658d-d5c0-4f34-8e32-60c523dfaba3&width=400',
       STARTER_TESTIMONIALS_ITEM_NICKNAME: 'Asenkits',
       STARTER_TESTIMONIALS_ITEM_DESCRIPTION: '阿森的百宝袋 站长',
-      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       STARTER_TESTIMONIALS_ITEM_TEXT:
@@ -149,7 +149,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fprod-files-secure.s3.us-west-2.amazonaws.com%2F6c096b44-beb9-48ee-8f92-1efdde47f3a3%2F338962f1-d352-49c7-9a1b-746e35a7005c%2Fhf.png?table=block&id=ce5a48a9-d77a-4843-a3d9-a78cd4f794ce&spaceId=6c096b44-beb9-48ee-8f92-1efdde47f3a3&width=100&userId=27074aef-7216-41ed-baef-d9b53addd870&cache=v2',
       STARTER_TESTIMONIALS_ITEM_NICKNAME: 'DWIND',
       STARTER_TESTIMONIALS_ITEM_DESCRIPTION: '且听风吟 站长',
-      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       STARTER_TESTIMONIALS_ITEM_TEXT:
@@ -158,7 +158,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fd52f6766-3e32-4c3d-8529-46e1f214360f%2Ffavicon.svg?table=collection&id=7d76aad5-a2c4-4d9a-887c-c7913fae4eed&width=400',
       STARTER_TESTIMONIALS_ITEM_NICKNAME: '迪升disheng ',
       STARTER_TESTIMONIALS_ITEM_DESCRIPTION: 'AI资源分享 Blog',
-      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       STARTER_TESTIMONIALS_ITEM_TEXT:
@@ -167,7 +167,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fafb21381-f51b-4fd0-9998-800dbeb64dbe%2Favatar.png?table=block&id=195935d2-0d8d-49fc-bd81-1db42ee50840&spaceId=6c096b44-beb9-48ee-8f92-1efdde47f3a3&width=100&userId=27074aef-7216-41ed-baef-d9b53addd870&cache=v2',
       STARTER_TESTIMONIALS_ITEM_NICKNAME: 'AnJhon',
       STARTER_TESTIMONIALS_ITEM_DESCRIPTION: 'Anjhon`s Blog 站长',
-      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     },
     {
       STARTER_TESTIMONIALS_ITEM_TEXT: '用好久了，太感谢了',
@@ -175,7 +175,7 @@ const CONFIG = {
         'https://www.notion.so/image/https%3A%2F%2Fs3-us-west-2.amazonaws.com%2Fsecure.notion-static.com%2Fe4f391d7-7d65-4c05-a82c-c6e2c40f06e4%2Fa2a7641a26b367608c6ef28ce9b7e983_(2).png?table=block&id=a386eb0e-4c07-4b18-9ece-bba4e79ce21c&spaceId=6c096b44-beb9-48ee-8f92-1efdde47f3a3&width=100&userId=27074aef-7216-41ed-baef-d9b53addd870&cache=v2',
       STARTER_TESTIMONIALS_ITEM_NICKNAME: 'LUCEN',
       STARTER_TESTIMONIALS_ITEM_DESCRIPTION: 'LUCEN考验辅导 站长',
-      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeishuNext'
+      STARTER_TESTIMONIALS_ITEM_URL: 'https://github.com/askofcc/FeiShow'
     }
   ],
 
@@ -185,13 +185,13 @@ const CONFIG = {
   STARTER_FAQ_TEXT_1: '有任何问题吗？请看这里',
   STARTER_FAQ_TEXT_2: '我们收集了常见的用户疑问',
 
-  STARTER_FAQ_1_QUESTION: 'FeishuNext 有说明文档吗？',
+  STARTER_FAQ_1_QUESTION: 'FeiShow 有说明文档吗？',
   STARTER_FAQ_1_ANSWER:
-    'FeishuNext 提供了<a href="https://github.com/askofcc/FeishuNext" className="underline">帮助文档</a>，操作<a href="https://github.com/askofcc/FeishuNext" className="underline">演示视频</a>，以及<a href="https://github.com/askofcc/FeishuNext" className="underline">交流社群</a>来协助您完成网站的搭建部署',
+    'FeiShow 提供了<a href="https://github.com/askofcc/FeiShow" className="underline">帮助文档</a>，操作<a href="https://github.com/askofcc/FeiShow" className="underline">演示视频</a>，以及<a href="https://github.com/askofcc/FeiShow" className="underline">交流社群</a>来协助您完成网站的搭建部署',
 
   STARTER_FAQ_2_QUESTION: '部署后要如何编写文章？',
   STARTER_FAQ_2_ANSWER:
-    '您可以在飞书内容表中维护文章与页面，内容将同步到站点中；详见<a className="underline" href="https://github.com/askofcc/FeishuNext">《帮助文档》</a>',
+    '您可以在飞书内容表中维护文章与页面，内容将同步到站点中；详见<a className="underline" href="https://github.com/askofcc/FeiShow">《帮助文档》</a>',
 
   STARTER_FAQ_3_QUESTION: '站点部署失败，更新失败？',
   STARTER_FAQ_3_ANSWER:
@@ -206,13 +206,13 @@ const CONFIG = {
   STARTER_TEAM_TITLE: '团队成员',
   STARTER_TEAM_TEXT_1: '我们的开发者团队',
   STARTER_TEAM_TEXT_2:
-    'FeishuNext 基于开源 NotionNext 主题壳改造，感谢每一位<a className="underline" href="https://github.com/askofcc/FeishuNext/graphs/contributors">贡献者</a>',
+    'FeiShow 基于开源 NotionNext 主题壳改造，感谢每一位<a className="underline" href="https://github.com/askofcc/FeiShow/graphs/contributors">贡献者</a>',
 
   // 这里不支持CONFIG和环境变量，需要一一修改此处代码。
   STARTER_TEAM_ITEMS: [
     {
       STARTER_TEAM_ITEM_AVATAR:
-        'https://github.com/askofcc/FeishuNext',
+        'https://github.com/askofcc/FeiShow',
       STARTER_TEAM_ITEM_NICKNAME: 'Tangly',
       STARTER_TEAM_ITEM_DESCRIPTION: 'Developer'
     },
@@ -251,7 +251,7 @@ const CONFIG = {
   STARTER_CONTACT_EMAIL_TEXT: '',
 
   // 嵌入外部表单
-  STARTER_CONTACT_MSG_EXTERNAL_URL: 'https://github.com/askofcc/FeishuNext', // 基于NoteForm创建，将留言数据存在Notion中
+  STARTER_CONTACT_MSG_EXTERNAL_URL: 'https://github.com/askofcc/FeiShow', // 基于NoteForm创建，将留言数据存在Notion中
   //   自定义留言表单，以下几个配置暂时废弃
   //   STARTER_CONTACT_MSG_TITLE: '向我们留言',
   //   STARTER_CONTACT_MSG_NAME: '姓名',
@@ -267,31 +267,31 @@ const CONFIG = {
     {
       IMAGE: '/images/starter/brands/graygrids.svg',
       IMAGE_WHITE: '/images/starter/brands/graygrids-white.svg',
-      URL: 'https://github.com/askofcc/FeishuNext',
+      URL: 'https://github.com/askofcc/FeiShow',
       TITLE: 'graygrids'
     },
     {
       IMAGE: '/images/starter/brands/lineicons.svg',
       IMAGE_WHITE: '/images/starter/brands/lineicons-white.svg',
-      URL: 'https://github.com/askofcc/FeishuNext',
+      URL: 'https://github.com/askofcc/FeiShow',
       TITLE: 'lineicons'
     },
     {
       IMAGE: '/images/starter/brands/uideck.svg',
       IMAGE_WHITE: '/images/starter/brands/uideck-white.svg',
-      URL: 'https://github.com/askofcc/FeishuNext',
+      URL: 'https://github.com/askofcc/FeiShow',
       TITLE: 'uideck'
     },
     {
       IMAGE: '/images/starter/brands/ayroui.svg',
       IMAGE_WHITE: '/images/starter/brands/ayroui-white.svg',
-      URL: 'https://github.com/askofcc/FeishuNext',
+      URL: 'https://github.com/askofcc/FeiShow',
       TITLE: 'ayroui'
     },
     {
       IMAGE: '/images/starter/brands/tailgrids.svg',
       IMAGE_WHITE: '/images/starter/brands/tailgrids-white.svg',
-      URL: '"https://github.com/askofcc/FeishuNext',
+      URL: '"https://github.com/askofcc/FeiShow',
       TITLE: 'tailgrids'
     }
   ],
@@ -304,14 +304,14 @@ const CONFIG = {
       TITLE: '关于我们',
       LINK_GROUP: [
         { TITLE: '官方主页', URL: '/#home' },
-        { TITLE: '操作文档', URL: 'https://github.com/askofcc/FeishuNext' },
+        { TITLE: '操作文档', URL: 'https://github.com/askofcc/FeiShow' },
         {
           TITLE: '帮助支持',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         },
         {
           TITLE: '合作申请',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         }
       ]
     },
@@ -320,13 +320,13 @@ const CONFIG = {
       LINK_GROUP: [
         {
           TITLE: '部署指南',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         },
         {
           TITLE: '升级指南',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         },
-        { TITLE: '最新版本', URL: 'https://github.com/askofcc/FeishuNext' }
+        { TITLE: '最新版本', URL: 'https://github.com/askofcc/FeiShow' }
       ]
     },
     {
@@ -334,15 +334,15 @@ const CONFIG = {
       LINK_GROUP: [
         {
           TITLE: 'Notion开始写作',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         },
         {
           TITLE: '快捷键提升效率',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         },
         {
           TITLE: '中国大陆使用Notion',
-          URL: 'https://github.com/askofcc/FeishuNext'
+          URL: 'https://github.com/askofcc/FeiShow'
         }
       ]
     }
@@ -369,15 +369,15 @@ const CONFIG = {
   STARTER_CTA_TITLE: '你还在等待什么呢？',
   STARTER_CTA_TITLE_2: '现在开始吧',
   STARTER_CTA_DESCRIPTION:
-    '查看 FeishuNext 仓库与文档，按飞书应用与内容表完成站点配置。',
+    '查看 FeiShow 仓库与文档，按飞书应用与内容表完成站点配置。',
   STARTER_CTA_BUTTON: true, // 是否显示按钮
   STARTER_CTA_BUTTON_URL:
-    'https://github.com/askofcc/FeishuNext',
+    'https://github.com/askofcc/FeiShow',
   STARTER_CTA_BUTTON_TEXT: '开始体验',
 
   STARTER_POST_REDIRECT_ENABLE: true, // 默認開啟重定向
-  STARTER_POST_REDIRECT_URL: 'https://github.com/askofcc/FeishuNext', // 重定向域名
-  STARTER_NEWSLETTER: process.env.NEXT_PUBLIC_THEME_STARTER_NEWSLETTER || false // 是否开启邮件订阅 请先配置mailchimp功能 https://github.com/askofcc/FeishuNext
+  STARTER_POST_REDIRECT_URL: 'https://github.com/askofcc/FeiShow', // 重定向域名
+  STARTER_NEWSLETTER: process.env.NEXT_PUBLIC_THEME_STARTER_NEWSLETTER || false // 是否开启邮件订阅 请先配置mailchimp功能 https://github.com/askofcc/FeiShow
 }
 
 export const starterConfig = (key, defaultVal = null) =>

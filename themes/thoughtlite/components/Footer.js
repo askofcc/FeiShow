@@ -3,8 +3,8 @@ import BeiAnSite from '@/components/BeiAnSite'
 import CopyRightDate from '@/components/CopyRightDate'
 import PoweredBy from '@/components/PoweredBy'
 
-const UPSTREAM_REPO = 'https://github.com/askofcc/FeishuNext'
-const UPSTREAM_AUTHOR = 'https://github.com/askofcc/FeishuNext'
+const UPSTREAM_REPO = 'https://github.com/askofcc/FeiShow'
+const UPSTREAM_AUTHOR = 'https://github.com/askofcc/FeiShow'
 
 export const Footer = () => {
   return (

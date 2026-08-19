@@ -1,19 +1,19 @@
 {
-  "name": "feishu-next",
+  "name": "feishow",
   "version": "4.10.4",
   "packageManager": "yarn@1.22.22",
-  "homepage": "https://github.com/askofcc/FeishuNext",
+  "homepage": "https://github.com/askofcc/FeiShow",
   "license": "MIT",
   "engines": {
     "node": ">=20 <25"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/askofcc/FeishuNext.git"
+    "url": "https://github.com/askofcc/FeiShow.git"
   },
   "author": {
-    "name": "FeishuNext",
-    "url": "https://feishunext.srint.cn/"
+    "name": "FeiShow",
+    "url": "https://feishow.srint.cn/"
   },
   "scripts": {
     "dev": "next dev",
@@ -113,7 +113,7 @@
     "uuid": "^11.1.1"
   },
   "bugs": {
-    "url": "https://github.com/askofcc/FeishuNext/issues"
+    "url": "https://github.com/askofcc/FeiShow/issues"
   },
-  "description": "FeishuNext — publish Feishu docs and bitable as a public site"
+  "description": "FeiShow — publish Feishu docs and bitable as a public site"
 }

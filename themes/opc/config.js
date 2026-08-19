@@ -5,10 +5,10 @@ const CONFIG = {
   OPC_SUBTITLE: '一人公司的 AI 任务流水线实验室', // 副标题
   OPC_DESCRIPTION:
     '我把 AI 当作能力入口，而不是模拟公司部门开会；用任务文件、产物路径和验收标准，运行内容、产品与交易实验。', // 主介绍
-  OPC_PRIMARY_TEXT: '查看 FeishuNext', // 主按钮文字
-  OPC_PRIMARY_URL: 'https://github.com/askofcc/FeishuNext', // 主按钮链接
+  OPC_PRIMARY_TEXT: '查看 FeiShow', // 主按钮文字
+  OPC_PRIMARY_URL: 'https://github.com/askofcc/FeiShow', // 主按钮链接
   OPC_SECONDARY_TEXT: '阅读长期记录', // 副按钮文字
-  OPC_SECONDARY_URL: 'https://github.com/askofcc/FeishuNext', // 副按钮链接
+  OPC_SECONDARY_URL: 'https://github.com/askofcc/FeiShow', // 副按钮链接
   OPC_STATUS_TEXT: '持续公开构建', // 状态标签
   OPC_CARD_TITLE: '可验收的 AI 生产流水线', // 工作流卡片标题
   OPC_CARD_DESCRIPTION:

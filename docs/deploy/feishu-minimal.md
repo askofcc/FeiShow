@@ -1,4 +1,4 @@
-# 最少步骤部署 FeishuNext
+# 最少步骤部署 FeiShow
 
 用户只做 4 步。托管默认 **Vercel**。不要再抄 table id，不要读 Notion 部署教程。
 
@@ -62,7 +62,7 @@
 
 仓库若是私有，先 Fork 到自己的 GitHub。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/askofcc/FeishuNext&env=FEISHU_APP_ID,FEISHU_APP_SECRET,FEISHU_SITE_ROOT&envDescription=%E5%8F%AA%E8%A6%81%E4%B8%89%E4%B8%AA%E5%8F%98%E9%87%8F%EF%BC%9A%E5%BA%94%E7%94%A8%20ID%E3%80%81Secret%E3%80%81%E6%A0%B9%E9%A1%B5%E9%93%BE%E6%8E%A5&project-name=feishunext&repository-name=FeishuNext)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/askofcc/FeiShow&env=FEISHU_APP_ID,FEISHU_APP_SECRET,FEISHU_SITE_ROOT&envDescription=%E5%8F%AA%E8%A6%81%E4%B8%89%E4%B8%AA%E5%8F%98%E9%87%8F%EF%BC%9A%E5%BA%94%E7%94%A8%20ID%E3%80%81Secret%E3%80%81%E6%A0%B9%E9%A1%B5%E9%93%BE%E6%8E%A5&project-name=feishow&repository-name=FeiShow)
 
 部署向导里只填上面 3 项。  
 `NEXT_PUBLIC_LINK` 可先空着，站点会用 Vercel 域名。

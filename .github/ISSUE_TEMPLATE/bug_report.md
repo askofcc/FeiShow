@@ -1,6 +1,6 @@
 ---
 name: Bug
-about: FeishuNext 可复现问题
+about: FeiShow 可复现问题
 title: ''
 labels: bug
 ---

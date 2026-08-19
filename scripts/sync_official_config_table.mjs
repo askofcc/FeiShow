@@ -1,5 +1,5 @@
 /**
- * Rewrite Feishu CONFIG-TABLE to mirror FeishuNext / Example theme CONFIG keys.
+ * Rewrite Feishu CONFIG-TABLE to mirror FeiShow / Example theme CONFIG keys.
  * Usage: node scripts/sync_official_config_table.mjs
  */
 import fs from 'fs'
@@ -17,12 +17,12 @@ const domain = process.env.FEISHU_DOMAIN || 'https://open.feishu.cn'
 const app = process.env.FEISHU_CONFIG_APP_TOKEN || 'JGShbeVp9aGGV3s2J4qcMmGAn0b'
 const table = process.env.FEISHU_CONFIG_TABLE_ID || 'tbl4qPlVgMLg5eaH'
 
-// 1:1 style keys from FeishuNext blog.config defaults / blog.config defaults + Example theme console
+// 1:1 style keys from FeiShow blog.config defaults / blog.config defaults + Example theme console
 const ROWS = [
   // —— 站点基础（官方配置中心常见）——
-  ['TITLE', 'FeishuNext', true, '站点标题'],
-  ['DESCRIPTION', '一个使用 FeishuNext 构建的站点', true, '站点描述'],
-  ['AUTHOR', 'FeishuNext', true, '作者名（站点级；文章作者优先文档）'],
+  ['TITLE', 'FeiShow', true, '站点标题'],
+  ['DESCRIPTION', '一个使用 FeiShow 构建的站点', true, '站点描述'],
+  ['AUTHOR', 'FeiShow', true, '作者名（站点级；文章作者优先文档）'],
   ['BIO', '一个普通的干饭人🍚', true, '作者简介'],
   ['KEYWORDS', 'Notion, 博客', true, 'SEO 关键词，逗号分隔'],
   ['LINK', 'http://localhost:3460', true, '站点 URL'],
@@ -79,7 +79,7 @@ const ROWS = [
   ['GLOBAL_JS', '', false, '全局 JS'],
   ['INLINE_CONFIG', '{}', false, 'JSON 合并进配置'],
 
-  // —— FeishuNext 扩展（保留）——
+  // —— FeiShow 扩展（保留）——
   ['FEISHU_LIST_ROOT', '', false, '可选 list-root wiki'],
   ['FEISHU_CONFIG_TABLE', table, true, '本配置表 id'],
   ['CMS_PROVIDER', 'feishu', true, 'cms 提供方']

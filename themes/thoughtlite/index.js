@@ -4,9 +4,9 @@
  * ThoughtLite（进行中）
  *
  * 当前为基于 `themes/example` 的可运行骨架，便于在 `NEXT_PUBLIC_THEME=thoughtlite` 下联调数据契约。
- * 视觉与交互需按 `docs/themes/THOUGHTLITE_MIGRATION_PLAN.zh-CN.md` 对照上游 [ThoughtLite](https://github.com/askofcc/FeishuNext) 逐步替换。
+ * 视觉与交互需按 `docs/themes/THOUGHTLITE_MIGRATION_PLAN.zh-CN.md` 对照上游 [ThoughtLite](https://github.com/askofcc/FeiShow) 逐步替换。
  *
- * 关联：[#3987](https://github.com/askofcc/FeishuNext)
+ * 关联：[#3987](https://github.com/askofcc/FeiShow)
  */
 
 import replaceSearchResult from '@/components/Mark'

@@ -51,9 +51,9 @@ const Footer = ({ title }) => {
         <span className='text-xs '>
           Powered by{' '}
           <a
-            href='https://github.com/askofcc/FeishuNext'
+            href='https://github.com/askofcc/FeiShow'
             className='underline dark:text-gray-300'>
-            FeishuNext {siteConfig('VERSION')}
+            FeiShow {siteConfig('VERSION')}
           </a>
           .
         </span>

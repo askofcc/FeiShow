@@ -1,4 +1,4 @@
-# FeishuNext 决策与共识日志
+# FeiShow 决策与共识日志
 
 > **用途：** 把「从要不要做到怎么做、核心是什么、现在到哪一阶段、运维要注意什么」写成可回看的记录。  
 > 不是 API 手册；技术契约仍见其它 `docs/feishu/*`。  
@@ -183,10 +183,10 @@ Notion 全字段镜像表
 
 | 做 | 不做 |
 |---|---|
-| 产品名 FeishuNext、演示 feishunext.srint.cn | 默认站点还指向 tangly 域名 |
+| 产品名 FeiShow、演示 feishow.srint.cn | 默认站点还指向 tangly 域名 |
 | README / Credits 致谢 NotionNext | 假装完全自研前端 |
 | 保留 MIT LICENSE 原版权 | 删掉 LICENSE 或冒充官方 fork |
-| 贡献指向 askofcc/FeishuNext | CONTRIBUTING 还让人 PR 去 notionnext-org |
+| 贡献指向 askofcc/FeiShow | CONTRIBUTING 还让人 PR 去 notionnext-org |
 
 ### 5.5 上游前端更新
 
@@ -204,8 +204,8 @@ Notion 全字段镜像表
 
 | 路径 | 角色 |
 |---|---|
-| `notionnext-feishu`（git → askofcc/FeishuNext） | **主开发树** |
-| `Documents/FeishuNext` 早期仓 | 半成品，见 MOVED.md |
+| `notionnext-feishu`（git → askofcc/FeiShow） | **主开发树** |
+| `Documents/FeiShow` 早期仓 | 半成品，见 MOVED.md |
 
 ### 6.2 分支为何曾很乱
 
@@ -222,8 +222,8 @@ Notion 全字段镜像表
 
 ### 6.3 远程
 
-- 产品仓：https://github.com/askofcc/FeishuNext（可私有）  
-- 演示：https://feishunext.srint.cn/  
+- 产品仓：https://github.com/askofcc/FeiShow（可私有）  
+- 演示：https://feishow.srint.cn/  
 
 ---
 
@@ -260,7 +260,7 @@ Notion 全字段镜像表
 
 ### 8.3 发布与演示站
 
-1. 演示站域名：`https://feishunext.srint.cn/`（`NEXT_PUBLIC_LINK` 与之对齐）。  
+1. 演示站域名：`https://feishow.srint.cn/`（`NEXT_PUBLIC_LINK` 与之对齐）。  
 2. 构建前确认 `CMS_PROVIDER=feishu` 与飞书凭证在托管平台已配置。  
 3. 冒烟最低集：首页列表、一篇文章正文、`/rss/feed.xml` 或 sitemap、一个主题不 500。  
 4. 页脚 Powered by 指向本仓；based on NotionNext 保留致谢即可。
@@ -320,7 +320,7 @@ Notion 全字段镜像表
 
 ## 9. 2026-07-28 阶段 A 收尾整理
 
-- 本地主工程与 `origin/main`（askofcc/FeishuNext）对齐检查；产品分支仅 **main**。  
+- 本地主工程与 `origin/main`（askofcc/FeiShow）对齐检查；产品分支仅 **main**。  
 - 未提交增强（站点根品牌、作者头像、pageIcon、菜单默认等）纳入代码并文档化。  
 - 明确：`tsc` 在 exactOptionalPropertyTypes 下噪音多，**部署以 Next build 为准**。  
 - 阶段结论见 `docs/internal/`（过程稿已不再放在产品主树）。  
@@ -333,5 +333,5 @@ Notion 全字段镜像表
 
 - 从仓库主树移除 `old/`（上游文档站 / 治理包装 / 过程稿，约 173MB）。
 - 仅保留 `docs/upstream/` 两份上游 README 备份 + `LICENSE`/`NOTICE` + [UPSTREAM.md](./UPSTREAM.md)。
-- `package.json` bugs 指向 askofcc/FeishuNext；去掉默认 Notion 演示 `NOTION_PAGE_ID`。
+- `package.json` bugs 指向 askofcc/FeiShow；去掉默认 Notion 演示 `NOTION_PAGE_ID`。
 - 运行时仍依赖的 `lib/db/notion/*`、`conf/notion.config.js`、主题壳 **暂留**（前端 import 链），见 UPSTREAM「不能硬拆」说明。

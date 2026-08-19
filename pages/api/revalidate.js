@@ -1,5 +1,5 @@
 import BLOG from '@/blog.config'
-import { cleanCache } from '@/lib/cache/local_file_cache'
+import { cleanCacheData } from '@/lib/cache/cache_manager'
 
 /**
  * On-Demand Revalidation API
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
   try {
     // 全站刷新：清除本地缓存 + revalidate 首页
     if (all) {
-      cleanCache()
+      await cleanCacheData()
       const results = []
       try {
         await res.revalidate('/')

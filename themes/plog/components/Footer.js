@@ -12,7 +12,7 @@ export const Footer = (props) => {
      <div className="my-4 text-sm leading-6">
        <div className="flex align-baseline justify-start flex-wrap space-x-6">
          <div> © {siteConfig('AUTHOR')} {copyrightDate}  </div>
-         <div>Powered By <a href="https://github.com/askofcc/FeishuNext" className='underline'>FeishuNext {siteConfig('VERSION')}</a></div>
+         <div>Powered By <a href="https://github.com/askofcc/FeiShow" className='underline'>FeiShow {siteConfig('VERSION')}</a></div>
          <Vercel />
        </div>
      </div>

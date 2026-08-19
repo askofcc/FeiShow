@@ -37,7 +37,7 @@ async function resolveTitle(node: WikiNode, index: number): Promise<string> {
 
 /**
  * Parent page → child pages as PostSummary list.
- * Matches FeishuNext simplified model: list root link only.
+ * Matches FeiShow simplified model: list root link only.
  */
 export async function postsFromListRoot(
   listRoot: string,

@@ -204,9 +204,9 @@ const Footer = props => {
             <div className='text-xs text-light-500 dark:text-gray-700'>
               Powered by{' '}
               <a
-                href='https://github.com/askofcc/FeishuNext'
+                href='https://github.com/askofcc/FeiShow'
                 className='dark:text-gray-300'>
-                FeishuNext {siteConfig('VERSION')}
+                FeiShow {siteConfig('VERSION')}
               </a>
               .
             </div>

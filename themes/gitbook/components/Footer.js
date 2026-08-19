@@ -52,9 +52,9 @@ const Footer = ({ siteInfo }) => {
       <div className='text-xs font-serif'>
         Powered By{' '}
         <a
-          href='https://github.com/askofcc/FeishuNext'
+          href='https://github.com/askofcc/FeiShow'
           className='underline text-gray-500 dark:text-gray-300'>
-          FeishuNext {siteConfig('VERSION')}
+          FeiShow {siteConfig('VERSION')}
         </a>
       </div>
       {/* SEO title */}

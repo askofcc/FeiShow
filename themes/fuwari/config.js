@@ -102,7 +102,7 @@ const CONFIG = {
   /** 正面右上角徽标 */
   FUWARI_CONTACT_FRONT_BADGE: 'Community',
   /** 跳转 URL（外链或站内路径） */
-  FUWARI_CONTACT_URL: 'https://github.com/askofcc/FeishuNext',
+  FUWARI_CONTACT_URL: 'https://github.com/askofcc/FeiShow',
   /** 正面行动文案（如「联系我们 →」） */
   FUWARI_CONTACT_TEXT: '查看',
   /** 是否使用正反面翻转卡片 */

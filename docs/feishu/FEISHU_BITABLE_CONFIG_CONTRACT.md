@@ -126,7 +126,7 @@ for row in records:
 
 ---
 
-## 4. 优先级（建议 FeishuNext 与 NotionNext 一致）
+## 4. 优先级（建议 FeiShow 与 NotionNext 一致）
 
 ```text
 多维表格 CONFIG-TABLE（启用=true 的行）

@@ -23,7 +23,7 @@ const locales = (function () {
   }
   // Notion 兼容：根据 NOTION_PAGE_ID 检查支持多少种语言数据.
   // 支持如下格式配置多个语言的页面id xxx,zh:xxx,en:xxx
-  if (BLOG.NOTION_PAGE_ID.indexOf(',') > 0) {
+  if (String(BLOG.CMS_PROVIDER || 'feishu').toLowerCase() !== 'feishu' && BLOG.NOTION_PAGE_ID.indexOf(',') > 0) {
     const siteIds = BLOG.NOTION_PAGE_ID.split(',')
     for (const siteId of siteIds) {
       const prefix = extractLangPrefix(siteId)

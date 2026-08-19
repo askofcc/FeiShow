@@ -5,15 +5,15 @@
 | | |
 |---|---|
 | 上游 | [notionnext-org/NotionNext](https://github.com/notionnext-org/NotionNext) |
-| 本仓库 | [askofcc/FeishuNext](https://github.com/askofcc/FeishuNext) |
+| 本仓库 | [askofcc/FeiShow](https://github.com/askofcc/FeiShow) |
 | 许可证 | MIT（保留根目录 `LICENSE` 中 tangly1024 版权） |
-| 产品名 | **FeishuNext**（不是官方 NotionNext） |
-| 演示 | https://feishunext.srint.cn/ |
+| 产品名 | **FeiShow**（不是官方 NotionNext） |
+| 演示 | https://feishow.srint.cn/ |
 
 ## Git remotes（建议）
 
 ```text
-origin    → git@github.com:askofcc/FeishuNext.git
+origin    → git@github.com:askofcc/FeiShow.git
 upstream  → https://github.com/notionnext-org/NotionNext.git
 ```
 

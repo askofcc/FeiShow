@@ -74,7 +74,7 @@ export async function resolveWikiToDocumentId(token: string): Promise<string | n
 
 /**
  * List direct children under a parent wiki node (one level, paginated).
- * This is the FeishuNext "list root → articles" path.
+ * This is the FeiShow "list root → articles" path.
  */
 export async function listWikiChildren(
   spaceId: string,

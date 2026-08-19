@@ -11,7 +11,7 @@ export default function Coze() {
     'COZE_SRC_URL',
     'https://lf-cdn.coze.cn/obj/unpkg/flow-platform/chat-app-sdk/0.1.0-beta.6/libs/cn/index.js'
   )
-  const title = siteConfig('COZE_TITLE', 'FeishuNext 助手')
+  const title = siteConfig('COZE_TITLE', 'FeiShow 助手')
   const botId = siteConfig('COZE_BOT_ID')
 
   const loadCoze = async () => {

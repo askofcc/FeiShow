@@ -45,7 +45,7 @@ import { SVG404 } from './components/svg/SVG404'
  * 布局框架
  * Landing-2 主题用作产品落地页展示
  * 结合Stripe或者lemonsqueezy插件可以成为saas支付订阅
- * https://github.com/askofcc/FeishuNext
+ * https://github.com/askofcc/FeiShow
  * @param {*} props
  * @returns
  */
@@ -484,7 +484,7 @@ const LayoutSignIn = props => {
   const title = siteConfig('STARTER_SIGNIN', '登录')
   const description = siteConfig(
     'STARTER_SIGNIN_DESCRITION',
-    '这里是演示页面，FeishuNext 演示页暂不提供会员登录'
+    '这里是演示页面，FeiShow 演示页暂不提供会员登录'
   )
   return (
     <>
@@ -515,7 +515,7 @@ const LayoutSignUp = props => {
   const title = siteConfig('STARTER_SIGNIN', '注册')
   const description = siteConfig(
     'STARTER_SIGNIN_DESCRITION',
-    '这里是演示页面，FeishuNext 演示页暂不提供会员注册'
+    '这里是演示页面，FeiShow 演示页暂不提供会员注册'
   )
   return (
     <>

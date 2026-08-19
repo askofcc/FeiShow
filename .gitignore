@@ -59,3 +59,5 @@ package-lock.json
 .perf/
 tsconfig.tsbuildinfo
 webpack-internal:/
+
+.env.docker.local

@@ -41,8 +41,8 @@ function SiteInfo({ title }) {
         <span className='text-xs font-serif'>
           Powered by
           <a
-            href='https://github.com/askofcc/FeishuNext'
-            className='underline'>FeishuNext {siteConfig('VERSION')}
+            href='https://github.com/askofcc/FeiShow'
+            className='underline'>FeiShow {siteConfig('VERSION')}
           </a>
         </span>
         <br />

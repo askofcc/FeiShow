@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
   - name: 部署说明
-    url: https://github.com/askofcc/FeishuNext/blob/main/docs/deploy/feishu-minimal.md
+    url: https://github.com/askofcc/FeiShow/blob/main/docs/deploy/feishu-minimal.md
     about: 3 个环境变量部署到 Vercel
   - name: 产品说明
-    url: https://github.com/askofcc/FeishuNext/blob/main/README.md
-    about: FeishuNext 仓库入口，不是 NotionNext
+    url: https://github.com/askofcc/FeiShow/blob/main/README.md
+    about: FeiShow 仓库入口，不是 NotionNext

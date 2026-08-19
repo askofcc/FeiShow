@@ -5,7 +5,7 @@ export function EmptyData(pageId?: string): SiteData {
   return {
     NOTION_CONFIG: {},
     siteInfo: {
-      title: 'FeishuNext',
+      title: 'FeiShow',
       description: '无法获取飞书数据',
       pageCover: '/bg_image.jpg',
       icon: '/avatar.svg',

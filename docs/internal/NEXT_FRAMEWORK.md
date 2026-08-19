@@ -18,7 +18,7 @@
 人在飞书写（文档 + 多维表格）
         │  官方 OpenAPI（必须鉴权）
         ▼
-FeishuNext 数据层
+FeiShow 数据层
   lib/feishu/*              取数
   adapters/feishu/*         组装 SiteData / post
   normalize + FeishuBlock   正文中间模型

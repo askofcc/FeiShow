@@ -1,7 +1,7 @@
 /**
  *   HEO 主题说明
  *  > 主题设计者 [张洪](https://zhheo.com/)
- *  > 本仓库已适配 FeishuNext 数据层
+ *  > 本仓库已适配 FeiShow 数据层
  *  1. 开启方式 在blog.config.js 将主题配置为 `HEO`
  *  2. 数据契约见 docs/feishu/THEME_DATA_CONTRACT.md
  */
@@ -387,7 +387,7 @@ const Layout404 = props => {
               <LazyImage
                 className='error-img h-60 md:h-full p-4'
                 src={
-                  'https://github.com/askofcc/FeishuNext'
+                  'https://github.com/askofcc/FeiShow'
                 }></LazyImage>
 
               {/* 右侧文字 */}

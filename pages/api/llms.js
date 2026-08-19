@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       req,
       candidates: [siteInfo.link, BLOG.LINK, process.env.NEXT_PUBLIC_LINK]
     })
-    const title = siteInfo.title || BLOG.AUTHOR || 'FeishuNext'
+    const title = siteInfo.title || BLOG.AUTHOR || 'FeiShow'
     const description =
       siteInfo.description || BLOG.BIO || 'Feishu-powered public site'
     const posts = publishedPosts(props?.allPages)
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
     lines.push(`> ${description}`)
     lines.push('')
     lines.push(
-      'This file helps AI agents discover public content on this FeishuNext site.'
+      'This file helps AI agents discover public content on this FeiShow site.'
     )
     lines.push(
       'Human HTML pages are available; machine-friendly JSON/Markdown exports are under /api/agent/.'
@@ -111,7 +111,7 @@ export default async function handler(req, res) {
     lines.push('')
     lines.push('## Notes')
     lines.push(
-      '- Content source: Feishu docs/wiki via FeishuNext data layer (not raw Feishu editor JSON).'
+      '- Content source: Feishu docs/wiki via FeiShow data layer (not raw Feishu editor JSON).'
     )
     lines.push(
       '- Prefer /api/agent/* or ?format=md over scraping heavy HTML when possible.'

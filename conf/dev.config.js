@@ -21,7 +21,7 @@ module.exports = {
           String(process.env.ENABLE_CACHE).trim() === 'false' ||
           String(process.env.ENABLE_CACHE).trim() === '0'
         ),
-  isProd: process.env.VERCEL_ENV === 'production' || process.env.EXPORT, // distinguish between development and production environment (ref: https://vercel.com/docs/environment-variables#system-environment-variables)
+  isProd: process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production' || process.env.EXPORT, // distinguish between development and production environment (ref: https://vercel.com/docs/environment-variables#system-environment-variables)
   BUNDLE_ANALYZER: process.env.ANALYZE === 'true' || false, // 是否展示编译依赖内容与大小
   VERSION: (() => {
     try {

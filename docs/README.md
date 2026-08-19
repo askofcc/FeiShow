@@ -1,4 +1,4 @@
-# FeishuNext 文档
+# FeiShow 文档
 
 只保留现行入口。过程稿在 [`./internal/`](./internal/)。
 

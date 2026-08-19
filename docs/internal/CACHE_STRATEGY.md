@@ -165,7 +165,7 @@ return { props, revalidate: process.env.EXPORT ? undefined : siteConfig('NEXT_RE
 2. Vercel / `.env`  
 3. 飞书 CONFIG-TABLE  
 
-FeishuNext 定案是 **3 为主、1 为默认、2 只留密钥与引导**。  
+FeiShow 定案是 **3 为主、1 为默认、2 只留密钥与引导**。  
 主题仍通过 `siteConfig` 读，**不必**知道值来自表还是 env。
 
 ---

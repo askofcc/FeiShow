@@ -1,6 +1,6 @@
 ---
 name: 建议
-about: FeishuNext 功能建议
+about: FeiShow 功能建议
 title: ''
 labels: enhancement
 ---
