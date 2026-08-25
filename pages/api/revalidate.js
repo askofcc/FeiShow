@@ -1,5 +1,7 @@
 import BLOG from '@/blog.config'
 import { cleanCacheData } from '@/lib/cache/cache_manager'
+import { clearFeishuTableCache } from '@/lib/feishu/bootstrap'
+import { clearMemo } from '@/lib/feishu/memo'
 
 /**
  * On-Demand Revalidation API
@@ -47,7 +49,9 @@ export default async function handler(req, res) {
   try {
     // 全站刷新：清除本地缓存 + revalidate 首页
     if (all) {
-      await cleanCacheData()
+      const clearedCaches = await cleanCacheData()
+      clearMemo()
+      clearFeishuTableCache()
       const results = []
       try {
         await res.revalidate('/')
@@ -57,7 +61,8 @@ export default async function handler(req, res) {
       }
       return res.status(200).json({
         ok: true,
-        message: 'Full site cache cleared. Homepage revalidated. Other pages will refresh on next visit.',
+        message: 'Local Feishu/data caches cleared and homepage revalidated. Other pages refresh on next visit.',
+        clearedCaches,
         results
       })
     }

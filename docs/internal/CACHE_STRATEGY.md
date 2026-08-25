@@ -113,7 +113,7 @@ return { props, revalidate: process.env.EXPORT ? undefined : siteConfig('NEXT_RE
 ### 4.1 目标模型（产品定案）
 
 ```text
-除 Vercel 必须项外，其余配置 → 飞书 CONFIG-TABLE（配置中心）
+除 Vercel 必须项外，其余配置 → 飞书 CONFIG-TABLE（配置中心）。总表见 `docs/feishu/CONFIG_SOURCES.md`。
 读取顺序：CONFIG 启用行 > （少数）环境变量兜底 > blog.config / 主题默认
 ```
 
@@ -155,7 +155,7 @@ return { props, revalidate: process.env.EXPORT ? undefined : siteConfig('NEXT_RE
 | `ENABLE_CACHE` | `true` | 仅排障时关 |
 | `CUSTOM_MENU` | `true` | 内容表菜单 |
 | `POSTS_PER_PAGE` | `12` | 列表分页 |
-| `THEME` | `example` | 或只用 env `NEXT_PUBLIC_THEME` 二选一，避免双源 |
+| `THEME` | `example` | 只走 CONFIG-TABLE，不要再设 `NEXT_PUBLIC_THEME` |
 
 ### 4.4 为何看起来乱
 

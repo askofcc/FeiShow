@@ -9,6 +9,7 @@ export type TextStyle = {
   strikethrough?: boolean;
   underline?: boolean;
   inlineCode?: boolean;
+  inlineEquation?: boolean;
   link?: string;
   color?: string;
   backgroundColor?: string;
@@ -75,7 +76,7 @@ export type FeishuBlock = {
   };
   rawType?: number | string;
   embed?: {
-    kind: "board" | "sheet" | "bitable" | "wiki" | "addon" | "unknown";
+    kind: "board" | "sheet" | "bitable" | "wiki" | "addon" | "mindnote" | "chat_card" | "task" | "okr" | "jira" | "agenda" | "unknown";
     token?: string;
     /** sheet: sheetId; bitable: tableId */
     secondaryToken?: string;

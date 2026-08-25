@@ -16,7 +16,9 @@
     "url": "https://feishow.srint.cn/"
   },
   "scripts": {
+    "predev": "node scripts/resolve-active-theme.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/resolve-active-theme.mjs",
     "build": "cross-env BUILD_MODE=true next build",
     "start": "next start",
     "post-build": "next-sitemap --config next-sitemap.config.js",
@@ -24,7 +26,7 @@
     "bundle-report": "cross-env ANALYZE=true next build",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
-    "type-check": "tsc --noEmit",
+    "type-check": "node scripts/resolve-active-theme.mjs && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "deps:install": "yarn install --frozen-lockfile",

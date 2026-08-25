@@ -59,6 +59,104 @@ const BLOCK_TYPE_MAP: Record<number, FeishuBlockType> = {
   48: "bookmark", // link_preview
 };
 
+
+/**
+ * Official Feishu code block language enum mapping.
+ */
+const FEISHU_CODE_LANGUAGES: Record<number, string> = {
+  1: 'plaintext',
+  2: 'abap',
+  3: 'ada',
+  4: 'apache',
+  5: 'apex',
+  6: 'assembly',
+  7: 'bash',
+  8: 'c',
+  9: 'csharp',
+  10: 'cpp',
+  11: 'clojure',
+  12: 'cobol',
+  13: 'coffeescript',
+  14: 'css',
+  15: 'd',
+  16: 'dart',
+  17: 'delphi',
+  18: 'dockerfile',
+  19: 'erlang',
+  20: 'fortran',
+  21: 'foxpro',
+  22: 'go',
+  23: 'groovy',
+  24: 'html',
+  25: 'java',
+  26: 'javascript',
+  27: 'json',
+  28: 'julia',
+  29: 'kotlin',
+  30: 'latex',
+  31: 'lisp',
+  32: 'logo',
+  33: 'lua',
+  34: 'matlab',
+  35: 'makefile',
+  36: 'markdown',
+  37: 'nginx',
+  38: 'objectivec',
+  39: 'openedgeabl',
+  40: 'pascal',
+  41: 'perl',
+  42: 'php',
+  43: 'postscript',
+  44: 'powershell',
+  45: 'prolog',
+  46: 'protobuf',
+  47: 'python',
+  48: 'r',
+  49: 'raspberrypi',
+  50: 'ruby',
+  51: 'rust',
+  52: 'sas',
+  53: 'scss',
+  54: 'sql',
+  55: 'scala',
+  56: 'scheme',
+  57: 'scratch',
+  58: 'shell',
+  59: 'swift',
+  60: 'thrift',
+  61: 'typescript',
+  62: 'vbscript',
+  63: 'visualbasic',
+  64: 'xml',
+  65: 'yaml',
+  66: 'wasm',
+  67: 'cmake',
+  68: 'diff',
+  69: 'gherkin',
+  70: 'graphql',
+  71: 'http',
+  72: 'ini',
+  73: 'less',
+  74: 'mermaid',
+  75: 'protobuf',
+  76: 'scss',
+  77: 'solidity',
+  78: 'toml',
+  79: 'vue',
+};
+
+export function normalizeCodeLanguage(langCode?: number | string): string {
+  if (langCode == null) return 'plaintext';
+  if (typeof langCode === 'number') {
+    return FEISHU_CODE_LANGUAGES[langCode] || 'plaintext';
+  }
+  const num = Number(langCode);
+  if (!Number.isNaN(num) && FEISHU_CODE_LANGUAGES[num]) {
+    return FEISHU_CODE_LANGUAGES[num];
+  }
+  return String(langCode).toLowerCase() || 'plaintext';
+}
+
 function safeDecodeUrl(url?: string): string | undefined {
   if (!url) return undefined;
   try {
@@ -111,8 +209,16 @@ export function normalizeTextElements(elements: FeishuRawTextElement[] = []): Te
         text: el.mention_doc.title,
         style: el.mention_doc.url ? { link: safeDecodeUrl(el.mention_doc.url) } : undefined,
       });
+    } else if (el.mention_user?.user_id) {
+      runs.push({
+        text: '@用户',
+        style: { bold: true },
+      });
     } else if (el.equation?.content) {
-      runs.push({ text: el.equation.content, style: { inlineCode: true } });
+      runs.push({
+        text: el.equation.content,
+        style: { inlineEquation: true, inlineCode: true },
+      });
     }
   }
   return runs;
@@ -136,7 +242,7 @@ export function normalizeBlock(raw: FeishuRawBlock): FeishuBlock {
   }
 
   if (type === "code") {
-    block.language = String(raw.code?.style?.language ?? "plain");
+    block.language = normalizeCodeLanguage(raw.code?.style?.language);
   }
 
   if (type === "image" && raw.image) {
@@ -191,10 +297,13 @@ export function normalizeBlock(raw: FeishuRawBlock): FeishuBlock {
     block.text = text.length ? text : [{ text: "", style: { inlineCode: true } }];
   }
 
-  // Feishu special embeds — keep as visual cards (not full interactive widgets).
+  // Feishu special embeds — keep as visual cards with fallbacks.
   if (raw.block_type === 43 && raw.board?.token) {
     block.type = "feishu_embed";
     block.embed = { kind: "board", token: raw.board.token, title: "画板" };
+  } else if (raw.block_type === 43) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "board", title: "画板" };
   } else if (raw.block_type === 30 && raw.sheet?.token) {
     const full = String(raw.sheet.token);
     const [spreadsheetToken, sheetId] = full.split("_");
@@ -205,6 +314,9 @@ export function normalizeBlock(raw: FeishuRawBlock): FeishuBlock {
       secondaryToken: sheetId,
       title: "电子表格",
     };
+  } else if (raw.block_type === 30) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "sheet", title: "电子表格" };
   } else if (raw.block_type === 18 && raw.bitable?.token) {
     const full = String(raw.bitable.token);
     const [appToken, tableId] = full.split("_");
@@ -215,12 +327,36 @@ export function normalizeBlock(raw: FeishuRawBlock): FeishuBlock {
       secondaryToken: tableId,
       title: "多维表格",
     };
+  } else if (raw.block_type === 18) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "bitable", title: "多维表格" };
+  } else if (raw.block_type === 29) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "mindnote", title: "思维笔记" };
   } else if (raw.block_type === 51 && raw.sub_page_list?.wiki_token) {
     block.type = "feishu_embed";
     block.embed = { kind: "wiki", token: raw.sub_page_list.wiki_token, title: "知识库目录" };
+  } else if (raw.block_type === 51) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "wiki", title: "知识库子目录" };
   } else if (raw.block_type === 40) {
     block.type = "feishu_embed";
-    block.embed = { kind: "addon", title: "文档小组件 / 目录" };
+    block.embed = { kind: "addon", title: "文档小组件 / 插件" };
+  } else if (raw.block_type === 20) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "chat_card", title: "会话卡片" };
+  } else if (raw.block_type === 35) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "task", title: "任务" };
+  } else if (raw.block_type >= 36 && raw.block_type <= 39) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "okr", title: "OKR" };
+  } else if (raw.block_type === 41) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "jira", title: "Jira 任务" };
+  } else if (raw.block_type >= 44 && raw.block_type <= 47) {
+    block.type = "feishu_embed";
+    block.embed = { kind: "agenda", title: "日程 / 议程" };
   }
 
   return block;

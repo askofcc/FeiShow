@@ -10,13 +10,23 @@ const appId = env('FEISHU_APP_ID')
 // No product hardcode for table tokens — env optional, otherwise discover from FEISHU_SITE_ROOT
 const contentApp = env('FEISHU_CONTENT_APP_TOKEN', env('FEISHU_BITABLE_APP_TOKEN'))
 const contentTable = env('FEISHU_CONTENT_TABLE_ID', env('FEISHU_BITABLE_TABLE_ID'))
+const apiCacheSeconds = Number(
+  env(
+    'FEISHU_API_CACHE_TTL',
+    env('NEXT_PUBLIC_REVALIDATE_SECOND', env('NEXT_REVALIDATE_SECOND', '300'))
+  )
+)
 
 const siteConfig = {
   demo:
     process.env.FEISHU_DEMO === 'true' ||
     (process.env.CMS_PROVIDER === 'feishu' ? !appId : !appId),
-  // Default 300s; prefer CONFIG-TABLE NEXT_REVALIDATE_SECOND over Vercel env
-  revalidateSeconds: Number(process.env.NEXT_PUBLIC_REVALIDATE_SECOND || process.env.NEXT_REVALIDATE_SECOND || 300),
+  // Bootstrap-level OpenAPI fetch TTL. It cannot come from CONFIG-TABLE,
+  // because loading that table itself requires OpenAPI calls first.
+  revalidateSeconds:
+    Number.isFinite(apiCacheSeconds) && apiCacheSeconds > 0
+      ? apiCacheSeconds
+      : 300,
   /**
    * Build/SSG light mode: skip per-doc summary/cover fan-out (avoids Feishu rate limits on Vercel).
    * Override with FEISHU_BUILD_LIGHT=false to force full fill during build.

@@ -15,12 +15,7 @@ import FeishuPage from '@/components/FeishuPage'
  * @param {*} param0
  * @returns
  */
-const NotionPage = ({ post, className }) => {
-  // Feishu CMS: render via FeishuRenderer (all themes benefit)
-  if (post?.feishuContent || post?.ext?.source === 'feishu' || post?.accessError) {
-    return <FeishuPage post={post} className={className} />
-  }
-
+const NotionPageDefault = ({ post, className }) => {
   // 是否关闭数据库和画册的点击跳转
   const POST_DISABLE_GALLERY_CLICK = siteConfig('POST_DISABLE_GALLERY_CLICK')
   const POST_DISABLE_DATABASE_CLICK = siteConfig('POST_DISABLE_DATABASE_CLICK')
@@ -337,6 +332,15 @@ const NotionText = ({ value }) => {
     }
     return <span key={i}>{element}</span>
   })
+}
+
+const NotionPage = ({ post, className }) => {
+  // Feishu CMS: render via FeishuRenderer (all themes benefit)
+  if (post?.feishuContent || post?.ext?.source === 'feishu' || post?.accessError) {
+    return <FeishuPage post={post} className={className} />
+  }
+
+  return <NotionPageDefault post={post} className={className} />
 }
 
 export default NotionPage

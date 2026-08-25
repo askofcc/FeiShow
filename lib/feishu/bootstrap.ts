@@ -138,17 +138,55 @@ async function resolveConfigFromContentTable(
     ).trim()
     const type = typeRaw.toLowerCase()
     if (typeRaw !== '配置' && type !== 'config') continue
-    const docToken = extractDocToken((record.fields || {})['文档'] ?? (record.fields || {})['document'])
+    const docField = (record.fields || {})['文档'] ?? (record.fields || {})['document']
+    const docToken = extractDocToken(docField)
     if (!docToken) continue
-    const node = await resolveWikiNode(docToken)
-    if (!node?.obj_token || !isBitableObjType(node.obj_type)) continue
-    const tables = await inspectAppTables(String(node.obj_token), node.title || '配置中心')
-    return (
-      tables.find(t => t.kind === 'config') ||
-      tables.find(t => (t.tableName || '').includes('配置') || (t.tableName || '').toUpperCase().includes('CONFIG')) ||
-      tables[0] ||
-      null
-    )
+
+    let bitableAppToken = ''
+    let bitableTableId: string | undefined
+
+    if (Array.isArray(docField)) {
+      for (const item of docField) {
+        if (item && typeof item === 'object') {
+          const link = String((item as any).link || (item as any).url || '')
+          const mTable = link.match(/[?&]table=([a-zA-Z0-9]+)/)
+          if (mTable?.[1]) bitableTableId = mTable[1]
+          const mBase = link.match(/\/(base|bitable)\/([a-zA-Z0-9]+)/)
+          if (mBase?.[2]) bitableAppToken = mBase[2]
+        }
+      }
+    }
+
+    if (!bitableAppToken) {
+      const node = await resolveWikiNode(docToken).catch(() => null)
+      if (node?.obj_token && isBitableObjType(node.obj_type)) {
+        bitableAppToken = String(node.obj_token)
+      } else if (/^[A-Za-z0-9_-]{10,}$/.test(docToken) && !node) {
+        bitableAppToken = docToken
+      }
+    }
+
+    if (bitableAppToken) {
+      if (bitableTableId) {
+        return {
+          appToken: bitableAppToken,
+          tableId: bitableTableId,
+          tableName: '配置中心',
+          kind: 'config'
+        }
+      }
+      try {
+        const tables = await inspectAppTables(bitableAppToken, '配置中心')
+        return (
+          tables.find(t => t.kind === 'config') ||
+          tables.find(t => (t.tableName || '').includes('配置') || (t.tableName || '').toUpperCase().includes('CONFIG')) ||
+          tables[0] ||
+          null
+        )
+      } catch (e) {
+        console.warn('[feishu] inspectAppTables for config failed', bitableAppToken, e)
+      }
+    }
   }
   return null
 }
@@ -177,12 +215,12 @@ function classifyByFields(fieldNames: string[], tableName = ''): FeishuTableRef[
 /**
  * Resolve content/config bitable refs.
  * Priority:
- * 1) content table: bitable embedded in FEISHU_SITE_ROOT, else wiki child
- * 2) CONFIG table: content row type=配置 → 文档 column
- * 3) env table tokens only if SITE_ROOT is empty
+ * 1) explicit environment table selectors (advanced / recovery override)
+ * 2) content table: bitable embedded in FEISHU_SITE_ROOT, else wiki child
+ * 3) CONFIG table: content row type=配置 → 文档 column
  */
 export async function resolveFeishuTables(): Promise<ResolvedTables> {
-  if (cache) return cache
+  if (cache && process.env.ENABLE_CACHE !== 'false' && process.env.ENABLE_CACHE !== '0') return cache
   if (inflight) return inflight
 
   inflight = (async () => {
@@ -191,16 +229,15 @@ export async function resolveFeishuTables(): Promise<ResolvedTables> {
       envOrEmpty('FEISHU_LIST_ROOT') ||
       String((siteConfig as any)?.feishu?.siteRoot || '')
 
-    // Product input is SITE_ROOT + app credentials. Table tokens are leftover
-    // overrides only when no root is configured.
-    const envContentApp = siteRoot
-      ? ''
-      : envOrEmpty('FEISHU_CONTENT_APP_TOKEN') || envOrEmpty('FEISHU_BITABLE_APP_TOKEN')
-    const envContentTable = siteRoot
-      ? ''
-      : envOrEmpty('FEISHU_CONTENT_TABLE_ID') || envOrEmpty('FEISHU_BITABLE_TABLE_ID')
-    const envConfigApp = siteRoot ? '' : envOrEmpty('FEISHU_CONFIG_APP_TOKEN')
-    const envConfigTable = siteRoot ? '' : envOrEmpty('FEISHU_CONFIG_TABLE_ID')
+    // Root discovery is the normal product path. Explicit table tokens remain
+    // a deliberate recovery override when a non-standard root cannot be
+    // discovered automatically.
+    const envContentApp =
+      envOrEmpty('FEISHU_CONTENT_APP_TOKEN') || envOrEmpty('FEISHU_BITABLE_APP_TOKEN')
+    const envContentTable =
+      envOrEmpty('FEISHU_CONTENT_TABLE_ID') || envOrEmpty('FEISHU_BITABLE_TABLE_ID')
+    const envConfigApp = envOrEmpty('FEISHU_CONFIG_APP_TOKEN')
+    const envConfigTable = envOrEmpty('FEISHU_CONFIG_TABLE_ID')
 
     let contentAppToken = envContentApp
     let contentTableId = envContentTable
@@ -309,7 +346,9 @@ export async function resolveFeishuTables(): Promise<ResolvedTables> {
       configTableId,
       source
     }
-    cache = resolved
+    if (process.env.ENABLE_CACHE !== 'false' && process.env.ENABLE_CACHE !== '0') {
+      cache = resolved
+    }
     return resolved
   })()
 

@@ -2,19 +2,40 @@
 import BLOG from '@/blog.config'
 import Document, { Head, Html, Main, NextScript } from 'next/document'
 
-const isLocalFontAwesome = BLOG.FONT_AWESOME?.startsWith(
-  '/vendor/fontawesome/'
-)
+class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const initialProps = await Document.getInitialProps(ctx)
+    return { ...initialProps }
+  }
 
-// 预先设置深色模式的脚本内容
-const darkModeScript = `
+  render() {
+    const pageProps = this.props?.__NEXT_DATA__?.props?.pageProps
+    const NOTION_CONFIG = pageProps?.NOTION_CONFIG
+
+    const lang = NOTION_CONFIG?.LANG || BLOG.LANG || 'zh-CN'
+    const appearance = NOTION_CONFIG?.APPEARANCE || BLOG.APPEARANCE || 'auto'
+    const darkTimeStart = NOTION_CONFIG?.APPEARANCE_DARK_TIME
+      ? NOTION_CONFIG.APPEARANCE_DARK_TIME[0]
+      : BLOG.APPEARANCE_DARK_TIME
+        ? BLOG.APPEARANCE_DARK_TIME[0]
+        : 18
+    const darkTimeEnd = NOTION_CONFIG?.APPEARANCE_DARK_TIME
+      ? NOTION_CONFIG.APPEARANCE_DARK_TIME[1]
+      : BLOG.APPEARANCE_DARK_TIME
+        ? BLOG.APPEARANCE_DARK_TIME[1]
+        : 6
+    const fontAwesome = NOTION_CONFIG?.FONT_AWESOME || BLOG.FONT_AWESOME
+    const isLocalFontAwesome = fontAwesome?.startsWith('/vendor/fontawesome/')
+
+    // 预先设置深色模式的脚本内容
+    const darkModeScript = `
 (function() {
   const darkMode = localStorage.getItem('darkMode')
 
   const prefersDark =
     window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
 
-  const defaultAppearance = '${BLOG.APPEARANCE || 'auto'}'
+  const defaultAppearance = '${appearance}'
 
   let shouldBeDark = darkMode === 'true' || darkMode === 'dark'
 
@@ -25,8 +46,8 @@ const darkModeScript = `
       // 检查是否在深色模式时间范围内
       const date = new Date()
       const hours = date.getHours()
-      const darkTimeStart = ${BLOG.APPEARANCE_DARK_TIME ? BLOG.APPEARANCE_DARK_TIME[0] : 18}
-      const darkTimeEnd = ${BLOG.APPEARANCE_DARK_TIME ? BLOG.APPEARANCE_DARK_TIME[1] : 6}
+      const darkTimeStart = ${darkTimeStart}
+      const darkTimeEnd = ${darkTimeEnd}
       
       shouldBeDark = prefersDark || (hours >= darkTimeStart || hours < darkTimeEnd)
     }
@@ -37,21 +58,14 @@ const darkModeScript = `
 })()
 `
 
-class MyDocument extends Document {
-  static async getInitialProps(ctx) {
-    const initialProps = await Document.getInitialProps(ctx)
-    return { ...initialProps }
-  }
-
-  render() {
     return (
-      <Html lang={BLOG.LANG}>
+      <Html lang={lang}>
         <Head>
           <link rel='preconnect' href='https://images.unsplash.com' />
           <link rel='dns-prefetch' href='//images.unsplash.com' />
 
           {/* 预加载字体 */}
-          {BLOG.FONT_AWESOME && (
+          {fontAwesome && (
             <>
               {isLocalFontAwesome && (
                 <>
@@ -87,7 +101,7 @@ class MyDocument extends Document {
               <link
                 id='font-awesome-css'
                 rel='stylesheet'
-                href={BLOG.FONT_AWESOME}
+                href={fontAwesome}
               />
             </>
           )}

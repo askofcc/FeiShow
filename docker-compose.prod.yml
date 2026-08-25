@@ -1,0 +1,26 @@
+# Production standalone image build & smoke test
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      secrets:
+        - feishu_env
+    image: feishow:local
+    ports:
+      - "3460:3000"
+    env_file:
+      - .env.docker.local
+    environment:
+      NODE_ENV: production
+      CMS_PROVIDER: feishu
+      NEXT_PUBLIC_LINK: http://127.0.0.1:3460
+      NODE_OPTIONS: "--max-old-space-size=4096"
+      ENABLE_CACHE: "true"
+      NEXT_REVALIDATE_SECOND: "300"
+      NEXT_PUBLIC_REVALIDATE_SECOND: "300"
+    restart: unless-stopped
+
+secrets:
+  feishu_env:
+    file: ${FEISHU_ENV_FILE:-.env.docker.local}

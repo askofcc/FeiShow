@@ -55,9 +55,12 @@ package-lock.json
 # yarn.lock
 
 .notion-api-lock
+.generated/
+themes/active-theme.js
 .tmp/
 .perf/
 tsconfig.tsbuildinfo
 webpack-internal:/
 
 .env.docker.local
+.env*

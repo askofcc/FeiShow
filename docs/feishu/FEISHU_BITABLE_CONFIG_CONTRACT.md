@@ -109,6 +109,8 @@ for row in records:
 
 未启用的（仅占位）：`THEME` `CUSTOM_MENU` `HOME_BANNER_IMAGE` `CONTACT_*` `GLOBAL_CSS/JS` `INLINE_CONFIG` 等。
 
+`THEME` 要改主题就在配置中心启用，不要再设 `NEXT_PUBLIC_THEME`。配置来源总表见 `CONFIG_SOURCES.md`。
+
 完整清单见 `docs/samples/feishu-config-table-setup.json`。
 
 ---
@@ -126,15 +128,16 @@ for row in records:
 
 ---
 
-## 4. 优先级（建议 FeiShow 与 NotionNext 一致）
+## 4. 优先级（已落地）
 
 ```text
 多维表格 CONFIG-TABLE（启用=true 的行）
-  > 环境变量 .env
-  > site.config.ts 默认值
+  > blog.config.js / 主题 CONFIG 代码默认
+  > 少数环境变量（仅密钥、FEISHU_SITE_ROOT、本机 LINK）
 ```
 
-当前代码**尚未**自动读这张表进运行时；表结构与样例数据已就绪，下一步是写 `getConfigMapFromBitable()`。
+运行时由 `loadConfigMap()` 读表，写入 `NOTION_CONFIG`。  
+Docker / Vercel 不要再填 `NEXT_PUBLIC_THEME`、`TITLE`、`AUTHOR` 这类站点行为。详见 `CONFIG_SOURCES.md`。
 
 ---
 

@@ -1,11 +1,14 @@
 import BLOG, { LAYOUT_MAPPINGS } from '@/blog.config'
-import getConfig from 'next/config'
+import {
+  ACTIVE_THEME,
+  loadActiveThemeModule
+} from '@/themes/active-theme'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { getQueryParam, getQueryVariable, isBrowser } from '../lib/utils'
 
-// 在next.config.js中扫描所有主题
-export const { THEMES = [] } = getConfig()?.publicRuntimeConfig || {}
+// One deployment compiles one CONFIG-selected theme.
+export const THEMES = Object.freeze([ACTIVE_THEME])
 const baseLayoutCache = new Map()
 const layoutByThemeCache = new Map()
 let domFixTimer = null
@@ -74,15 +77,12 @@ const getLayoutLoading = layoutName => {
 const normalizeThemeName = themeValue => {
   if (!themeValue || typeof themeValue !== 'string') return BLOG.THEME
   const firstTheme = themeValue.split(',')[0].trim()
-  if (!firstTheme) return BLOG.THEME
-  return THEMES.includes(firstTheme) ? firstTheme : BLOG.THEME
+  return firstTheme === ACTIVE_THEME ? firstTheme : ACTIVE_THEME
 }
 
 const getFallbackThemeName = themeName => {
   const preferred = normalizeThemeName(BLOG.THEME)
-  if (preferred && preferred !== themeName) return preferred
-  if (THEMES.includes('example') && themeName !== 'example') return 'example'
-  return THEMES.find(item => item !== themeName) || null
+  return preferred
 }
 
 const getThemeExport = (mod, exportName) => {
@@ -107,24 +107,24 @@ const scheduleFixThemeDOM = (delay = 120) => {
 
 async function importThemeConfig(themeFolderName) {
   try {
-    const mod = await import(`@/themes/${themeFolderName}`)
+    const mod = await loadActiveThemeModule()
     return getThemeExport(mod, 'THEME_CONFIG')
   } catch (err) {
-    console.error(`Failed to load theme config "${themeFolderName}":`, err)
+    console.error(`Failed to load theme config "${ACTIVE_THEME}":`, err)
     return null
   }
 }
 
 async function importThemeLayout(themeFolderName, layoutName) {
   try {
-    const mod = await import(`@/themes/${themeFolderName}`)
+    const mod = await loadActiveThemeModule()
     return (
       getThemeExport(mod, layoutName) ||
       getThemeExport(mod, 'LayoutSlug') ||
       null
     )
   } catch (err) {
-    console.error(`Failed to load theme "${themeFolderName}":`, err)
+    console.error(`Failed to load theme "${ACTIVE_THEME}":`, err)
     return null
   }
 }
@@ -149,7 +149,7 @@ async function resolveThemeLayout(themeName, layoutName, emptyLayout) {
 }
 
 /**
- * 获取主题配置（始终动态加载，与运行时 BLOG.THEME / URL ?theme 一致；不依赖编译期别名）。
+ * 获取主题配置。仅加载构建期由 CONFIG-TABLE 选定的主题。
  * @param {string} themeQuery - 主题查询参数（支持多个主题用逗号分隔）
  * @returns {Promise<object|null>} 主题配置对象
  */
@@ -280,19 +280,14 @@ const fixThemeDOM = () => {
  * @description 读取cookie中存的用户主题
  */
 export const initDarkMode = (updateDarkMode, defaultDarkMode) => {
-  // 查看用户设备浏览器是否深色模型
-  let newDarkMode = isPreferDark()
-
   // 查看localStorage中用户记录的是否深色模式
   const userDarkMode = loadDarkModeFromLocalStorage()
+  let newDarkMode
   if (userDarkMode) {
     newDarkMode = userDarkMode === 'dark' || userDarkMode === 'true'
     saveDarkModeToLocalStorage(newDarkMode) // 用户手动的才保存
-  }
-
-  // 如果站点强制设置默认深色，则优先级改过用
-  if (defaultDarkMode === 'true') {
-    newDarkMode = true
+  } else {
+    newDarkMode = isPreferDark(defaultDarkMode)
   }
 
   // url查询条件中是否深色模式
@@ -311,11 +306,14 @@ export const initDarkMode = (updateDarkMode, defaultDarkMode) => {
  * 是否优先深色模式， 根据系统深色模式以及当前时间判断
  * @returns {*}
  */
-export function isPreferDark() {
-  if (BLOG.APPEARANCE === 'dark') {
+export function isPreferDark(appearance = BLOG.APPEARANCE) {
+  const configured = String(appearance || BLOG.APPEARANCE || 'light')
+    .trim()
+    .toLowerCase()
+  if (configured === 'dark' || configured === 'true') {
     return true
   }
-  if (BLOG.APPEARANCE === 'auto') {
+  if (configured === 'auto' || configured === 'system') {
     // 系统深色模式或时间是夜间时，强行置为夜间模式
     const date = new Date()
     const prefersDarkMode = window.matchMedia(

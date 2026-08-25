@@ -203,19 +203,15 @@ function buildMenus(rows: ContentRow[]): MenuItem[] {
 
 /**
  * Build NotionNext-compatible SiteData from Feishu content table + CONFIG table.
- * Process-local memo: parallel getStaticProps must not fan out identical site fetches.
+ * Only de-duplicate simultaneous fetches here. Expiration belongs to the shared
+ * cache manager, otherwise a warm Docker/Vercel process would never see CONFIG
+ * or content changes after the configured TTL.
  */
-let siteDataMemo: SiteData | null = null
 let siteDataInflight: Promise<SiteData> | null = null
 
 export async function fetchSiteFromFeishu(): Promise<SiteData> {
-  if (siteDataMemo) return siteDataMemo
   if (siteDataInflight) return siteDataInflight
   siteDataInflight = fetchSiteFromFeishuUncached()
-    .then(data => {
-      siteDataMemo = data
-      return data
-    })
     .finally(() => {
       siteDataInflight = null
     })
@@ -234,8 +230,8 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     )
   }
   const configMap = await loadConfigMap()
-  let rows = await loadContentRows()
-  rows = await resolveDocumentIds(rows)
+  let rows = await loadContentRows(configMap)
+  rows = await resolveDocumentIds(rows, configMap)
 
   const menus = rows.filter(r => r.type === 'menu' || r.type === 'submenu')
   const pageRows = rows.filter(r => r.type === 'page')
@@ -243,7 +239,7 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
   const categoryRows = rows.filter(r => r.type === 'category')
   const postRows = rows.filter(r => r.type === 'post')
 
-  const expanded = await expandCategoryPosts(categoryRows)
+  const expanded = await expandCategoryPosts(categoryRows, configMap)
   const postMap = new Map<string, ContentRow>()
   for (const p of [...postRows, ...expanded]) {
     if (!postMap.has(p.slug)) postMap.set(p.slug, p)
@@ -426,11 +422,16 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
       THEME: configMap.THEME || 'example',
       CMS_PROVIDER: 'feishu',
       // Cache TTL only from CONFIG-TABLE (or 300s default) — not a Vercel requirement
-      NEXT_REVALIDATE_SECOND: Number(
-        configMap.NEXT_REVALIDATE_SECOND ??
-          configMap.NEXT_PUBLIC_REVALIDATE_SECOND ??
-          300
-      ),
+      NEXT_REVALIDATE_SECOND:
+        process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'
+          ? 1
+          : Number(
+              configMap.NEXT_REVALIDATE_SECOND ??
+                configMap.NEXT_PUBLIC_REVALIDATE_SECOND ??
+                process.env.NEXT_REVALIDATE_SECOND ??
+                process.env.NEXT_PUBLIC_REVALIDATE_SECOND ??
+                300
+            ),
       // so themes reading siteConfig('HOME_BANNER_IMAGE') also get fallback
       HOME_BANNER_IMAGE: banner.pageCover || configMap.HOME_BANNER_IMAGE || ''
     },
@@ -535,7 +536,8 @@ export async function enrichFeishuPost(page: BasePage): Promise<BasePage & Recor
       id: h.id,
       text: h.text,
       title: h.text,
-      level: h.level
+      level: h.level,
+      indentLevel: Math.max(0, (h.level || 1) - 1)
     })),
     feishuMeta: body.meta || null,
     feishuDisplaySetting: display,

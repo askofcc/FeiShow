@@ -17,13 +17,18 @@ export const Equation = ({ block, math, inline = false, className, ...rest }) =>
   math = math || getBlockTitle(block, null)
   if (!math) return null
 
+  const settings = {
+    ...katexSettings,
+    displayMode: !inline
+  }
+
   return (
     <span
       role='button'
       tabIndex={0}
-      className={`notion-equation ${inline ? 'notion-equation-inline' : 'notion-equation-block'}`}
+      className={`notion-equation ${inline ? 'notion-equation-inline' : 'notion-equation-block'} ${className || ''}`}
     >
-      <Katex math={math} settings={katexSettings} {...rest} />
+      <Katex math={math} settings={settings} {...rest} />
     </span>
   )
 }

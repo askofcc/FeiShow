@@ -115,9 +115,10 @@ export async function enrichEmbedMetadata(content: FeishuPageContent): Promise<F
             );
             const items = nodesData?.items || [];
             if (items.length) {
-              const headers = ["子页面"];
+              const headers = ["子页面", "_token"];
               const rows = items.map((n: { title?: string; node_token?: string }) => [
                 n.title || n.node_token || "未命名",
+                n.node_token || "",
               ]);
               block.embed.preview = { headers, rows };
             }

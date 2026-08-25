@@ -22,8 +22,9 @@ const TeX = ({
 
   useEffect(() => {
     try {
+      const isDisplay = settings?.displayMode !== undefined ? settings.displayMode : true
       const innerHtml = KaTeX.renderToString(content, {
-        displayMode: true,
+        displayMode: isDisplay,
         errorColor,
         throwOnError: !!renderError,
         ...settings

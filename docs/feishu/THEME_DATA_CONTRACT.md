@@ -284,7 +284,7 @@ themes/<your-theme>/
 ```
 
 在 `themes/theme.js` 的扫描体系下，文件夹名 = 主题名。  
-`NEXT_PUBLIC_THEME=your-theme` 或 `?theme=your-theme`。
+配置中心 `THEME=your-theme`（推荐），或 URL `?theme=your-theme` 临时预览。不要用 `NEXT_PUBLIC_THEME` 作为主配置。
 
 ### 3.2 必须实现的 Layout（最低集）
 

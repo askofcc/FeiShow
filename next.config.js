@@ -12,6 +12,17 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 // 扫描项目 /themes下的目录名
 const themes = scanSubdirectories(path.resolve(__dirname, 'themes'))
+
+// Build scripts generate a single-theme import module before Webpack starts.
+function generatedActiveTheme() {
+  try {
+    const source = fs.readFileSync(path.resolve(__dirname, 'themes', 'active-theme.js'), 'utf8')
+    const theme = source.match(/export const ACTIVE_THEME = '([^']+)'/)?.[1]
+    return themes.includes(theme) ? [theme] : ['example']
+  } catch (_) {
+    return ['example']
+  }
+}
 // 检测用户开启的多语言
 const locales = (function () {
   const langs = [BLOG.LANG]
@@ -480,7 +491,7 @@ const nextConfig = {
   },
   publicRuntimeConfig: {
     // 这里的配置既可以服务端获取到，也可以在浏览器端获取到
-    THEMES: themes
+    THEMES: generatedActiveTheme()
   }
 }
 

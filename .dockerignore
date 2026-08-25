@@ -1,8 +1,30 @@
+# Build artifacts
 .next*
+out
+build
+dist
+.swc
+.vercel
+
+# Dependencies & Logs
 node_modules
-npm-debug.log
-yarn-error.log
-.env
-.env.local
-.env.docker.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment and sensitive files
+.env*
+!.env.example
 .git
+.github
+
+# Documentation and historical files (prevent layer cache bust on doc/test edits)
+docs
+old
+__tests__
+test-results
+*.md
+LICENSE
+NOTICE
+tsconfig.tsbuildinfo
+.DS_Store

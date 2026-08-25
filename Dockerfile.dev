@@ -1,0 +1,14 @@
+# syntax=docker/dockerfile:1.7
+FROM node:20-alpine
+ENV YARN_CACHE_FOLDER=/tmp/yarn-cache
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+
+ENV NODE_ENV=development
+ENV PORT=3000
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+EXPOSE 3000
+
+CMD ["yarn", "dev", "-H", "0.0.0.0", "-p", "3000"]

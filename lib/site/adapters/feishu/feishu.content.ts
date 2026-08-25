@@ -111,26 +111,37 @@ function field(record: BitableRecord, name: string) {
  * Empty string = no prefix (official also supports this).
  * Themes use both post.href and `/${post.slug}` — both must be the full path.
  */
-function getPostUrlPrefix(): string {
-  // Match: process.env.NEXT_PUBLIC_POST_URL_PREFIX ?? 'article'
+function getPostUrlPrefix(configMap: Record<string, any> = {}): string {
+  // CONFIG-TABLE is the normal site source. The env name remains a legacy
+  // bootstrap fallback for existing deployments before a CONFIG table exists.
+  const configured =
+    configMap.POST_URL_PREFIX ?? configMap.NEXT_PUBLIC_POST_URL_PREFIX
   const env = process.env.NEXT_PUBLIC_POST_URL_PREFIX
-  const raw = env === undefined || env === null ? 'article' : String(env)
+  const raw =
+    configured === undefined || configured === null
+      ? env === undefined || env === null
+        ? 'article'
+        : String(env)
+      : String(configured)
   // only use first static segment (date patterns not used for Feishu tokens)
   return raw.replace(/^\/|\/$/g, '').split('/').filter(s => s && !s.includes('%'))[0] || ''
 }
 
-function stripKnownPrefixes(raw: string): string {
+function stripKnownPrefixes(raw: string, configMap: Record<string, any> = {}): string {
   let s = String(raw || '').trim().replace(/^\//, '')
   if (!s) return ''
   // unwrap one leading "article/" or configured prefix if duplicated
-  const prefix = getPostUrlPrefix()
+  const prefix = getPostUrlPrefix(configMap)
   if (prefix && s.startsWith(prefix + '/')) s = s.slice(prefix.length + 1)
   else if (s.startsWith('article/')) s = s.slice('article/'.length)
   return s
 }
 
 /** Page/Menu: bare /{slug}; explicit "/" means site home */
-function toPageSlugAndHref(tokenOrSlug: string): { slug: string; href: string } {
+function toPageSlugAndHref(
+  tokenOrSlug: string,
+  configMap: Record<string, any> = {}
+): { slug: string; href: string } {
   const original = String(tokenOrSlug || '').trim()
   if (original === '/' || original === '') {
     // empty only when caller wants home; bare empty → home for menus handled upstream
@@ -139,25 +150,30 @@ function toPageSlugAndHref(tokenOrSlug: string): { slug: string; href: string } 
   if (original.startsWith('http://') || original.startsWith('https://')) {
     return { slug: original, href: original }
   }
-  const raw = stripKnownPrefixes(original)
+  const raw = stripKnownPrefixes(original, configMap)
   if (!raw) return { slug: '', href: '/' }
   return { slug: raw, href: `/${raw}` }
 }
 
 /** Post: slug = "article/TOKEN", href = "/article/TOKEN" (or bare if prefix empty) */
-function toPostSlugAndHref(tokenOrSlug: string): { slug: string; href: string } {
+function toPostSlugAndHref(
+  tokenOrSlug: string,
+  configMap: Record<string, any> = {}
+): { slug: string; href: string } {
   if (String(tokenOrSlug || '').startsWith('http://') || String(tokenOrSlug || '').startsWith('https://')) {
     return { slug: String(tokenOrSlug), href: String(tokenOrSlug) }
   }
-  const token = stripKnownPrefixes(tokenOrSlug)
+  const token = stripKnownPrefixes(tokenOrSlug, configMap)
   if (!token) return { slug: '', href: '#' }
-  const prefix = getPostUrlPrefix()
+  const prefix = getPostUrlPrefix(configMap)
   if (!prefix) return { slug: token, href: `/${token}` }
   const slug = `${prefix}/${token}`
   return { slug, href: `/${slug}` }
 }
 
-export async function loadContentRows(): Promise<ContentRow[]> {
+export async function loadContentRows(
+  configMap: Record<string, any> = {}
+): Promise<ContentRow[]> {
   const tables = await resolveFeishuTables()
   const feishu = siteConfig.feishu as any
   const appToken = tables.contentAppToken || feishu.contentAppToken || feishu.bitableAppToken
@@ -221,12 +237,12 @@ export async function loadContentRows(): Promise<ContentRow[]> {
           finalSlug = customSlug
           href = customSlug
         } else {
-          const path = toPageSlugAndHref(customSlug)
+          const path = toPageSlugAndHref(customSlug, configMap)
           finalSlug = path.slug
           href = path.href
         }
       } else if (docToken) {
-        const path = toPageSlugAndHref(docToken)
+        const path = toPageSlugAndHref(docToken, configMap)
         finalSlug = path.slug
         href = path.href
       } else {
@@ -235,16 +251,18 @@ export async function loadContentRows(): Promise<ContentRow[]> {
         href = '#'
       }
     } else if (type === 'page') {
-      const path = toPageSlugAndHref(customSlug || slug)
+      const path = toPageSlugAndHref(customSlug || slug, configMap)
       finalSlug = path.slug
       href = path.href
     } else if (type === 'notice') {
-      const path = customSlug ? toPageSlugAndHref(customSlug) : toPostSlugAndHref(slug)
+      const path = customSlug
+        ? toPageSlugAndHref(customSlug, configMap)
+        : toPostSlugAndHref(slug, configMap)
       finalSlug = path.slug
       href = path.href
     } else {
       // post
-      const path = toPostSlugAndHref(slug)
+      const path = toPostSlugAndHref(slug, configMap)
       finalSlug = path.slug
       href = path.href
     }
@@ -269,7 +287,10 @@ export async function loadContentRows(): Promise<ContentRow[]> {
   })
 }
 
-export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow[]> {
+export async function resolveDocumentIds(
+  rows: ContentRow[],
+  configMap: Record<string, any> = {}
+): Promise<ContentRow[]> {
   const concurrency = Math.min(6, Math.max(1, rows.length || 1))
   const out: ContentRow[] = new Array(rows.length)
   let cursor = 0
@@ -291,7 +312,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
         if (row.type === 'page') {
           href = `/${stableSlug}`
         } else if (row.type === 'post') {
-          const path = toPostSlugAndHref(stableSlug)
+          const path = toPostSlugAndHref(stableSlug, configMap)
           stableSlug = path.slug
           href = path.href
         } else if (row.type === 'notice') {
@@ -299,7 +320,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
             href = `/${row.customSlug}`
             stableSlug = row.customSlug
           } else {
-            const path = toPostSlugAndHref(stableSlug)
+            const path = toPostSlugAndHref(stableSlug, configMap)
             stableSlug = path.slug
             href = path.href
           }
@@ -339,7 +360,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
       if (row.type === 'page') {
         href = `/${stableSlug}`
       } else if (row.type === 'post') {
-        const path = toPostSlugAndHref(stableSlug)
+        const path = toPostSlugAndHref(stableSlug, configMap)
         stableSlug = path.slug
         href = path.href
       } else if (row.type === 'notice') {
@@ -347,7 +368,7 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
           href = `/${row.customSlug}`
           stableSlug = row.customSlug
         } else {
-          const path = toPostSlugAndHref(stableSlug)
+          const path = toPostSlugAndHref(stableSlug, configMap)
           stableSlug = path.slug
           href = path.href
         }
@@ -378,7 +399,10 @@ export async function resolveDocumentIds(rows: ContentRow[]): Promise<ContentRow
 }
 
 /** Expand category rows: parent wiki children become posts. */
-export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<ContentRow[]> {
+export async function expandCategoryPosts(
+  categoryRows: ContentRow[],
+  configMap: Record<string, any> = {}
+): Promise<ContentRow[]> {
   const posts: ContentRow[] = []
   for (const cat of categoryRows) {
     const token = cat.nodeToken || cat.docToken
@@ -395,7 +419,7 @@ export async function expandCategoryPosts(categoryRows: ContentRow[]): Promise<C
         if (!nodeToken && !documentId) continue
         const title = child.title || '未命名文档'
         const token = nodeToken || documentId!
-        const path = toPostSlugAndHref(token)
+        const path = toPostSlugAndHref(token, configMap)
         posts.push({
           recordId: `cat:${cat.recordId}:${token}`,
           title,
@@ -990,7 +1014,9 @@ async function loadFeishuArticleBodyUncached(opts: {
 function parseConfigValue(raw: string): any {
   const v = (raw ?? '').trim()
   if (v === '') return ''
-  if (v === 'true' || v === 'false') return v === 'true'
+  const lower = v.toLowerCase()
+  if (lower === 'true' || lower === 'yes' || v === '是') return true
+  if (lower === 'false' || lower === 'no' || v === '否') return false
   if (/^-?\d+(\.\d+)?$/.test(v)) {
     const n = Number(v)
     if (Number.isFinite(n) && Math.abs(n) <= Number.MAX_SAFE_INTEGER) return n
@@ -1064,6 +1090,37 @@ const BOOLEAN_FEATURE_KEYS = new Set([
   'EXAMPLE_TITLE_IMAGE',
 ])
 
+/**
+ * These values are needed before the CONFIG table can be discovered, are
+ * credentials, or control deployment infrastructure. Keeping them in the
+ * table creates a misleading second source that cannot take effect.
+ */
+const INFRASTRUCTURE_CONFIG_KEYS = new Set([
+  'CMS_PROVIDER',
+  'ENABLE_CACHE',
+  'REDIS_URL',
+  'REVALIDATION_TOKEN',
+  'FEISHU_APP_ID',
+  'FEISHU_APP_SECRET',
+  'FEISHU_DOMAIN',
+  'FEISHU_SITE_ROOT',
+  'FEISHU_LIST_ROOT',
+  'FEISHU_ROOT_DOCUMENT_ID',
+  'FEISHU_CONTENT_APP_TOKEN',
+  'FEISHU_CONTENT_TABLE_ID',
+  'FEISHU_CONTENT_VIEW_ID',
+  'FEISHU_BITABLE_APP_TOKEN',
+  'FEISHU_BITABLE_TABLE_ID',
+  'FEISHU_BITABLE_VIEW_ID',
+  'FEISHU_CONFIG_APP_TOKEN',
+  'FEISHU_CONFIG_TABLE_ID',
+  'FEISHU_CONFIG_TABLE',
+  'FEISHU_BUILD_LIGHT',
+  'FEISHU_API_CACHE_TTL'
+])
+
+const warnedIgnoredConfigKeys = new Set<string>()
+
 function isBooleanConfigValue(parsed: unknown, valueRaw: string, key: string): boolean {
   if (typeof parsed === 'boolean') return true
   if (BOOLEAN_FEATURE_KEYS.has(key)) return true
@@ -1115,6 +1172,15 @@ export async function loadConfigMap(): Promise<Record<string, any>> {
       )
       const enabledRaw = fields['启用'] ?? fields['enable'] ?? fields['Enable']
       const enabled = isConfigRowEnabled(enabledRaw)
+      if (INFRASTRUCTURE_CONFIG_KEYS.has(key)) {
+        if (enabled && !warnedIgnoredConfigKeys.has(key)) {
+          warnedIgnoredConfigKeys.add(key)
+          console.warn(
+            `[feishu] CONFIG row "${key}" is ignored; move it to deployment environment settings.`
+          )
+        }
+        continue
+      }
       let parsed = parseConfigValue(valueRaw)
 
       // Feature flags / CUSTOM_MENU: empty 配置值 + 启用 = treat as true (on)
