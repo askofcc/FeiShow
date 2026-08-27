@@ -113,6 +113,8 @@ export const THEME_SWITCH_MANIFEST = {
   opc: {
     name: 'Opc',
     summary: '一人公司 AI 任务流水线入口，聚焦项目、产物和验收结果。',
+    cover: '/images/themes-preview/opc.svg',
+    coverWebp: '',
     settings: [
       { key: 'OPC_NAME', label: '顶部名称', type: 'text', defaultValue: 'Tangly · 个人公司' },
       { key: 'OPC_KICKER', label: '首屏标签', type: 'text', defaultValue: '一人公司 / 独立开发者' },

@@ -171,7 +171,8 @@ function ThemeConsole ({ meta, onClose }) {
     document.getElementById(rootId) || document.documentElement
 
   useEffect(() => {
-    if (!declaredPalette.length) {
+    const nextPalette = meta.palette || EMPTY_CONSOLE_ITEMS
+    if (!nextPalette.length) {
       setPalette([])
       return
     }
@@ -180,14 +181,14 @@ function ThemeConsole ({ meta, onClose }) {
       document.documentElement
     const styles = getComputedStyle(root)
     const nextValues = {}
-    declaredPalette.forEach(item => {
+    nextPalette.forEach(item => {
       nextValues[item.key] =
         styles.getPropertyValue(item.cssVar).trim() || item.defaultValue
       writePreviewColor(root, item, nextValues[item.key])
     })
-    setPalette(declaredPalette)
+    setPalette(nextPalette)
     setValues(nextValues)
-  }, [meta.id, meta.rootId, declaredPalette, writePreviewColor])
+  }, [meta.id, meta.rootId, meta.palette, writePreviewColor])
 
   useEffect(() => () => window.clearTimeout(noticeTimerRef.current), [])
 
@@ -582,6 +583,7 @@ const ThemeSwitch = () => {
   }
 
   const changeTheme = newTheme => {
+    setSideBarVisible(false)
     const query = router.query
     query.theme = newTheme
     router.push({ pathname: router.pathname, query }).then(() => {})
@@ -644,6 +646,7 @@ const ThemeSwitch = () => {
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-950'
               }`}
               onClick={() => {
+                setSideBarVisible(false)
                 setConsoleVisible(visible => !visible)
               }}
               title='配置主题'

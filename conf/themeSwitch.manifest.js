@@ -15,14 +15,9 @@ import {
   ACTIVE_THEME_COLOR_OVERRIDES,
   ACTIVE_THEME_CONFIG,
   ACTIVE_THEME_CONFIG_DEFAULTS,
-  ACTIVE_THEME_SWITCH_ROW
+  ACTIVE_THEME_SWITCH_ROW,
+  THEME_SWITCH_MANIFEST
 } from '@/themes/active-theme'
-
-// Build-time data contains only the CONFIG-selected theme.
-const THEME_SWITCH_MANIFEST = {
-  [ACTIVE_THEME]: ACTIVE_THEME_SWITCH_ROW
-}
-
 
 // The generated module is the compile-time theme boundary.
 const THEME_CONFIGS = {

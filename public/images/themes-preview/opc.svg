@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">OPC theme preview</title>
+  <desc id="desc">One-person company AI production pipeline</desc>
+  <rect width="640" height="360" fill="#101010"/>
+  <path d="M0 286h640v74H0z" fill="#f3f0e8"/>
+  <circle cx="512" cy="112" r="74" fill="#f3f0e8"/>
+  <circle cx="512" cy="112" r="45" fill="#101010"/>
+  <path d="M48 68h188v10H48zm0 22h132v6H48z" fill="#f3f0e8"/>
+  <text x="48" y="194" fill="#f3f0e8" font-family="Arial,sans-serif" font-size="66" font-weight="700" letter-spacing="4">OPC</text>
+  <text x="48" y="232" fill="#b6b0a4" font-family="Arial,sans-serif" font-size="16" letter-spacing="3">ONE PERSON COMPANY</text>
+  <path d="M48 314h140M208 314h96M320 314h170" stroke="#101010" stroke-width="4"/>
+</svg>

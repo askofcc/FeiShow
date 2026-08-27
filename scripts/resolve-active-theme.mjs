@@ -76,7 +76,7 @@ function fallbackTheme() {
   )
 }
 
-function readThemeSwitchRow(theme) {
+function readThemeSwitchManifest() {
   const manifestPath = path.join(projectRoot, 'conf', 'themeSwitch.manifest.data.js')
   const source = fs.readFileSync(manifestPath, 'utf8')
   const startMarker = 'export const THEME_SWITCH_MANIFEST = '
@@ -128,8 +128,7 @@ function readThemeSwitchRow(theme) {
     if (char === '{') depth += 1
     if (char === '}' && --depth === 0) {
       const expression = source.slice(openBrace, index + 1)
-      const manifest = new vm.Script(`(${expression})`).runInThisContext()
-      return manifest[theme] || {}
+      return new vm.Script(`(${expression})`).runInThisContext()
     }
   }
   throw new Error('Unterminated THEME_SWITCH_MANIFEST literal')
@@ -188,7 +187,8 @@ function readThemeConfigDefaults(theme) {
 
 function writeActiveTheme(theme, source, { themeSwitchEnabled = false } = {}) {
   const safeTheme = String(theme).replace(/[^\w.-]/g, '')
-  const switchRow = readThemeSwitchRow(safeTheme)
+  const switchManifest = readThemeSwitchManifest()
+  const switchRow = switchManifest[safeTheme] || {}
   const configDefaults = readThemeConfigDefaults(safeTheme)
   const paletteSource = fs.readFileSync(path.join(projectRoot, 'conf', 'themeColorPalette.js'), 'utf8')
   const colorOverrides = evaluateObjectAssignment(paletteSource, 'THEME_COLOR_DEFAULTS')[safeTheme] || {}
@@ -208,6 +208,7 @@ export const SWITCHABLE_THEMES = ${JSON.stringify(uniqueSwitchableThemes)}
 
 export { default as ACTIVE_THEME_CONFIG } from '@/themes/${safeTheme}/config'
 
+export const THEME_SWITCH_MANIFEST = ${JSON.stringify(themeSwitchEnabled ? switchManifest : { [safeTheme]: switchRow }, null, 2)}
 export const ACTIVE_THEME_SWITCH_ROW = ${JSON.stringify(switchRow, null, 2)}
 export const ACTIVE_THEME_CONFIG_DEFAULTS = ${JSON.stringify(configDefaults, null, 2)}
 export const ACTIVE_THEME_COLOR_OVERRIDES = ${JSON.stringify(colorOverrides, null, 2)}
