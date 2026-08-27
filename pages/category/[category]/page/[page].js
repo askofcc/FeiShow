@@ -1,6 +1,10 @@
 import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
-import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
+import {
+  cleanPostSummaries,
+  enrichListPosts,
+  fetchGlobalAllData
+} from '@/lib/db/SiteDataApi'
 import { skipBuildPrerender } from '@/lib/build/staticPaths'
 import { DynamicLayout } from '@/themes/theme'
 
@@ -31,6 +35,11 @@ export async function getStaticProps({ params: { category, page } }) {
     POSTS_PER_PAGE * (page - 1),
     POSTS_PER_PAGE * page
   )
+
+  await enrichListPosts(props.posts, props?.NOTION_CONFIG)
+  if (!siteConfig('POST_LIST_PREVIEW', false, props?.NOTION_CONFIG)) {
+    props.posts = cleanPostSummaries(props.posts)
+  }
 
   delete props.allPages
   props.page = page
