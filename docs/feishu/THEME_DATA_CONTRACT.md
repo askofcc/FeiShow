@@ -450,7 +450,6 @@ props.notice // BasePage | null
 | 结构化后 | `SiteData` / `BasePage` / `FeishuPageContent` | adapter + 渲染器 |
 | 主题运行时 | props 上的 SiteData 字段 + post | **只允许主题碰这一层** |
 
-项目灵魂（为什么要结构化）：`PROJECT_SOUL.md`。
 
 ---
 
@@ -481,7 +480,6 @@ props.notice // BasePage | null
 | `components/feishu/FeishuRenderer.tsx` | blocks 渲染 |
 | `lib/config.js` | `siteConfig()` |
 | `themes/example/` | 参考主题 |
-| `PROJECT_SOUL.md` | 为什么要结构化 |
 | `STABLE_FEISHU_DATA.md` | OpenAPI 稳定路径 |
 | `FEISHU_DOCUMENT_CONTRACT.md` | 单篇文档字段 |
 | `FEISHU_CONTENT_TABLE_CONTRACT.md` | 内容表类型 |

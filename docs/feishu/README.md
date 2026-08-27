@@ -17,4 +17,3 @@
 | [META_AND_SUMMARY.md](./META_AND_SUMMARY.md) | meta / 摘要 |
 | [samples/](./samples/) | 样本 |
 
-为什么做、下一步 → [../internal/](../internal/)

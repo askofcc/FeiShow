@@ -64,3 +64,6 @@ webpack-internal:/
 
 .env.docker.local
 .env*
+
+# internal docs
+docs/internal/

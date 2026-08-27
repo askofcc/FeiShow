@@ -289,7 +289,7 @@ NotionNext 的 `pageIcon` 在飞书侧应视为**可选增强**，无则空。
 |---|---|---|
 | `link_share_entity` | 链接分享：`closed` / `tenant_readable` / `tenant_editable` / `anyone_readable` / `anyone_editable` | 是否「互联网可阅读」的配置态 |
 | `security_entity` | 谁可复制/建副本/打印/下载：`anyone_can_view` / `anyone_can_edit` / `only_full_access` | **复制/下载限制**（见下） |
-| `comment_entity` | 谁可评论 | 独立站通常不管飞书评论 |
+| `comment_entity` | 谁可评论：`anyone_can_view` / `anyone_can_edit` / `only_full_access` | **评论组件开关联动**（见下） |
 | `share_entity` | 谁可管协作者 | 管理态，站点不管 |
 | `external_access` | 是否允许分享到组织外 | 背景信息 |
 | `lock_switch` | 是否锁节点、不继承父权限 | 子树权限是否独立 |
@@ -300,24 +300,38 @@ NotionNext 的 `pageIcon` 在飞书侧应视为**可选增强**，无则空。
 - wiki node_token → `type=wiki`  
 混用会 `1063001 Invalid parameter`（已实测）。
 
-### 5.3 「密码」在 OpenAPI 里意味着什么
+### 5.3 「密码」与访问控制机制
 
 - 用户在飞书 UI 可对文档设访问密码 / 加密分享。  
 - **开放平台没有稳定的「password 字段读出来再在站点校验」的主路径。**  
 - 应用侧表现通常是：**无权限 → 拉 meta/blocks 失败（403 / permission denied）**。  
 - FeiShow 策略：  
-  - 不实现 Notion 式「输入 123456 解锁」伪密码字段；  
-  - **把飞书权限失败映射为页面级 `accessError` / PostLock**；  
-  - 要阅读：把应用加成文档协作者，或文档对应用可见。
+  - **飞书权限失败**：映射为页面级 `accessError` / PostLock 阻断页，提示“该文档为受限内容，需联系作者授权”；  
+  - **站点级密码扩展**：若站长需在公开站层面对单篇文章加密，可通过多维表格内容表 `password` 列实现解锁校验。
 
-### 5.4 「复制」
+### 5.4 「复制与防下载」联动机制
 
-- 由 `security_entity` 控制「谁可以复制内容/创建副本」。  
-- 独立站是**自己渲染 HTML**，不经过飞书复制按钮。  
-- 站点若要尊重「禁止复制」：可读 `permission_public.security_entity`，在前端禁用选中/复制（体验增强，非安全边界）。  
-- **不要**指望靠飞书设置阻止用户对公开网页的复制。
+- 由 `security_entity` 控制「谁可以复制内容/创建副本/下载」。  
+- 站点尊重防扩散设置策略：
+  - 当 `security_entity` 为非公开（如 `only_full_access` 或 `tenant_readable`）时，前端渲染自动注入内容保护策略；
+  - 样式层应用 `user-select: none`，禁用右键上下文菜单及复制快捷键；
+  - 隐藏图片与附件素材的直接下载入口。
 
-### 5.5 应用调用前提（每次必满足）
+### 5.5 「评论」开关联动机制
+
+- 飞书侧由 `comment_entity` 及 `display_setting.show_comment_count` 表达评论意图。  
+- 站点联动策略：
+  - 当飞书文档关闭评论（如 `comment_entity=only_full_access` 或 `display_setting` 关闭）时，FeiShow 自动隐藏或停用该文章底部的第三方评论插件（Waline / Twikoo / Giscus 等），显示“作者已关闭评论”；
+  - 当飞书允许评论时，正常激活评论组件。
+
+### 5.6 「水印与展示元信息」联动
+
+- 飞书侧通过 `display_setting`（`show_authors`、`show_create_time`）及租户安全水印策略控制呈现。  
+- 站点联动策略：
+  - 前端根据飞书布尔值动态渲染头部作者卡片与时间戳；
+  - 针对开启防泄密水印的文档，前端渲染层同步叠加轻量背景防盗水印。
+
+### 5.7 应用调用前提（每次必满足）
 
 1. 应用开通 scope：`docx:document:readonly`（或更广）、需要 wiki 时 `wiki:wiki:readonly`、素材 `docs:document.media:download` 等。  
 2. **资源级授权**：文档/知识库把应用加为可读（「添加文档应用」或知识库成员）。  
@@ -463,10 +477,11 @@ type FeishuArticle = {
 
 ---
 
-## 12. 下一步（你指定的顺序）
+## 12. 下一步与演进路线
 
-1. ✅ **本文：文档调用契约**  
-2. ⏭ **下一篇：多维表格作配置源**（对照 NotionNext 配置中心逻辑，只谈读配置，不谈展示）
+1. ✅ **文档调用契约与基础权限识别**（已固化）  
+2. ✅ **多维表格配置中心**（见 [FEISHU_BITABLE_CONFIG_CONTRACT.md](./FEISHU_BITABLE_CONFIG_CONTRACT.md)）  
+3. ⏭ **飞书安全与权限映射深化**（密码访问阻断 / 内容防复制 / 评论开关联动 / 安全水印）
 
 多维表格文档未写之前，**不要**把站点配置绑死在某张表字段上。
 
