@@ -27,6 +27,7 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "type-check": "node scripts/resolve-active-theme.mjs && tsc --noEmit",
+    "pretest": "node scripts/resolve-active-theme.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "deps:install": "yarn install --frozen-lockfile",

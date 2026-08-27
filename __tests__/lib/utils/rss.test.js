@@ -45,6 +45,7 @@ jest.mock('@/lib/utils/notion.util', () => ({
 describe('generateRss', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    process.env.CMS_PROVIDER = 'notion'
     jest.spyOn(fs, 'statSync').mockImplementation(() => {
       throw new Error('ENOENT')
     })
@@ -53,6 +54,7 @@ describe('generateRss', () => {
   })
 
   afterEach(() => {
+    delete process.env.CMS_PROVIDER
     jest.restoreAllMocks()
   })
 
