@@ -2,7 +2,7 @@
 
 > **目标：** 让「新开一套主题」时，明确知道：数据从哪来 → 被处理成什么样 → 主题里怎么用。  
 > **场景：** `CMS_PROVIDER=feishu`（飞书驱动）。主题只消费**处理后的结构**，不要直接打飞书 OpenAPI。  
-> **主工程：** `notionnext-feishu`  
+> **主工程：** `FeiShow`
 > 日期：2026-07-25
 
 ---
@@ -492,7 +492,7 @@ props.notice // BasePage | null
 ## 8. 给 AI 的提示词模板（可直接贴）
 
 ```text
-在 notionnext-feishu 仓库新增主题 themes/<name>。
+在 FeiShow 仓库新增主题 themes/<name>。
 约束：
 1. CMS_PROVIDER=feishu；禁止主题内请求飞书 API。
 2. 数据只使用 props：posts/latestPosts、post、customMenu、

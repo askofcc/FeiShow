@@ -15,14 +15,16 @@ import {
   ACTIVE_THEME_COLOR_OVERRIDES,
   ACTIVE_THEME_CONFIG,
   ACTIVE_THEME_CONFIG_DEFAULTS,
+  ALL_THEME_CONFIG_DEFAULTS,
   ACTIVE_THEME_SWITCH_ROW,
   THEME_SWITCH_MANIFEST
 } from '@/themes/active-theme'
 
-// The generated module is the compile-time theme boundary.
-const THEME_CONFIGS = {
-  [ACTIVE_THEME]: ACTIVE_THEME_CONFIG
-}
+// In theme-switch mode, all switchable themes' config defaults are available;
+// otherwise fall back to the active theme's compiled config object.
+const THEME_CONFIGS = typeof ALL_THEME_CONFIG_DEFAULTS === 'object' && ALL_THEME_CONFIG_DEFAULTS !== null
+  ? ALL_THEME_CONFIG_DEFAULTS
+  : { [ACTIVE_THEME]: ACTIVE_THEME_CONFIG }
 
 function withActiveThemePalette(palette = []) {
   const existing = new Set(palette.map(item => item.key))

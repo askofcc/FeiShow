@@ -180,9 +180,7 @@ function readThemeConfigDefaults(theme) {
   const configPath = path.join(themeRoot, theme, 'config.js')
   if (!fs.existsSync(configPath)) return {}
   const configSource = fs.readFileSync(configPath, 'utf8')
-  const match = configSource.match(/(?:const|let|var)\s+CONFIG\s*=\s*([\s\S]*?)\n\s*export\s+default\s+CONFIG/)
-  if (!match) return {}
-  return new vm.Script(`(${match[1]})`).runInThisContext()
+  return evaluateObjectAssignment(configSource, 'CONFIG')
 }
 
 function writeActiveTheme(theme, source, { themeSwitchEnabled = false } = {}) {
@@ -196,6 +194,10 @@ function writeActiveTheme(theme, source, { themeSwitchEnabled = false } = {}) {
     ? availableThemes().filter(validTheme)
     : [safeTheme]
   const uniqueSwitchableThemes = [...new Set([safeTheme, ...switchableThemes])]
+  const allConfigDefaults = {}
+  for (const t of uniqueSwitchableThemes) {
+    allConfigDefaults[t] = readThemeConfigDefaults(t)
+  }
   const loaderEntries = uniqueSwitchableThemes
     .map(item => `  '${item}': () => import('@/themes/${item}')`)
     .join(',\n')
@@ -211,6 +213,7 @@ export { default as ACTIVE_THEME_CONFIG } from '@/themes/${safeTheme}/config'
 export const THEME_SWITCH_MANIFEST = ${JSON.stringify(themeSwitchEnabled ? switchManifest : { [safeTheme]: switchRow }, null, 2)}
 export const ACTIVE_THEME_SWITCH_ROW = ${JSON.stringify(switchRow, null, 2)}
 export const ACTIVE_THEME_CONFIG_DEFAULTS = ${JSON.stringify(configDefaults, null, 2)}
+export const ALL_THEME_CONFIG_DEFAULTS = ${JSON.stringify(allConfigDefaults, null, 2)}
 export const ACTIVE_THEME_COLOR_OVERRIDES = ${JSON.stringify(colorOverrides, null, 2)}
 
 const THEME_MODULE_LOADERS = {

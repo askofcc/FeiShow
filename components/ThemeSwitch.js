@@ -174,20 +174,22 @@ function ThemeConsole ({ meta, onClose }) {
     const nextPalette = meta.palette || EMPTY_CONSOLE_ITEMS
     if (!nextPalette.length) {
       setPalette([])
-      return
+      setValues({})
+    } else {
+      const root =
+        document.getElementById(meta.rootId || `theme-${meta.id}`) ||
+        document.documentElement
+      const styles = getComputedStyle(root)
+      const nextValues = {}
+      nextPalette.forEach(item => {
+        nextValues[item.key] =
+          styles.getPropertyValue(item.cssVar).trim() || item.defaultValue
+        writePreviewColor(root, item, nextValues[item.key])
+      })
+      setPalette(nextPalette)
+      setValues(nextValues)
     }
-    const root =
-      document.getElementById(meta.rootId || `theme-${meta.id}`) ||
-      document.documentElement
-    const styles = getComputedStyle(root)
-    const nextValues = {}
-    nextPalette.forEach(item => {
-      nextValues[item.key] =
-        styles.getPropertyValue(item.cssVar).trim() || item.defaultValue
-      writePreviewColor(root, item, nextValues[item.key])
-    })
-    setPalette(nextPalette)
-    setValues(nextValues)
+    setSettingValues({})
   }, [meta.id, meta.rootId, meta.palette, writePreviewColor])
 
   useEffect(() => () => window.clearTimeout(noticeTimerRef.current), [])

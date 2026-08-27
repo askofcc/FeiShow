@@ -471,4 +471,4 @@ type FeishuArticle = {
 多维表格文档未写之前，**不要**把站点配置绑死在某张表字段上。
 
 
-相关：多维表格配置中心见 [docs/FEISHU_BITABLE_CONFIG_CONTRACT.md](docs/FEISHU_BITABLE_CONFIG_CONTRACT.md)。
+相关：多维表格配置中心见 [FEISHU_BITABLE_CONFIG_CONTRACT.md](./FEISHU_BITABLE_CONFIG_CONTRACT.md)。
