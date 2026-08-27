@@ -28,3 +28,9 @@ LICENSE
 NOTICE
 tsconfig.tsbuildinfo
 .DS_Store
+
+# Editor / local noise
+coverage
+.vscode
+.idea
+*.log

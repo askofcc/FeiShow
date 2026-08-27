@@ -1,22 +1,19 @@
-import { getTenantAccessToken } from "./auth";
-import siteConfig from "@/lib/feishu/config";
+import { feishuFetch } from "./client";
+import { memoAsync } from "./memo";
 import type { FeishuPageContent } from "@/lib/feishu/types";
 
 async function feishuJson(path: string, init?: RequestInit): Promise<any> {
-  const token = await getTenantAccessToken();
-  const res = await fetch(`${siteConfig.feishu.domain}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      ...(init?.headers || {}),
-    },
-    cache: "no-store",
+  const body = typeof init?.body === "string" ? init.body : "";
+  return memoAsync("embed-meta", `${path}:${body}`, async () => {
+    try {
+      return await feishuFetch(path, {
+        ...init,
+        cache: "no-store",
+      });
+    } catch {
+      return null;
+    }
   });
-  if (!res.ok) return null;
-  const data = await res.json();
-  if (data.code !== 0) return null;
-  return data.data;
 }
 
 function cellText(value: unknown): string {
@@ -59,12 +56,15 @@ export async function enrichEmbedMetadata(content: FeishuPageContent): Promise<F
           if (meta?.app?.name) block.embed.title = meta.app.name;
 
           if (tableId) {
+            const viewQs = block.embed.viewId
+              ? `&view_id=${encodeURIComponent(block.embed.viewId)}`
+              : "";
             const [fieldsData, recordsData] = await Promise.all([
               feishuJson(
                 `/open-apis/bitable/v1/apps/${encodeURIComponent(appToken)}/tables/${encodeURIComponent(tableId)}/fields?page_size=20`,
               ),
               feishuJson(
-                `/open-apis/bitable/v1/apps/${encodeURIComponent(appToken)}/tables/${encodeURIComponent(tableId)}/records?page_size=5`,
+                `/open-apis/bitable/v1/apps/${encodeURIComponent(appToken)}/tables/${encodeURIComponent(tableId)}/records?page_size=5${viewQs}`,
               ),
             ]);
             const headers = (fieldsData?.items || [])
@@ -95,9 +95,13 @@ export async function enrichEmbedMetadata(content: FeishuPageContent): Promise<F
               .map((row) => (row || []).slice(0, 6).map((c) => cellText(c)))
               .filter((row) => row.some((c) => c.trim()));
             if (trimmed.length) {
-              const headers = trimmed[0];
-              const rows = trimmed.slice(1, 6);
-              block.embed.preview = { headers, rows };
+              // First row is only a header row when more data follows; a
+              // single-row sheet is rendered as one data row (headers = []).
+              if (trimmed.length > 1) {
+                block.embed.preview = { headers: trimmed[0], rows: trimmed.slice(1, 6) };
+              } else {
+                block.embed.preview = { headers: [], rows: trimmed };
+              }
             }
           }
 

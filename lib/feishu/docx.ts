@@ -72,6 +72,10 @@ export type FeishuRawBlock = {
   board?: { token?: string; align?: number };
   sheet?: { token?: string };
   bitable?: { token?: string };
+  grid?: { column_size?: number };
+  grid_column?: { width_ratio?: number };
+  /** Official block_type 53: embedded bitable view (reference_base). */
+  reference_base?: { token?: string; view_id?: string; layout_mode?: string };
   sub_page_list?: { wiki_token?: string };
   add_ons?: {
     component_id?: string;
@@ -196,8 +200,20 @@ export async function listDocumentBlocksFirstPage(
   documentId: string,
   pageSize = 40,
 ): Promise<FeishuRawBlock[]> {
+  const normalizedPageSize = Math.min(Math.max(pageSize, 1), 500)
+  return memoAsync(
+    "docx-blocks-first-page",
+    `${documentId}:${normalizedPageSize}`,
+    () => listDocumentBlocksFirstPageUncached(documentId, normalizedPageSize),
+  )
+}
+
+async function listDocumentBlocksFirstPageUncached(
+  documentId: string,
+  pageSize: number,
+): Promise<FeishuRawBlock[]> {
   const qs = new URLSearchParams({
-    page_size: String(Math.min(Math.max(pageSize, 1), 500)),
+    page_size: String(pageSize),
     document_revision_id: "-1",
   });
   try {
@@ -216,4 +232,3 @@ export async function listDocumentBlocksFirstPage(
     throw new Error(`Feishu document blocks (first page) failed for ${documentId}`);
   }
 }
-

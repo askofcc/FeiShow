@@ -1,6 +1,7 @@
 import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
+import { skipBuildPrerender } from '@/lib/build/staticPaths'
 import { DynamicLayout } from '@/themes/theme'
 
 /**
@@ -49,6 +50,10 @@ export async function getStaticProps({ params: { category, page } }) {
 }
 
 export async function getStaticPaths() {
+  if (skipBuildPrerender()) {
+    return { paths: [], fallback: true }
+  }
+
   const from = 'category-paths'
   const { categoryOptions, allPages, NOTION_CONFIG } = await fetchGlobalAllData({
     from

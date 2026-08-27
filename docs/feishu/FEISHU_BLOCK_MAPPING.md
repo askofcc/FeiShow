@@ -55,6 +55,8 @@
 | 43 | Board | `unknown` | 占位 | ⏳ 延后 |
 | 44–47 | Agenda 系列 | `unknown` | 占位 | ⏳ 延后 |
 | 48 | LinkPreview | `bookmark` | 书签/链接预览卡片 | ✅ v1 简版 |
+| 53 | ReferenceBase | `feishu_embed` (bitable) | 文档内嵌多维表：标题 + 前几行预览 | ✅ |
+| 999 | Undefined / 占位 | `feishu_embed` (chart) | 仪表盘图、任务清单等：可见占位卡，不再静默丢弃 | ✅ |
 
 > **注意**：早期草稿里曾把 `23→image`、`24→table`、`26→callout` 等写错。
 > 以本表与 `normalize.ts` 的 `BLOCK_TYPE_MAP` 为准（`27=image`、`31=table`、`19=callout`、`22=divider`）。

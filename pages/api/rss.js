@@ -2,7 +2,10 @@ import BLOG from '@/blog.config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
 import { generateRss, shouldGenerateRssForLocale } from '@/lib/utils/rss'
 import { Feed } from 'feed'
-import { resolvePublicSiteLink } from '@/lib/utils/publicSiteLink'
+import {
+  buildPublicUrl,
+  resolvePublicSiteLink
+} from '@/lib/utils/publicSiteLink'
 
 /**
  * In-memory RSS cache to avoid regenerating on every request.
@@ -21,7 +24,7 @@ const CACHE_TTL_MS = 10 * 60 * 1000 // 10 minutes
 function isCacheFresh(link) {
   return (
     rssCache.xml &&
-    rssCache.link === link &&
+    (!link || rssCache.link === link) &&
     Date.now() - rssCache.updatedAt < CACHE_TTL_MS
   )
 }
@@ -86,9 +89,10 @@ async function generateRssContent(req) {
   })
 
   for (const post of latestPosts) {
+    const postHref = post.href || (post.slug ? `/${post.slug}` : '/')
     feed.addItem({
       title: post.title,
-      link: `${LINK}/${post.slug}`,
+      link: buildPublicUrl(LINK, postHref),
       description: post.summary || '',
       date: new Date(post?.publishDay || post?.publishDate || Date.now())
     })
@@ -97,7 +101,8 @@ async function generateRssContent(req) {
   return {
     xml: feed.rss2(),
     atomXml: feed.atom1(),
-    json: feed.json1()
+    json: feed.json1(),
+    link: LINK
   }
 }
 
@@ -107,16 +112,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const previewLink = resolvePublicSiteLink({
-      req,
-      candidates: [BLOG.LINK, process.env.NEXT_PUBLIC_LINK]
-    })
-    if (!isCacheFresh(previewLink)) {
+    const requestOrigin = resolvePublicSiteLink({ req })
+    if (!isCacheFresh(requestOrigin)) {
       const content = await generateRssContent(req)
       if (content) {
         rssCache = {
           ...content,
-          link: previewLink,
           updatedAt: Date.now()
         }
       }

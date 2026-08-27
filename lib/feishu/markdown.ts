@@ -8,6 +8,10 @@ export type MarkdownOptions = {
 
 function resolveUrl(url: string | undefined, assetBase?: string): string {
   if (!url) return "";
+  const clean = url.trim().toLowerCase();
+  if (clean.startsWith("javascript:") || clean.startsWith("data:") || clean.startsWith("vbscript:")) {
+    return "";
+  }
   if (!assetBase) return url;
   if (/^https?:\/\//i.test(url)) return url;
   return absoluteUrl(url, assetBase);
@@ -29,8 +33,10 @@ function runsToMarkdown(runs?: TextRun[], assetBase?: string): string {
       }
       if (style.link) {
         const href = resolveUrl(style.link, assetBase);
-        const label = text || href;
-        text = `[${label}](${href})`;
+        if (href) {
+          const label = text || href;
+          text = `[${label}](${href})`;
+        }
       }
       return text;
     })
@@ -111,7 +117,9 @@ function renderChildren(
   blockMap: Record<string, FeishuBlock>,
   indent: number,
   assetBase?: string,
+  depth = 0,
 ): string {
+  if (depth > 25) return "";
   const chunks: string[] = [];
   let i = 0;
   while (i < blocks.length) {
@@ -135,13 +143,13 @@ function renderChildren(
         chunks.push(`${prefix}${runsToMarkdown(item.text, assetBase)}`.trimEnd());
         const nested = childBlocks(item.children, blockMap, { excludeTableCell: true });
         if (nested.length) {
-          chunks.push(renderChildren(nested, blockMap, indent + 1, assetBase));
+          chunks.push(renderChildren(nested, blockMap, indent + 1, assetBase, depth + 1));
         }
       });
       chunks.push("");
       continue;
     }
-    chunks.push(renderBlock(current, blockMap, indent, assetBase));
+    chunks.push(renderBlock(current, blockMap, indent, assetBase, depth));
     i += 1;
   }
   return chunks.filter((chunk) => chunk != null && chunk !== "").join("\n");
@@ -152,13 +160,15 @@ function renderBlock(
   blockMap: Record<string, FeishuBlock>,
   indent: number,
   assetBase?: string,
+  depth = 0,
 ): string {
+  if (depth > 25) return "";
   const children = childBlocks(block.children, blockMap, { excludeTableCell: true });
   const inline = runsToMarkdown(block.text, assetBase);
 
   switch (block.type) {
     case "page":
-      return renderChildren(children, blockMap, indent, assetBase);
+      return renderChildren(children, blockMap, indent, assetBase, depth + 1);
     case "heading1":
       return inline ? `# ${inline}\n` : "";
     case "heading2":
@@ -173,19 +183,19 @@ function renderBlock(
       return inline ? `###### ${inline}\n` : "";
     case "paragraph":
       if (!inline && !children.length) return "";
-      return [inline, children.length ? renderChildren(children, blockMap, indent, assetBase) : ""]
+      return [inline, children.length ? renderChildren(children, blockMap, indent, assetBase, depth + 1) : ""]
         .filter(Boolean)
         .join("\n") + "\n";
     case "todo": {
       const box = block.checked ? "- [x]" : "- [ ]";
       const nested = children.length
-        ? `\n${renderChildren(children, blockMap, indent + 1, assetBase)}`
+        ? `\n${renderChildren(children, blockMap, indent + 1, assetBase, depth + 1)}`
         : "";
       return `${"  ".repeat(indent)}${box} ${inline}${nested}\n`;
     }
     case "quote":
     case "quote_container": {
-      const body = [inline, children.length ? renderChildren(children, blockMap, 0, assetBase) : ""]
+      const body = [inline, children.length ? renderChildren(children, blockMap, 0, assetBase, depth + 1) : ""]
         .filter(Boolean)
         .join("\n");
       if (!body) return "";
@@ -196,7 +206,7 @@ function renderBlock(
     }
     case "callout": {
       const emoji = block.callout?.emoji ? `${block.callout.emoji} ` : "";
-      const body = [emoji + inline, children.length ? renderChildren(children, blockMap, 0, assetBase) : ""]
+      const body = [emoji + inline, children.length ? renderChildren(children, blockMap, 0, assetBase, depth + 1) : ""]
         .filter(Boolean)
         .join("\n");
       if (!body) return "";
@@ -224,7 +234,7 @@ function renderBlock(
       return `${tableMarkdown(block, blockMap, assetBase)}\n`;
     case "grid":
     case "grid_column":
-      return renderChildren(children, blockMap, indent, assetBase);
+      return renderChildren(children, blockMap, indent, assetBase, depth + 1);
     case "feishu_embed": {
       const title = block.embed?.title || "嵌入内容";
       const preview = previewTable(block.embed?.preview);

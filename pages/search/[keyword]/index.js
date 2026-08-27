@@ -27,6 +27,7 @@ export async function getStaticProps({ params: { keyword }, locale }) {
   )
   props.posts = await filterByMemCache(allPosts, keyword)
   props.postCount = props.posts.length
+  delete props.allPages
   const POST_LIST_STYLE = siteConfig(
     'POST_LIST_STYLE',
     'Page',
@@ -55,7 +56,7 @@ export async function getStaticProps({ params: { keyword }, locale }) {
 
 export function getStaticPaths() {
   return {
-    paths: [{ params: { keyword: 'NotionNext' } }],
+    paths: [],
     fallback: true
   }
 }
@@ -68,37 +69,65 @@ export function getStaticPaths() {
  */
 async function filterByMemCache(allPosts, keyword) {
   const filterPosts = []
+  if (!allPosts || !Array.isArray(allPosts)) {
+    return filterPosts
+  }
   if (keyword) {
     keyword = keyword.trim().toLowerCase()
+  }
+  if (!keyword) {
+    return allPosts
   }
   for (const post of allPosts) {
     const cacheKey = getPageBlockCacheKey(post.id, post.lastEditedDate)
     const page = await getDataFromCache(cacheKey, true)
-    const tagContent =
-      post?.tags && Array.isArray(post?.tags) ? post?.tags.join(' ') : ''
-    const categoryContent =
-      post.category && Array.isArray(post.category)
+    const tagContent = post?.tags
+      ? Array.isArray(post.tags)
+        ? post.tags.join(' ')
+        : String(post.tags)
+      : ''
+    const categoryContent = post?.category
+      ? Array.isArray(post.category)
         ? post.category.join(' ')
-        : ''
-    const articleInfo = post.title + post.summary + tagContent + categoryContent
+        : String(post.category)
+      : ''
+    const articleInfo =
+      (post.title || '') +
+      (post.summary || '') +
+      tagContent +
+      categoryContent
     let hit = articleInfo.toLowerCase().indexOf(keyword) > -1
-    const contentTextList = getPageContentText(post, page)
-    // console.log('全文搜索缓存', cacheKey, page != null)
+    const contentText = getPageContentText(post, page)
+    const contentChunks = Array.isArray(contentText)
+      ? contentText
+      : typeof contentText === 'string' && contentText.length > 0
+        ? [contentText]
+        : []
+    if (post.summary && !contentChunks.includes(post.summary)) {
+      contentChunks.unshift(post.summary)
+    }
+
     post.results = []
     let hitCount = 0
-    for (const i of contentTextList) {
-      const c = contentTextList[i]
-      if (!c) {
+    for (let i = 0; i < contentChunks.length; i++) {
+      const c = contentChunks[i]
+      if (!c || typeof c !== 'string') {
         continue
       }
       const index = c.toLowerCase().indexOf(keyword)
       if (index > -1) {
         hit = true
         hitCount += 1
-        post.results.push(c)
+        const start = Math.max(0, index - 40)
+        const end = Math.min(c.length, index + keyword.length + 60)
+        const snippet =
+          (start > 0 ? '...' : '') +
+          c.slice(start, end) +
+          (end < c.length ? '...' : '')
+        post.results.push(snippet)
       } else {
-        if ((post.results.length - 1) / hitCount < 3 || i === 0) {
-          post.results.push(c)
+        if (hitCount > 0 && ((post.results.length - 1) / hitCount < 3 || i === 0)) {
+          post.results.push(c.slice(0, 100))
         }
       }
     }

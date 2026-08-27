@@ -27,6 +27,32 @@ describe('staticPaths build helpers', () => {
     getOrSetDataWithCache.mockImplementation((_key, loader) => loader())
   })
 
+  it('shares Feishu allPages lookups across UI locales', async () => {
+    const previousCms = process.env.CMS_PROVIDER
+    process.env.CMS_PROVIDER = 'feishu'
+    isExport.mockReturnValue(false)
+    fetchGlobalAllData.mockResolvedValue({
+      allPages: [{ id: '1', slug: 'hello', type: 'Post', status: 'Published' }]
+    })
+    getPriorityPages.mockReturnValue([])
+
+    try {
+      await jest.isolateModulesAsync(async () => {
+        const { getSharedAllPages } = require('@/lib/build/staticPaths')
+
+        const zh = await getSharedAllPages({ from: 'slug-paths', locale: 'zh-CN' })
+        const en = await getSharedAllPages({ from: 'slug-paths', locale: 'en' })
+
+        expect(zh).toEqual(en)
+        expect(fetchGlobalAllData).toHaveBeenCalledTimes(1)
+        expect(getOrSetDataWithCache).toHaveBeenCalledTimes(1)
+      })
+    } finally {
+      if (previousCms === undefined) delete process.env.CMS_PROVIDER
+      else process.env.CMS_PROVIDER = previousCms
+    }
+  })
+
   it('shares allPages lookups within a process', async () => {
     isExport.mockReturnValue(false)
     fetchGlobalAllData.mockResolvedValue({
@@ -98,6 +124,28 @@ describe('staticPaths build helpers', () => {
         fallback: false
       })
     })
+  })
+
+  it('skips prerender paths for standalone docker builds', async () => {
+    const previous = process.env.NEXT_BUILD_STANDALONE
+    process.env.NEXT_BUILD_STANDALONE = 'true'
+
+    try {
+      await jest.isolateModulesAsync(async () => {
+        const { getStaticPathsBase } = require('@/lib/build/staticPaths')
+
+        const result = await getStaticPathsBase({
+          filterFn: () => true,
+          mapPageToParams: page => ({ params: { prefix: page.slug } })
+        })
+
+        expect(result).toEqual({ paths: [], fallback: 'blocking' })
+        expect(fetchGlobalAllData).not.toHaveBeenCalled()
+      })
+    } finally {
+      if (previous === undefined) delete process.env.NEXT_BUILD_STANDALONE
+      else process.env.NEXT_BUILD_STANDALONE = previous
+    }
   })
 
   it('uses priority pages in ISR mode', async () => {

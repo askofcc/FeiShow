@@ -1,14 +1,20 @@
 import BLOG, { LAYOUT_MAPPINGS } from '@/blog.config'
 import {
   ACTIVE_THEME,
+  SWITCHABLE_THEMES,
+  THEME_SWITCH_ENABLED,
   loadActiveThemeModule
 } from '@/themes/active-theme'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { getQueryParam, getQueryVariable, isBrowser } from '../lib/utils'
 
-// One deployment compiles one CONFIG-selected theme.
-export const THEMES = Object.freeze([ACTIVE_THEME])
+// THEME_SWITCH 开启（开发/演示模式）时打包并放行全部主题；关闭时仅编译 CONFIG 选定的主题。
+export const THEMES = Object.freeze(
+  THEME_SWITCH_ENABLED && Array.isArray(SWITCHABLE_THEMES) && SWITCHABLE_THEMES.length
+    ? SWITCHABLE_THEMES.slice()
+    : [ACTIVE_THEME]
+)
 const baseLayoutCache = new Map()
 const layoutByThemeCache = new Map()
 let domFixTimer = null
@@ -77,6 +83,9 @@ const getLayoutLoading = layoutName => {
 const normalizeThemeName = themeValue => {
   if (!themeValue || typeof themeValue !== 'string') return BLOG.THEME
   const firstTheme = themeValue.split(',')[0].trim()
+  if (THEME_SWITCH_ENABLED && THEMES.includes(firstTheme)) {
+    return firstTheme
+  }
   return firstTheme === ACTIVE_THEME ? firstTheme : ACTIVE_THEME
 }
 
@@ -107,24 +116,24 @@ const scheduleFixThemeDOM = (delay = 120) => {
 
 async function importThemeConfig(themeFolderName) {
   try {
-    const mod = await loadActiveThemeModule()
+    const mod = await loadActiveThemeModule(themeFolderName)
     return getThemeExport(mod, 'THEME_CONFIG')
   } catch (err) {
-    console.error(`Failed to load theme config "${ACTIVE_THEME}":`, err)
+    console.error(`Failed to load theme config "${themeFolderName || ACTIVE_THEME}":`, err)
     return null
   }
 }
 
 async function importThemeLayout(themeFolderName, layoutName) {
   try {
-    const mod = await loadActiveThemeModule()
+    const mod = await loadActiveThemeModule(themeFolderName)
     return (
       getThemeExport(mod, layoutName) ||
       getThemeExport(mod, 'LayoutSlug') ||
       null
     )
   } catch (err) {
-    console.error(`Failed to load theme "${ACTIVE_THEME}":`, err)
+    console.error(`Failed to load theme "${themeFolderName || ACTIVE_THEME}":`, err)
     return null
   }
 }

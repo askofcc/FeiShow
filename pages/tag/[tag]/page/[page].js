@@ -1,6 +1,7 @@
 import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
+import { skipBuildPrerender } from '@/lib/build/staticPaths'
 import { DynamicLayout } from '@/themes/theme'
 
 const Tag = props => {
@@ -40,6 +41,10 @@ export async function getStaticProps({ params: { tag, page }, locale }) {
 }
 
 export async function getStaticPaths() {
+  if (skipBuildPrerender()) {
+    return { paths: [], fallback: true }
+  }
+
   const from = 'tag-page-static-path'
   const { tagOptions, allPages, NOTION_CONFIG } = await fetchGlobalAllData({ from })
   const paths = []

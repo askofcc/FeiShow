@@ -76,14 +76,18 @@ export type FeishuBlock = {
   };
   rawType?: number | string;
   embed?: {
-    kind: "board" | "sheet" | "bitable" | "wiki" | "addon" | "mindnote" | "chat_card" | "task" | "okr" | "jira" | "agenda" | "unknown";
+    kind: "board" | "sheet" | "bitable" | "wiki" | "addon" | "mindnote" | "chat_card" | "task" | "okr" | "jira" | "agenda" | "chart" | "unknown";
     token?: string;
     /** sheet: sheetId; bitable: tableId */
     secondaryToken?: string;
+    /** bitable reference_base view */
+    viewId?: string;
     title?: string;
     /** preview matrix for sheet/bitable */
     preview?: { headers?: string[]; rows: string[][] };
   };
+  /** grid_column official width_ratio (sums with siblings, typically ~100) */
+  widthRatio?: number;
 };
 
 export type FeishuPageContent = {

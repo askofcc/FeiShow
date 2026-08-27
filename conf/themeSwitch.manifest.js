@@ -250,7 +250,13 @@ export function getThemeSwitchMeta(themeId) {
     coverWebp = `/images/themes-preview/${id}.webp`
   }
 
-  const palette = withActiveThemePalette(Array.isArray(row.palette) ? row.palette : [])
+  // 仅当前激活主题注入通用色板兜底；其余主题使用 manifest 声明，避免跨主题串色。
+  const palette =
+    id === ACTIVE_THEME
+      ? withActiveThemePalette(Array.isArray(row.palette) ? row.palette : [])
+      : Array.isArray(row.palette)
+        ? row.palette
+        : []
   const manualSettings = Array.isArray(row.settings)
     ? row.settings.map(item => normalizeSetting(item, id))
     : []

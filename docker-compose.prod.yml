@@ -1,9 +1,12 @@
-# Production standalone image build & smoke test
+# Production standalone image. This is the default `docker compose up` path.
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_THEME: ${NEXT_PUBLIC_THEME:-}
+        FEISHU_ACTIVE_THEME: ${FEISHU_ACTIVE_THEME:-}
       secrets:
         - feishu_env
     image: feishow:local
@@ -15,10 +18,15 @@ services:
       NODE_ENV: production
       CMS_PROVIDER: feishu
       NEXT_PUBLIC_LINK: http://127.0.0.1:3460
-      NODE_OPTIONS: "--max-old-space-size=4096"
+      NODE_OPTIONS: "--max-old-space-size=512"
       ENABLE_CACHE: "true"
       NEXT_REVALIDATE_SECOND: "300"
       NEXT_PUBLIC_REVALIDATE_SECOND: "300"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     restart: unless-stopped
 
 secrets:

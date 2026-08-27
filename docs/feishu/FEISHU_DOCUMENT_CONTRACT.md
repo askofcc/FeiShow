@@ -214,6 +214,11 @@ NotionNext 的 `pageIcon` 在飞书侧应视为**可选增强**，无则空。
 | 48 | link_preview | 书签 |
 | 999 | 未支持 | 占位 |
 
+> **占位块过滤**：`normalizeDocument` 在数据层丢弃"无文本（trim 后为空）且无
+> 子块"的 `unknown` 块（含官方 `999` 占位），所有下游消费方（渲染、Markdown、
+> RSS、摘要）拿到的都是干净数据，不再出现"飞书特殊嵌入组件"兜底卡片。见
+> `lib/feishu/normalize.ts` 的 `isContentlessPlaceholder`。
+
 富文本在 `elements[].text_run`：
 
 ```json

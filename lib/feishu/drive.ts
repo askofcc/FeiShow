@@ -1,4 +1,5 @@
 import { feishuFetch } from './client'
+import { memoAsync } from './memo'
 
 export type DriveDocMeta = {
   doc_token: string
@@ -35,6 +36,17 @@ type BatchMetaResponse = {
  * Returns create_time / latest_modify_time / owner_id for docs.
  */
 export async function batchQueryDriveMetas(
+  docs: Array<{ token: string; type?: 'docx' | 'doc' | 'sheet' | 'bitable' | 'file' }>
+): Promise<Map<string, DriveDocMeta>> {
+  const key = docs
+    .filter(d => d.token)
+    .map(d => `${d.token}:${d.type || 'docx'}`)
+    .sort()
+    .join(',')
+  return memoAsync('drive-meta', key, () => batchQueryDriveMetasUncached(docs))
+}
+
+async function batchQueryDriveMetasUncached(
   docs: Array<{ token: string; type?: 'docx' | 'doc' | 'sheet' | 'bitable' | 'file' }>
 ): Promise<Map<string, DriveDocMeta>> {
   const map = new Map<string, DriveDocMeta>()
@@ -74,6 +86,15 @@ export async function getFileStatistics(
   fileToken: string,
   fileType: 'docx' | 'doc' | 'sheet' | 'bitable' | 'file' = 'docx'
 ): Promise<DriveFileStatistics['statistics'] | null> {
+  return memoAsync('drive-statistics', `${fileToken}:${fileType}`, async () => {
+    return getFileStatisticsUncached(fileToken, fileType)
+  })
+}
+
+async function getFileStatisticsUncached(
+  fileToken: string,
+  fileType: 'docx' | 'doc' | 'sheet' | 'bitable' | 'file'
+): Promise<DriveFileStatistics['statistics'] | null> {
   try {
     const qs = new URLSearchParams({ file_type: fileType })
     const data = await feishuFetch<DriveFileStatistics>(
@@ -95,6 +116,16 @@ export async function getFileCommentCount(
   fileToken: string,
   fileType: 'docx' | 'doc' = 'docx',
   maxPages = 5
+): Promise<number | null> {
+  return memoAsync('drive-comments', `${fileToken}:${fileType}:${maxPages}`, async () => {
+    return getFileCommentCountUncached(fileToken, fileType, maxPages)
+  })
+}
+
+async function getFileCommentCountUncached(
+  fileToken: string,
+  fileType: 'docx' | 'doc',
+  maxPages: number
 ): Promise<number | null> {
   try {
     let pageToken = ''
@@ -127,6 +158,7 @@ export async function getFileCommentCount(
 
 const userNameCache = new Map<string, string | null>()
 const userProfileCache = new Map<string, { name: string | null; avatar: string | null }>()
+const userProfileInflight = new Map<string, Promise<FeishuUserProfile>>()
 
 export type FeishuUserProfile = {
   name: string | null
@@ -152,6 +184,22 @@ export async function resolveUserProfile(
 ): Promise<FeishuUserProfile> {
   if (!openId) return { name: null, avatar: null, openId: null }
   if (userProfileCache.has(openId)) return userProfileCache.get(openId)!
+  const pending = userProfileInflight.get(openId)
+  if (pending) return pending
+
+  const request = resolveUserProfileUncached(openId, opts)
+  userProfileInflight.set(openId, request)
+  try {
+    return await request
+  } finally {
+    userProfileInflight.delete(openId)
+  }
+}
+
+async function resolveUserProfileUncached(
+  openId: string,
+  opts?: { fileToken?: string; fileType?: 'docx' | 'doc' }
+): Promise<FeishuUserProfile> {
 
   // 1) contact user get
   try {

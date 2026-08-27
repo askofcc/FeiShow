@@ -8,7 +8,6 @@ import {
 import { formatNotionBlock } from '@/lib/db/notion/getPostBlocks'
 import { generateRobotsTxt } from '@/lib/utils/robots.txt'
 import { generateRss, shouldGenerateRssForLocale } from '@/lib/utils/rss'
-import { generateSitemapXml } from '@/lib/utils/sitemap.xml'
 import { DynamicLayout } from '@/themes/theme'
 import { generateRedirectJson } from '@/lib/utils/redirect'
 import { checkDataFromAlgolia } from '@/lib/plugins/algolia'
@@ -85,23 +84,40 @@ export async function getStaticProps(req) {
 
   // 预览文章内容
   if (POST_LIST_PREVIEW) {
+    const isFeishu =
+      (process.env.CMS_PROVIDER || BLOG.CMS_PROVIDER || 'feishu').toLowerCase() === 'feishu'
     const previewLimit = pLimit(
       siteConfig('POST_PREVIEW_CONCURRENCY', 5, props?.NOTION_CONFIG)
     )
-    const previewTargets = props.posts.filter(
-      post => !post.password || post.password === ''
-    ).slice(0, POST_PREVIEW_MAX_COUNT)
-    await Promise.all(
-      previewTargets.map(post =>
-        previewLimit(async () => {
-          const rawBlockMap = await getPostBlocks(post.id, 'slug', POST_PREVIEW_LINES)
-          post.blockMap = adapterNotionBlockMap(rawBlockMap)
-          if (post.blockMap?.block) {
-            post.blockMap.block = formatNotionBlock(post.blockMap.block)
-          }
-        })
+    const previewTargets = (props.posts || [])
+      .map((post, index) => ({ post, index }))
+      .filter(({ post }) => !post.password || post.password === '')
+      .slice(0, POST_PREVIEW_MAX_COUNT)
+
+    if (isFeishu) {
+      const { enrichFeishuPost } = await import(
+        '@/lib/site/adapters/feishu/feishu.adapter'
       )
-    )
+      await Promise.all(
+        previewTargets.map(({ post, index }) =>
+          previewLimit(async () => {
+            props.posts[index] = await enrichFeishuPost(post)
+          })
+        )
+      )
+    } else {
+      await Promise.all(
+        previewTargets.map(({ post }) =>
+          previewLimit(async () => {
+            const rawBlockMap = await getPostBlocks(post.id, 'slug', POST_PREVIEW_LINES)
+            post.blockMap = adapterNotionBlockMap(rawBlockMap)
+            if (post.blockMap?.block) {
+              post.blockMap.block = formatNotionBlock(post.blockMap.block)
+            }
+          })
+        )
+      )
+    }
   }
   const isBuildLifecycle = ['build', 'export'].includes(
     process.env.npm_lifecycle_event
@@ -113,8 +129,6 @@ export async function getStaticProps(req) {
     if (shouldGenerateRssForLocale({ locale })) {
       await generateRss(props)
     }
-    // 生成
-    generateSitemapXml(props)
     // 检查数据是否需要从algolia删除
     await checkDataFromAlgolia(props)
     if (siteConfig('UUID_REDIRECT', false, props?.NOTION_CONFIG)) {

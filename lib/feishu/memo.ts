@@ -23,16 +23,19 @@ export async function memoAsync<T>(
   loader: () => Promise<T>,
   ttlMs = 300_000
 ): Promise<T> {
-  if (!key || process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0') {
+  const cacheDisabled = process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'
+  if (!key) {
     return loader()
   }
   const s = store(namespace)
   const hit = s.get(key)
   if (hit) {
-    if (Object.prototype.hasOwnProperty.call(hit, 'value')) {
+    if (!cacheDisabled && Object.prototype.hasOwnProperty.call(hit, 'value')) {
       if (!hit.expiresAt || hit.expiresAt > Date.now()) {
         return hit.value as T
       }
+      s.delete(key)
+    } else if (cacheDisabled && Object.prototype.hasOwnProperty.call(hit, 'value')) {
       s.delete(key)
     } else if (Object.prototype.hasOwnProperty.call(hit, 'error')) {
       throw hit.error
@@ -44,8 +47,13 @@ export async function memoAsync<T>(
   entry.promise = (async () => {
     try {
       const value = await loader()
-      entry.value = value
-      entry.expiresAt = Date.now() + ttlMs
+      if (cacheDisabled) {
+        // Disabling cache must not disable same-request de-duplication.
+        s.delete(key)
+      } else {
+        entry.value = value
+        entry.expiresAt = Date.now() + ttlMs
+      }
       delete entry.promise
       return value
     } catch (error) {

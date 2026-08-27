@@ -95,7 +95,7 @@ FeiShow 根据用户场景分为三种操作深度：从**0 代码小白极简�
 - **自由热切换 25+ 主题**：直接在飞书 CONFIG 表改 `THEME`，或在 URL 上加 `?theme=gitbook`、`?theme=simple` 实时预览。
 - **作为无头 CMS（Headless CMS）**：不使用自带前端，仅将 FeiShow 部署为数据服务，前端用自己的框架，调用 Agent API。
 - **开发自定义主题**：基于清晰的 `THEME_DATA_CONTRACT.md` 开发新主题，主题层只消费结构化数据与 `<NotionPage />` 统一正文组件，无需编写一行飞书 API 代码。
-- **Docker 私有化部署**：支持 `docker-compose up -d` 纯私有自托管。
+- **Docker 私有化部署**：`docker compose up -d --build` 构建并运行生产 standalone 镜像。
 
 ---
 
@@ -210,11 +210,39 @@ npx yarn@1.22.22 dev -p 3460
 
 ### Docker 一键部署
 
+默认 `docker compose` 构建生产 standalone 镜像，不要用开发挂载当正式部署。
+
 ```bash
 # 准备环境文件并填写飞书三项变量
 cp .env.feishu.example .env.docker.local
-docker compose up -d
+docker compose up -d --build
 ```
+
+开发热更新：
+
+```bash
+docker compose -f docker-compose.dev.yml up
+```
+
+如果本机 Docker Desktop 磁盘涨得很快，先清掉旧构建缓存再部署：
+
+```bash
+docker builder prune -f
+docker image prune -f
+```
+
+生产服务器不要在每次发布后无限保留 BuildKit 缓存。上面的 `docker builder prune -f`
+只清理未使用的构建缓存，不会删除正在运行的容器或当前使用的镜像；也可以按需只保留最近
+7 天的缓存：
+
+```bash
+docker builder prune --filter until=168h
+```
+
+生产 standalone 容器不挂载 `.next`、`node_modules` 或 Yarn 缓存，运行时 Feishu 数据缓存默认
+使用进程内存（配置 `REDIS_URL` 时使用 Redis）。因此运行中的容器不会因为正常访问持续累积本地
+文件。Docker 磁盘长期增长通常来自反复 `--build` 留下的 BuildKit 缓存、旧镜像，或宿主机日志；
+Compose 已为应用日志设置 `10MB x 3` 的轮转上限。
 
 ---
 

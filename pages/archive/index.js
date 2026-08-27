@@ -38,10 +38,10 @@ export async function getStaticProps({ locale }) {
   )
   delete props.allPages
 
-  const postsSortByDate = Object.create(props.posts)
+  const postsSortByDate = props.posts ? [...props.posts] : []
 
   postsSortByDate.sort((a, b) => {
-    return b?.publishDate - a?.publishDate
+    return (b?.publishDate || 0) - (a?.publishDate || 0)
   })
 
   const archivePosts = {}

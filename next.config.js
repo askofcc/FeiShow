@@ -14,11 +14,30 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const themes = scanSubdirectories(path.resolve(__dirname, 'themes'))
 
 // Build scripts generate a single-theme import module before Webpack starts.
+// THEME_SWITCH=on (dev/demo mode) exposes every theme; off keeps only the CONFIG theme.
 function generatedActiveTheme() {
   try {
     const source = fs.readFileSync(path.resolve(__dirname, 'themes', 'active-theme.js'), 'utf8')
     const theme = source.match(/export const ACTIVE_THEME = '([^']+)'/)?.[1]
-    return themes.includes(theme) ? [theme] : ['example']
+    const base = themes.includes(theme) ? theme : 'example'
+    const switchEnabled = /export const THEME_SWITCH_ENABLED = true/.test(source)
+    if (switchEnabled) {
+      const listSource = source.match(/export const SWITCHABLE_THEMES = (\[[^\]]*\])/)?.[1]
+      if (listSource) {
+        try {
+          const parsed = JSON.parse(listSource.replace(/'/g, '"'))
+          const validList = Array.isArray(parsed)
+            ? parsed.filter(item => themes.includes(item))
+            : []
+          if (validList.length) {
+            return validList.includes(base) ? validList : [base, ...validList]
+          }
+        } catch (_) {
+          // fall through to single-theme output
+        }
+      }
+    }
+    return [base]
   } catch (_) {
     return ['example']
   }
@@ -221,6 +240,11 @@ const nextConfig = {
     ignoreDuringBuilds: true
   },
   output: getOutput(),
+  // Board API trims whiteboard snapshots with sharp at runtime; make sure the
+  // native binaries survive standalone output-file tracing.
+  outputFileTracingIncludes: {
+    '/api/feishu/board/[token]': ['./node_modules/sharp/**/*']
+  },
   staticPageGenerationTimeout: getStaticPageGenerationTimeoutSec(),
 
   // 性能优化配置
@@ -247,6 +271,10 @@ const nextConfig = {
       locales: locales
     },
   images: {
+    // Standalone Docker has no shared volume for `.next/cache/images`.
+    // Optimizing remote Feishu/Notion images would write many size/format
+    // variants into the container overlay and grow Docker.raw.
+    unoptimized: isExport() || process.env.NEXT_BUILD_STANDALONE === 'true',
     // 图片压缩和格式优化
     formats: ['image/avif', 'image/webp'],
     // 图片尺寸优化
@@ -449,6 +477,10 @@ const nextConfig = {
       __dirname,
       'lib/utils/throttle.js'
     )
+
+    if (process.env.NEXT_DISABLE_WEBPACK_CACHE === 'true') {
+      config.cache = false
+    }
 
     if (!isServer) {
       console.log(

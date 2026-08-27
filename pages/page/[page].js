@@ -1,6 +1,7 @@
 import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
 import { fetchGlobalAllData, getPostBlocks } from '@/lib/db/SiteDataApi'
+import { skipBuildPrerender } from '@/lib/build/staticPaths'
 import { formatNotionBlock } from '@/lib/db/notion/getPostBlocks'
 import { adapterNotionBlockMap } from '@/lib/utils/notion.util'
 import { DynamicLayout } from '@/themes/theme'
@@ -16,6 +17,10 @@ const Page = props => {
 }
 
 export async function getStaticPaths({ locale }) {
+  if (skipBuildPrerender()) {
+    return { paths: [], fallback: true }
+  }
+
   const from = 'page-paths'
   const { postCount, NOTION_CONFIG } = await fetchGlobalAllData({ from, locale })
   const totalPages = Math.ceil(
@@ -53,15 +58,29 @@ export async function getStaticProps({ params: { page }, locale }) {
 
   // 处理预览
   if (siteConfig('POST_LIST_PREVIEW', false, props?.NOTION_CONFIG)) {
-    for (const i in props.posts) {
-      const post = props.posts[i]
-      if (post.password && post.password !== '') {
-        continue
+    const isFeishu =
+      (process.env.CMS_PROVIDER || BLOG.CMS_PROVIDER || 'feishu').toLowerCase() === 'feishu'
+    if (isFeishu) {
+      const { enrichFeishuPost } = await import(
+        '@/lib/site/adapters/feishu/feishu.adapter'
+      )
+      for (const i in props.posts) {
+        const post = props.posts[i]
+        if (post && (!post.password || post.password === '')) {
+          props.posts[i] = await enrichFeishuPost(post)
+        }
       }
-      const rawBlockMap = await getPostBlocks(post.id, 'slug', POST_PREVIEW_LINES)
-      post.blockMap = adapterNotionBlockMap(rawBlockMap)
-      if (post.blockMap?.block) {
-        post.blockMap.block = formatNotionBlock(post.blockMap.block)
+    } else {
+      for (const i in props.posts) {
+        const post = props.posts[i]
+        if (post.password && post.password !== '') {
+          continue
+        }
+        const rawBlockMap = await getPostBlocks(post.id, 'slug', POST_PREVIEW_LINES)
+        post.blockMap = adapterNotionBlockMap(rawBlockMap)
+        if (post.blockMap?.block) {
+          post.blockMap.block = formatNotionBlock(post.blockMap.block)
+        }
       }
     }
   }

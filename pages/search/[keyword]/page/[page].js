@@ -53,7 +53,7 @@ export async function getStaticProps({ params: { keyword, page }, locale }) {
 
 export function getStaticPaths() {
   return {
-    paths: [{ params: { keyword: 'NotionNext', page: '1' } }],
+    paths: [],
     fallback: true
   }
 }
@@ -110,21 +110,35 @@ const isIterable = obj =>
  */
 async function filterByMemCache(allPosts, keyword) {
   const filterPosts = []
+  if (!allPosts || !Array.isArray(allPosts)) {
+    return filterPosts
+  }
   if (keyword) {
-    keyword = keyword.trim()
+    keyword = keyword.trim().toLowerCase()
+  }
+  if (!keyword) {
+    return allPosts
   }
   for (const post of allPosts) {
     const cacheKey = getPageBlockCacheKey(post.id, post.lastEditedDate)
     const page = await getDataFromCache(cacheKey, true)
-    const tagContent =
-      post?.tags && Array.isArray(post?.tags) ? post?.tags.join(' ') : ''
-    const categoryContent =
-      post.category && Array.isArray(post.category)
+    const tagContent = post?.tags
+      ? Array.isArray(post.tags)
+        ? post.tags.join(' ')
+        : String(post.tags)
+      : ''
+    const categoryContent = post?.category
+      ? Array.isArray(post.category)
         ? post.category.join(' ')
-        : ''
-    const articleInfo = post.title + post.summary + tagContent + categoryContent
-    let hit = articleInfo.indexOf(keyword) > -1
-    let indexContent = [post.summary]
+        : String(post.category)
+      : ''
+    const articleInfo =
+      (post.title || '') +
+      (post.summary || '') +
+      tagContent +
+      categoryContent
+    let hit = articleInfo.toLowerCase().indexOf(keyword) > -1
+    let indexContent = [post.summary || '']
     if (page && page.block) {
       const contentIds = Object.keys(page.block)
       contentIds.forEach(id => {
@@ -136,19 +150,19 @@ async function filterByMemCache(allPosts, keyword) {
     // console.log('全文搜索缓存', cacheKey, page != null)
     post.results = []
     let hitCount = 0
-    for (const i of indexContent) {
+    for (let i = 0; i < indexContent.length; i++) {
       const c = indexContent[i]
-      if (!c) {
+      if (!c || typeof c !== 'string') {
         continue
       }
-      const index = c.toLowerCase().indexOf(keyword.toLowerCase())
+      const index = c.toLowerCase().indexOf(keyword)
       if (index > -1) {
         hit = true
         hitCount += 1
         post.results.push(c)
       } else {
-        if ((post.results.length - 1) / hitCount < 3 || i === 0) {
-          post.results.push(c)
+        if (hitCount > 0 && ((post.results.length - 1) / hitCount < 3 || i === 0)) {
+          post.results.push(c.slice(0, 100))
         }
       }
     }

@@ -57,6 +57,7 @@ const BLOCK_TYPE_MAP: Record<number, FeishuBlockType> = {
   33: "unknown", // view
   34: "quote_container",
   48: "bookmark", // link_preview
+  53: "unknown", // reference_base → feishu_embed bitable below
 };
 
 
@@ -159,11 +160,17 @@ export function normalizeCodeLanguage(langCode?: number | string): string {
 
 function safeDecodeUrl(url?: string): string | undefined {
   if (!url) return undefined;
+  let decoded = url;
   try {
-    return decodeURIComponent(url);
+    decoded = decodeURIComponent(url);
   } catch {
-    return url;
+    decoded = url;
   }
+  const clean = decoded.trim().toLowerCase();
+  if (clean.startsWith('javascript:') || clean.startsWith('data:') || clean.startsWith('vbscript:')) {
+    return undefined;
+  }
+  return decoded;
 }
 
 function elementsOf(block: FeishuRawBlock): FeishuRawTextElement[] {
@@ -265,6 +272,13 @@ export function normalizeBlock(raw: FeishuRawBlock): FeishuBlock {
     };
   }
 
+  if (type === "grid_column") {
+    const ratio = raw.grid_column?.width_ratio;
+    if (typeof ratio === "number" && Number.isFinite(ratio) && ratio > 0) {
+      block.widthRatio = ratio;
+    }
+  }
+
   if (type === "table" && raw.table) {
     const rowSize = raw.table.property?.row_size || 0;
     const columnSize = raw.table.property?.column_size || 0;
@@ -357,9 +371,33 @@ export function normalizeBlock(raw: FeishuRawBlock): FeishuBlock {
   } else if (raw.block_type >= 44 && raw.block_type <= 47) {
     block.type = "feishu_embed";
     block.embed = { kind: "agenda", title: "日程 / 议程" };
+  } else if (raw.block_type === 53) {
+    const full = String(raw.reference_base?.token || "");
+    const [appToken, tableId] = full.split("_");
+    block.type = "feishu_embed";
+    block.embed = {
+      kind: "bitable",
+      token: appToken || undefined,
+      secondaryToken: tableId || undefined,
+      viewId: raw.reference_base?.view_id,
+      title: "多维表格",
+    };
   }
 
   return block;
+}
+
+/**
+ * True for leftover unknown blocks that carry neither text nor children.
+ * Official Feishu returns block_type 999 ("未支持/占位") placeholders like
+ * these; rendering them produces spurious unsupported-component cards.
+ */
+export function isContentlessPlaceholder(block: FeishuBlock): boolean {
+  return (
+    block.type === "unknown" &&
+    !(block.children && block.children.length > 0) &&
+    !plainTextFromRuns(block.text).trim()
+  );
 }
 
 export function normalizeDocument(
@@ -367,7 +405,7 @@ export function normalizeDocument(
   rawBlocks: FeishuRawBlock[],
   titleFallback?: string,
 ): FeishuPageContent {
-  const blocks = rawBlocks.map(normalizeBlock);
+  const blocks = rawBlocks.map(normalizeBlock).filter((b) => !isContentlessPlaceholder(b));
   const blockMap = Object.fromEntries(blocks.map((b) => [b.id, b]));
   const root = blocks.find((b) => b.type === "page") || blocks[0];
   const title =

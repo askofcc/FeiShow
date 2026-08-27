@@ -462,7 +462,8 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
       id: name,
       name,
       value: name,
-      count
+      count,
+      source: 'Published'
     })),
     customNav: customMenu,
     customMenu,
@@ -581,16 +582,39 @@ export async function findFeishuPageBySlug(
   siteData: SiteData,
   slug: string
 ): Promise<(BasePage & Record<string, any>) | null> {
-  const match = (p: BasePage) => {
-    if (!p || !slug) return false
-    if (p.slug === slug || p.href === `/${slug}` || p.href === slug) return true
-    if (p.href === `/article/${slug}`) return true
-    if ((p.ext as any)?.nodeToken === slug || (p.ext as any)?.documentId === slug) return true
-    if (typeof p.slug === 'string' && (p.slug.endsWith('/' + slug) || p.slug.split('/').pop() === slug))
-      return true
-    return false
+  if (!slug) return null
+  const clean = decodeURIComponent(String(slug).replace(/^\/+|\/+$/g, ''))
+  const candidates = siteData.allPages || []
+
+  // 1. Exact match by slug / href / nodeToken / documentId
+  let page = candidates.find(
+    p =>
+      p &&
+      (p.slug === clean ||
+        p.href === `/${clean}` ||
+        p.href === clean ||
+        (p.ext as any)?.nodeToken === clean ||
+        (p.ext as any)?.documentId === clean ||
+        p.id === clean)
+  )
+
+  // 2. Exact match with article/ prefix
+  if (!page) {
+    page = candidates.find(
+      p => p && (p.href === `/article/${clean}` || p.slug === `article/${clean}`)
+    )
   }
-  const page = siteData.allPages.find(match)
+
+  // 3. Fallback suffix match
+  if (!page) {
+    page = candidates.find(
+      p =>
+        p &&
+        typeof p.slug === 'string' &&
+        (p.slug.endsWith('/' + clean) || p.slug.split('/').pop() === clean)
+    )
+  }
+
   if (!page) return null
   if (page.type === 'Menu' || page.type === 'SubMenu') return page as any
   return enrichFeishuPost(page)

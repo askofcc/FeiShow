@@ -9,6 +9,9 @@ export default async function handler(req, res) {
   if (!token || Array.isArray(token)) {
     return res.status(400).json({ error: 'missing token' })
   }
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(token)) {
+    return res.status(400).json({ error: 'invalid token format' })
+  }
   try {
     const upstream = await downloadMedia(token)
     const contentType = upstream.headers.get('content-type') || 'application/octet-stream'
@@ -20,6 +23,6 @@ export default async function handler(req, res) {
     const buf = Buffer.from(await upstream.arrayBuffer())
     return res.status(200).send(buf)
   } catch (e) {
-    return res.status(502).json({ error: e instanceof Error ? e.message : 'download failed' })
+    return res.status(502).json({ error: 'download failed' })
   }
 }

@@ -19,10 +19,21 @@ const Search = props => {
   // 静态过滤
   if (keyword) {
     filteredPosts = posts.filter(post => {
-      const tagContent = post?.tags ? post?.tags.join(' ') : ''
-      const categoryContent = post.category ? post.category.join(' ') : ''
+      const tagContent = post?.tags
+        ? Array.isArray(post.tags)
+          ? post.tags.join(' ')
+          : String(post.tags)
+        : ''
+      const categoryContent = post?.category
+        ? Array.isArray(post.category)
+          ? post.category.join(' ')
+          : String(post.category)
+        : ''
       const searchContent =
-        post.title + post.summary + tagContent + categoryContent
+        (post.title || '') +
+        (post.summary || '') +
+        tagContent +
+        categoryContent
       return searchContent.toLowerCase().includes(keyword.toLowerCase())
     })
   } else {
@@ -47,6 +58,7 @@ export async function getStaticProps({ locale }) {
   props.posts = allPages?.filter(
     page => page.type === 'Post' && page.status === 'Published'
   )
+  delete props.allPages
   return {
     props,
     revalidate: process.env.EXPORT

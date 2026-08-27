@@ -1,6 +1,7 @@
 import BLOG from '@/blog.config'
 import { siteConfig } from '@/lib/config'
 import { fetchGlobalAllData } from '@/lib/db/SiteDataApi'
+import { skipBuildPrerender } from '@/lib/build/staticPaths'
 import { DynamicLayout } from '@/themes/theme'
 
 /**
@@ -68,6 +69,10 @@ function getTagNames(tags) {
 }
 
 export async function getStaticPaths() {
+  if (skipBuildPrerender()) {
+    return { paths: [], fallback: true }
+  }
+
   const from = 'tag-static-path'
   const { tagOptions } = await fetchGlobalAllData({ from })
   const tagNames = getTagNames(tagOptions)

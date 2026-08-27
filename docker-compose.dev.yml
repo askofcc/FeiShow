@@ -1,0 +1,38 @@
+# Local development only. Production self-hosting uses docker-compose.yml.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: feishow:dev
+    working_dir: /app
+    ports:
+      - "3460:3000"
+    volumes:
+      - .:/app:cached
+      - dev_node_modules:/app/node_modules
+      - dev_next_cache:/app/.next
+    env_file:
+      - .env.docker.local
+    environment:
+      NODE_ENV: development
+      CMS_PROVIDER: feishu
+      NEXT_PUBLIC_LINK: http://127.0.0.1:3460
+      NODE_OPTIONS: "--max-old-space-size=2048"
+      NEXT_TELEMETRY_DISABLED: "1"
+      ENABLE_CACHE: "false"
+      NEXT_REVALIDATE_SECOND: "1"
+      NEXT_PUBLIC_REVALIDATE_SECOND: "1"
+    command:
+      - sh
+      - -ec
+      - |
+        if [ ! -x node_modules/.bin/next ]; then
+          yarn install --frozen-lockfile --network-timeout 120000 --prefer-offline --registry https://registry.npmmirror.com
+        fi
+        exec yarn dev -H 0.0.0.0 -p 3000
+    restart: unless-stopped
+
+volumes:
+  dev_node_modules:
+  dev_next_cache:

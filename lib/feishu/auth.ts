@@ -6,6 +6,7 @@ type TokenCache = {
 };
 
 let cache: TokenCache | null = null;
+let inflight: Promise<string> | null = null;
 
 /** Clear cached tenant token (e.g. after 99991663 invalid-token responses). */
 export function clearTenantAccessTokenCache(): void {
@@ -25,33 +26,45 @@ export async function getTenantAccessToken(): Promise<string> {
     return cache.token;
   }
 
+  // Several Feishu API calls can start together on a cold serverless instance.
+  // Share the refresh request instead of issuing one token request per caller.
+  if (inflight) return inflight;
+
   const { appId, appSecret, domain } = siteConfig.feishu;
   if (!appId || !appSecret) {
     throw new Error("Missing FEISHU_APP_ID / FEISHU_APP_SECRET");
   }
 
-  const res = await fetch(`${domain}/open-apis/auth/v3/tenant_access_token/internal`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({ app_id: appId, app_secret: appSecret }),
-    cache: "no-store",
-  });
+  inflight = (async () => {
+    const res = await fetch(`${domain}/open-apis/auth/v3/tenant_access_token/internal`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify({ app_id: appId, app_secret: appSecret }),
+      cache: "no-store",
+    });
 
-  const data = (await res.json()) as {
-    code: number;
-    msg: string;
-    tenant_access_token?: string;
-    expire?: number;
-  };
+    const data = (await res.json()) as {
+      code: number;
+      msg: string;
+      tenant_access_token?: string;
+      expire?: number;
+    };
 
-  if (data.code !== 0 || !data.tenant_access_token) {
-    throw new Error(`Feishu auth failed: ${data.code} ${data.msg}`);
+    if (data.code !== 0 || !data.tenant_access_token) {
+      throw new Error(`Feishu auth failed: ${data.code} ${data.msg}`);
+    }
+
+    cache = {
+      token: data.tenant_access_token,
+      expiresAt: Date.now() + (data.expire || 7200) * 1000,
+    };
+
+    return cache.token;
+  })();
+
+  try {
+    return await inflight;
+  } finally {
+    inflight = null;
   }
-
-  cache = {
-    token: data.tenant_access_token,
-    expiresAt: Date.now() + (data.expire || 7200) * 1000,
-  };
-
-  return cache.token;
 }

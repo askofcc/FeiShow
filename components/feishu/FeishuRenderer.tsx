@@ -16,6 +16,7 @@ const EMOJI_MAP: Record<string, string> = {
   cross: "❌",
   idea: "💡",
   pin: "📌",
+  round_pushpin: "📌",
   book: "📖",
   rocket: "🚀",
 };
@@ -81,68 +82,41 @@ function parseVideoEmbed(url?: string): { type: string; src: string } | null {
 function BoardPreview({
   imageUrl,
   title,
-  token,
   subtitle,
 }: {
   imageUrl?: string;
   title?: string;
-  token?: string;
   subtitle?: string;
 }) {
   const [hasError, setHasError] = useState(false);
   const displayTitle = title || "画板";
-  const link = token ? `https://feishu.cn/board/${token}` : undefined;
 
   if (!imageUrl || hasError) {
     return (
-      <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <span className="text-lg flex-shrink-0" aria-hidden>🎨</span>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-gray-800 dark:text-gray-200 truncate">{displayTitle}</div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">该画板内容暂无法在网页中直接展示</div>
-          </div>
-        </div>
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className="flex-shrink-0 text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-          >
-            <span>在飞书中打开 ↗</span>
-          </a>
-        )}
+      <div className="notion-unsupported-card my-3.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-base flex-shrink-0" aria-hidden>🎨</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{displayTitle}</span>
       </div>
     );
   }
 
   return (
-    <figure className="notion-asset-wrapper notion-embed-preview my-4">
-      <div className="flex items-center justify-between pb-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
+    <figure className="notion-asset-wrapper notion-embed-preview my-4 w-full">
+      <div className="flex items-center pb-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium">
         <span className="flex items-center gap-1.5 text-gray-700 dark:text-gray-300">
           <span>🎨</span> <span>{displayTitle}</span>
         </span>
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className="text-gray-400 hover:text-blue-500 transition-colors"
-            title="在飞书中查看"
-          >
-            ↗
-          </a>
-        )}
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imageUrl}
-        alt={displayTitle}
-        loading="lazy"
-        onError={() => setHasError(true)}
-        className="notion-image notion-embed-preview-img rounded-lg border border-gray-200/80 dark:border-gray-800 shadow-2xs max-w-full cursor-zoom-in"
-      />
+      <div className="flex justify-center rounded-lg border border-gray-200/80 dark:border-gray-800 bg-white p-2 shadow-2xs">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imageUrl}
+          alt={displayTitle}
+          loading="lazy"
+          onError={() => setHasError(true)}
+          className="notion-image notion-embed-preview-img max-w-full max-h-[420px] w-auto h-auto rounded-md cursor-zoom-in"
+        />
+      </div>
       {subtitle ? (
         <figcaption className="notion-asset-caption mt-1.5 text-xs text-gray-400 text-center">
           {subtitle}
@@ -203,8 +177,6 @@ function EmbedCard({
   kind,
   title,
   subtitle,
-  token,
-  secondaryToken,
   imageUrl,
   preview,
 }: {
@@ -239,7 +211,9 @@ function EmbedCard({
                         ? "🎫"
                         : kind === "agenda"
                           ? "📅"
-                          : "📎";
+                          : kind === "chart"
+                            ? "📈"
+                            : "📎";
 
   // 1. Board / Image preview
   if (kind === "board" || imageUrl) {
@@ -247,33 +221,21 @@ function EmbedCard({
       <BoardPreview
         imageUrl={imageUrl}
         title={title}
-        token={token}
         subtitle={subtitle}
       />
     );
   }
 
-  // 2. Wiki sub-page tree (Internal article links)
+  // 2. Wiki sub-page tree (Internal article links). No children → render nothing.
   if (kind === "wiki") {
-    const link = token ? `https://feishu.cn/wiki/${token}` : undefined;
     if (preview?.rows?.length) {
       return (
-        <div className="notion-collection-card notion-embed-card my-3.5 p-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/30">
-          <div className="flex items-center justify-between font-medium text-sm text-gray-700 dark:text-gray-200 mb-2.5">
+        <div className="notion-collection-card notion-embed-card my-3.5 w-full p-3.5 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50/50 dark:bg-gray-900/30">
+          <div className="flex items-center font-medium text-sm text-gray-700 dark:text-gray-200 mb-2.5">
             <div className="flex items-center gap-2">
               <span>📚</span>
               <span>{title || "知识库目录"}</span>
             </div>
-            {link && (
-              <a
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-gray-400 hover:text-blue-500 transition-colors font-normal"
-              >
-                在飞书中打开 ↗
-              </a>
-            )}
           </div>
           <div className="space-y-1 pl-2 border-l-2 border-gray-200 dark:border-gray-700">
             {preview.rows.map((row, ri) => {
@@ -303,83 +265,47 @@ function EmbedCard({
         </div>
       );
     }
-    // Fallback wiki notice
-    return (
-      <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <span className="text-lg flex-shrink-0" aria-hidden>📚</span>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-gray-800 dark:text-gray-200 truncate">{title || "知识库子目录"}</div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">该知识库目录暂无子页面或无法在网页中直接展示</div>
-          </div>
-        </div>
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className="flex-shrink-0 text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-          >
-            <span>在飞书中打开 ↗</span>
-          </a>
-        )}
-      </div>
-    );
+    return null;
   }
 
   // 3. Table / Sheet / Bitable Preview
   if (kind === "sheet" || kind === "bitable") {
-    const link =
-      kind === "sheet" && token
-        ? `https://feishu.cn/sheets/${token}${secondaryToken ? `?sheet=${secondaryToken}` : ""}`
-        : kind === "bitable" && token
-          ? `https://feishu.cn/base/${token}${secondaryToken ? `?table=${secondaryToken}` : ""}`
-          : undefined;
-
     const visibleHeaders = (preview?.headers || []).filter((h) => !h.startsWith("_"));
-    const hasDataRows = (preview?.rows || []).length > 0;
+    const rows = preview?.rows || [];
+    const columnCount = Math.max(visibleHeaders.length, ...rows.map((r) => r.length));
 
-    if (visibleHeaders.length > 0 && hasDataRows) {
+    if (columnCount > 0 && (visibleHeaders.length > 0 || rows.length > 0)) {
       return (
-        <div className="notion-embed-preview notion-embed-table-preview my-4 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900 shadow-2xs">
-          <div className="notion-embed-preview-label flex items-center justify-between px-3.5 py-2 bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300">
+        <div className="notion-embed-preview notion-embed-table-preview my-4 w-full border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900 shadow-2xs">
+          <div className="notion-embed-preview-label flex items-center px-3.5 py-2 bg-gray-50/80 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-300">
             <div className="flex items-center gap-2 font-medium">
               <span>{icon}</span>
               <span>{title}</span>
             </div>
-            {link && (
-              <a
-                href={link}
-                target="_blank"
-                rel="noreferrer"
-                className="text-gray-400 hover:text-blue-500 transition-colors"
-                title="在飞书中打开原表"
-              >
-                ↗
-              </a>
-            )}
           </div>
           <div className="notion-simple-table-wrapper overflow-x-auto">
             <table className="notion-simple-table w-full text-xs">
-              <thead>
-                <tr className="bg-gray-50/40 dark:bg-gray-800/30">
-                  {visibleHeaders.map((h, i) => (
-                    <th
-                      key={i}
-                      className="notion-simple-table-cell px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap"
-                    >
-                      {h || "—"}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+              {visibleHeaders.length > 0 ? (
+                <thead>
+                  <tr className="bg-gray-50/40 dark:bg-gray-800/30">
+                    {visibleHeaders.map((h, i) => (
+                      <th
+                        key={i}
+                        className="notion-simple-table-cell px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap"
+                      >
+                        {h || "—"}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+              ) : null}
               <tbody>
-                {preview!.rows.map((row, ri) => (
+                {rows.map((row, ri) => (
                   <tr
                     key={ri}
                     className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-colors"
                   >
-                    {visibleHeaders.map((_, ci) => (
+                    {Array.from({ length: columnCount }, (_, ci) => (
                       <td
                         key={ci}
                         className="notion-simple-table-cell px-3 py-2 text-gray-600 dark:text-gray-300"
@@ -396,71 +322,30 @@ function EmbedCard({
       );
     }
 
-    // Table with no rows / no preview: Friendly fallback card
+    // Table with no rows / no preview: quiet inline placeholder, no external link
     return (
-      <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <span className="text-lg flex-shrink-0" aria-hidden>{icon}</span>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-gray-800 dark:text-gray-200 truncate">{title}</div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">该嵌入表格暂无数据预览或无法在网页中直接展示</div>
-          </div>
-        </div>
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className="flex-shrink-0 text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-          >
-            <span>打开原表 ↗</span>
-          </a>
-        )}
+      <div className="notion-unsupported-card my-3.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-base flex-shrink-0" aria-hidden>{icon}</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{title}</span>
       </div>
     );
   }
 
   // 4. Mindnote
   if (kind === "mindnote") {
-    const link = token ? `https://feishu.cn/mindnotes/${token}` : undefined;
     return (
-      <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <span className="text-lg flex-shrink-0" aria-hidden>🧠</span>
-          <div className="min-w-0 flex-1">
-            <div className="font-medium text-gray-800 dark:text-gray-200 truncate">{title || "思维笔记"}</div>
-            <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">该思维导图暂不支持在网页中直接渲染</div>
-          </div>
-        </div>
-        {link && (
-          <a
-            href={link}
-            target="_blank"
-            rel="noreferrer"
-            className="flex-shrink-0 text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-0.5"
-          >
-            <span>在飞书中打开 ↗</span>
-          </a>
-        )}
+      <div className="notion-unsupported-card my-3.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-base flex-shrink-0" aria-hidden>🧠</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{title || "思维笔记"}</span>
       </div>
     );
   }
 
   // 5. Generic Addon / Plugin / OKR / Task / Jira / Agenda / Unknown
   return (
-    <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
-      <div className="flex items-center gap-2.5 min-w-0 flex-1">
-        <span className="text-lg flex-shrink-0" aria-hidden>{icon}</span>
-        <div className="min-w-0 flex-1">
-          <div className="font-medium text-gray-800 dark:text-gray-200 truncate">{title || "飞书嵌入组件"}</div>
-          <div className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-            {subtitle || "该嵌入内容暂不支持在网页中直接展示"}
-          </div>
-        </div>
-      </div>
-      <span className="text-[11px] text-gray-400 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-800 px-2.5 py-0.5 rounded flex-shrink-0">
-        无法展示
-      </span>
+    <div className="notion-unsupported-card my-3.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
+      <span className="text-base flex-shrink-0" aria-hidden>{icon}</span>
+      <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{title || "飞书嵌入组件"}</span>
     </div>
   );
 }
@@ -489,8 +374,18 @@ const UNSUPPORTED_LABEL: Record<string, { label: string; kind: string }> = {
   "47": { label: "议程内容", kind: "agenda" },
   "48": { label: "链接卡片", kind: "bookmark" },
   "51": { label: "Wiki 子页面列表", kind: "wiki" },
-  "999": { label: "飞书特殊嵌入组件", kind: "unknown" },
+  "53": { label: "多维表格", kind: "bitable" },
+  "999": { label: "飞书图表 / 嵌入组件", kind: "chart" },
 };
+
+function isSafeUrl(url?: string | null): boolean {
+  if (!url) return false;
+  const clean = String(url).trim().toLowerCase();
+  if (clean.startsWith("javascript:") || clean.startsWith("data:") || clean.startsWith("vbscript:")) {
+    return false;
+  }
+  return true;
+}
 
 function RichText({ runs }: { runs?: TextRun[] }) {
   if (!runs?.length) return null;
@@ -513,11 +408,13 @@ function RichText({ runs }: { runs?: TextRun[] }) {
         if (s.underline) node = <span className="notion-u">{node}</span>;
         if (s.strikethrough) node = <span className="notion-s">{node}</span>;
         if (s.link) {
-          node = (
-            <a className="notion-link" href={s.link} target="_blank" rel="noreferrer">
-              {node}
-            </a>
-          );
+          if (isSafeUrl(s.link)) {
+            node = (
+              <a className="notion-link" href={s.link} target="_blank" rel="noreferrer">
+                {node}
+              </a>
+            );
+          }
         }
         return <span key={idx}>{node}</span>;
       })}
@@ -528,9 +425,11 @@ function RichText({ runs }: { runs?: TextRun[] }) {
 function ListItemBody({
   block,
   blockMap,
+  depth = 0,
 }: {
   block: FeishuBlock;
   blockMap: Record<string, FeishuBlock>;
+  depth?: number;
 }) {
   const children = resolveChildBlocks(block.children, blockMap, { excludeTableCell: true });
 
@@ -543,7 +442,7 @@ function ListItemBody({
       </div>
       {children.length ? (
         <div className="notion-list-item-children">
-          <BlockChildren blocks={children} blockMap={blockMap} />
+          <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
         </div>
       ) : null}
     </li>
@@ -554,10 +453,13 @@ function ListItemBody({
 function BlockChildren({
   blocks,
   blockMap,
+  depth = 0,
 }: {
   blocks: FeishuBlock[];
   blockMap: Record<string, FeishuBlock>;
+  depth?: number;
 }) {
+  if (depth > 25) return null;
   const out: ReactNode[] = [];
   let i = 0;
   while (i < blocks.length) {
@@ -579,7 +481,7 @@ function BlockChildren({
       out.push(
         <ul key={`ul-${first.id}`} className="notion-list notion-list-disc">
           {group.map((item) => (
-            <ListItemBody key={item.id} block={item} blockMap={blockMap} />
+            <ListItemBody key={item.id} block={item} blockMap={blockMap} depth={depth} />
           ))}
         </ul>
       );
@@ -598,7 +500,7 @@ function BlockChildren({
       out.push(
         <ol key={`ol-${first.id}`} className="notion-list notion-list-numbered" start={1}>
           {group.map((item) => (
-            <ListItemBody key={item.id} block={item} blockMap={blockMap} />
+            <ListItemBody key={item.id} block={item} blockMap={blockMap} depth={depth} />
           ))}
         </ol>
       );
@@ -606,7 +508,7 @@ function BlockChildren({
     }
     out.push(
       <BlockErrorBoundary key={b.id} blockId={b.id}>
-        <BlockView block={b} blockMap={blockMap} />
+        <BlockView block={b} blockMap={blockMap} depth={depth} />
       </BlockErrorBoundary>
     );
     i += 1;
@@ -628,7 +530,7 @@ class BlockErrorBoundary extends Component<{ children: ReactNode; blockId?: stri
   override render() {
     if (this.state.hasError) {
       return (
-        <div className="notion-unsupported-card my-2.5 p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 bg-gray-50/40 dark:bg-gray-900/20">
+        <div className="notion-unsupported-card my-2.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg flex items-center justify-between text-xs text-gray-400 dark:text-gray-500 bg-gray-50/40 dark:bg-gray-900/20">
           <span>该内容块渲染异常</span>
           <span className="text-[10px] bg-gray-200/50 dark:bg-gray-800 px-2 py-0.5 rounded">无法展示</span>
         </div>
@@ -641,17 +543,20 @@ class BlockErrorBoundary extends Component<{ children: ReactNode; blockId?: stri
 function BlockView({
   block,
   blockMap,
+  depth = 0,
 }: {
   block: FeishuBlock;
   blockMap: Record<string, FeishuBlock>;
+  depth?: number;
 }) {
+  if (depth > 25) return null;
   const children = resolveChildBlocks(block.children, blockMap, { excludeTableCell: true });
 
   switch (block.type) {
     case "page":
       return (
         <div className="notion-page-content-inner">
-          <BlockChildren blocks={children} blockMap={blockMap} />
+          <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
         </div>
       );
 
@@ -698,7 +603,7 @@ function BlockView({
           <RichText runs={block.text ?? []} />
           {children.length ? (
             <div className="notion-text-children">
-              <BlockChildren blocks={children} blockMap={blockMap} />
+              <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
             </div>
           ) : null}
         </div>
@@ -709,7 +614,7 @@ function BlockView({
     case "ordered":
       return (
         <ul className={`notion-list ${block.type === "bullet" ? "notion-list-disc" : "notion-list-numbered"}`}>
-          <ListItemBody block={block} blockMap={blockMap} />
+          <ListItemBody block={block} blockMap={blockMap} depth={depth} />
         </ul>
       );
 
@@ -741,7 +646,7 @@ function BlockView({
           </div>
           {children.length ? (
             <div className="notion-to-do-children">
-              <BlockChildren blocks={children} blockMap={blockMap} />
+              <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
             </div>
           ) : null}
         </div>
@@ -756,7 +661,7 @@ function BlockView({
               <RichText runs={block.text ?? []} />
             </div>
           ) : null}
-          {children.length ? <BlockChildren blocks={children} blockMap={blockMap} /> : null}
+          {children.length ? <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} /> : null}
         </blockquote>
       );
 
@@ -771,7 +676,7 @@ function BlockView({
           </div>
           <div className="notion-callout-text">
             {block.text?.length ? <RichText runs={block.text ?? []} /> : null}
-            {children.length ? <BlockChildren blocks={children} blockMap={blockMap} /> : null}
+            {children.length ? <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} /> : null}
           </div>
         </div>
       );
@@ -812,7 +717,7 @@ function BlockView({
       const matrix = block.table?.cells || [];
       if (!matrix.length) {
         return (
-          <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="notion-unsupported-card my-3.5 w-full p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2">
               <span>📑</span>
               <span className="font-medium text-gray-700 dark:text-gray-300">表格</span>
@@ -839,7 +744,7 @@ function BlockView({
                             ? cell.children.map((cid) => {
                                 const child = blockMap[cid];
                                 return child ? (
-                                  <BlockView key={cid} block={child} blockMap={blockMap} />
+                                  <BlockView key={cid} block={child} blockMap={blockMap} depth={depth + 1} />
                                 ) : null;
                               })
                             : cell.text?.length
@@ -859,22 +764,36 @@ function BlockView({
 
     case "grid": {
       const cols = children.filter((c) => c.type === "grid_column");
-      const total = cols.length || 1;
+      const hasContent = cols.some((col) => {
+        const colChildren = resolveChildBlocks(col.children, blockMap);
+        return colChildren.length > 0;
+      });
+      if (!hasContent) return null;
+
+      const ratioSum = cols.reduce((s, c) => s + (c.widthRatio || 0), 0);
+      const useRatio = ratioSum > 0;
+      const fallback = cols.length || 1;
       return (
         <div className="notion-row my-4">
-          {cols.map((col, idx) => (
+          {cols.map((col, idx) => {
+            const pct = useRatio
+              ? ((col.widthRatio || 0) / ratioSum) * 100
+              : 100 / fallback;
+            return (
             <div
               key={col.id}
               className="notion-column"
-              style={{ width: `${100 / total}%`, flexGrow: 1, flexShrink: 1 }}
+              style={{ width: `${pct}%`, flexGrow: 0, flexShrink: 1 }}
             >
               <BlockChildren
                 blocks={resolveChildBlocks(col.children, blockMap)}
                 blockMap={blockMap}
+                depth={depth + 1}
               />
               {idx < cols.length - 1 ? <div className="notion-spacer" /> : null}
             </div>
-          ))}
+            );
+          })}
         </div>
       );
     }
@@ -882,7 +801,7 @@ function BlockView({
     case "grid_column":
       return (
         <div className="notion-column" style={{ width: "100%" }}>
-          <BlockChildren blocks={children} blockMap={blockMap} />
+          <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
         </div>
       );
 
@@ -909,7 +828,7 @@ function BlockView({
       const text = plainTextFromRuns(block.text);
       if (!text) {
         return (
-          <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+          <div className="notion-unsupported-card my-3.5 w-full p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-lg flex-shrink-0" aria-hidden>📊</span>
               <div className="min-w-0 flex-1">
@@ -937,8 +856,9 @@ function BlockView({
     case "bookmark":
     case "file":
     case "embed": {
-      const href = block.text?.find((r) => r.style?.link)?.style?.link || "#";
-      const text = plainTextFromRuns(block.text) || href;
+      const rawHref = block.text?.find((r) => r.style?.link)?.style?.link;
+      const href = isSafeUrl(rawHref) ? rawHref! : "#";
+      const text = plainTextFromRuns(block.text) || (href !== "#" ? href : "");
 
       // Video embed (Bilibili / YouTube / MP4 video)
       const videoEmbed = parseVideoEmbed(href !== "#" ? href : undefined);
@@ -980,39 +900,42 @@ function BlockView({
         );
       }
 
-      // File attachment: clean file card with download action
+      // File attachment: single clean download card (whole card is the action)
       if (block.type === "file") {
         const hasValidLink = href && href !== "#";
         if (hasValidLink) {
+          const ext = (() => {
+            const m = /\.([a-zA-Z0-9]{1,8})(?:\?|$)/.exec(text || "");
+            return m?.[1]?.toUpperCase() || "";
+          })();
           return (
             <a
-              className="notion-file-card my-3 flex items-center justify-between p-3.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group shadow-2xs"
+              className="notion-file-card my-3 flex w-full items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 hover:bg-blue-50/40 dark:hover:bg-blue-950/20 hover:border-blue-300 dark:hover:border-blue-700 transition-colors group shadow-2xs"
               href={href}
               target="_blank"
               rel="noreferrer"
               download
             >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="text-2xl text-blue-600 dark:text-blue-400 flex-shrink-0" aria-hidden>
-                  📄
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
-                    {text}
-                  </div>
-                  <div className="text-xs text-gray-400 mt-0.5">点击下载附件</div>
+              <div className="text-xl text-blue-600/80 dark:text-blue-400/80 flex-shrink-0" aria-hidden>
+                📄
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
+                  {text}
                 </div>
               </div>
-              <div className="px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md group-hover:border-blue-400 group-hover:text-blue-600 transition-colors flex-shrink-0 ml-2">
-                下载 ⤓
-              </div>
+              {ext ? (
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400 bg-gray-200/70 dark:bg-gray-800 rounded flex-shrink-0">
+                  {ext}
+                </span>
+              ) : null}
             </a>
           );
         }
 
         // File without download token/link
         return (
-          <div className="notion-file-card my-3 flex items-center justify-between p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-900/30 text-xs text-gray-500 dark:text-gray-400">
+          <div className="notion-file-card my-3 flex w-full items-center justify-between p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-900/30 text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-2.5 min-w-0 flex-1">
               <span className="text-lg flex-shrink-0" aria-hidden>📄</span>
               <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{text || "附件"}</span>
@@ -1049,7 +972,7 @@ function BlockView({
 
       // Missing embed / bookmark link
       return (
-        <div className="notion-unsupported-card my-3.5 p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <div className="notion-unsupported-card my-3.5 w-full p-3.5 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <span className="text-lg flex-shrink-0" aria-hidden>🔗</span>
             <div className="min-w-0 flex-1">
@@ -1067,8 +990,8 @@ function BlockView({
     default: {
       if (children.length) {
         return (
-          <div>
-            <BlockChildren blocks={children} blockMap={blockMap} />
+          <div className="w-full">
+            <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
           </div>
         );
       }
@@ -1096,7 +1019,7 @@ export default function FeishuRenderer({ content }: { content?: FeishuPageConten
   // Hooks must be called unconditionally at top level (Rules of Hooks)
   let isDarkMode = false;
   try {
-    const globalContext = useGlobal?.();
+    const globalContext = useGlobal?.() as { isDarkMode?: boolean } | null | undefined;
     isDarkMode = Boolean(globalContext?.isDarkMode);
   } catch {
     // fallback for environments outside GlobalContextProvider

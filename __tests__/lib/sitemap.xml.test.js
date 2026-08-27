@@ -1,4 +1,3 @@
-import fs from 'fs'
 import { generateSitemapXml } from '@/lib/utils/sitemap.xml'
 import { siteConfig } from '@/lib/config'
 
@@ -17,9 +16,7 @@ describe('generateSitemapXml', () => {
   })
 
   it('does not generate invalid duplicated-domain URLs for external links', () => {
-    const writeSpy = jest.spyOn(fs, 'writeFileSync').mockImplementation(() => {})
-
-    generateSitemapXml({
+    const xml = generateSitemapXml({
       NOTION_CONFIG: {
         LINK: 'https://example.com/'
       },
@@ -39,15 +36,11 @@ describe('generateSitemapXml', () => {
       ]
     })
 
-    expect(writeSpy).toHaveBeenCalledTimes(2)
-
-    const xml = writeSpy.mock.calls[0][1]
+    expect(typeof xml).toBe('string')
     expect(xml).toContain('<loc>https://example.com/hello-world</loc>')
     expect(xml).toContain('<loc>https://example.com/internal/page</loc>')
     expect(xml).not.toContain('<loc>https://external.com/landing</loc>')
     expect(xml).not.toContain('https://example.com/https://external.com/landing')
     expect(xml).not.toContain('Invalid Date')
-
-    writeSpy.mockRestore()
   })
 })

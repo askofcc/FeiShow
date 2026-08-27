@@ -47,11 +47,14 @@ export default async function handler(req, res) {
   const { path, paths, all } = req.body || {}
 
   try {
-    // 全站刷新：清除本地缓存 + revalidate 首页
+    // 无论是单页还是全站刷新，都必须先清空飞书内存 memo、表格元数据及数据缓存，
+    // 否则 Next.js 在执行 res.revalidate 重建页面时，底层依旧会命中旧数据的内存缓存
+    const clearedCaches = await cleanCacheData()
+    clearMemo()
+    clearFeishuTableCache()
+
+    // 全站刷新：revalidate 首页
     if (all) {
-      const clearedCaches = await cleanCacheData()
-      clearMemo()
-      clearFeishuTableCache()
       const results = []
       try {
         await res.revalidate('/')
@@ -67,7 +70,7 @@ export default async function handler(req, res) {
       })
     }
 
-    // 批量刷新
+    // 批量/单页刷新
     const targetPaths = paths || (path ? [path] : ['/'])
     const results = []
 
@@ -84,6 +87,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       message: `Revalidated ${results.filter(r => r.revalidated).length}/${results.length} paths`,
+      clearedCaches,
       results
     })
   } catch (error) {
