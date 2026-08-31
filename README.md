@@ -8,6 +8,20 @@
 
 ---
 
+## 🎨 25+ 精美主题即刻开箱即用
+
+飞书多维表格中一键热切换，无需重新构建部署：
+
+| Heo（极客博客风） | GitBook（技术文档风） | Hexo（经典博客） |
+| :---: | :---: | :---: |
+| <img src="./public/images/themes-preview/heo.png" width="260" alt="Heo theme" /> | <img src="./public/images/themes-preview/gitbook.png" width="260" alt="GitBook theme" /> | <img src="./public/images/themes-preview/hexo.png" width="260" alt="Hexo theme" /> |
+| **Simple（极简笔记）** | **Fuwari（动效卡片）** | **Landing（产品落地页）** |
+| <img src="./public/images/themes-preview/simple.png" width="260" alt="Simple theme" /> | <img src="./public/images/themes-preview/fuwari.png" width="260" alt="Fuwari theme" /> | <img src="./public/images/themes-preview/landing.png" width="260" alt="Landing theme" /> |
+| **Medium（专栏杂志）** | **Matery（卡片流）** | **Commerce（微商店/展示）** |
+| <img src="./public/images/themes-preview/medium.png" width="260" alt="Medium theme" /> | <img src="./public/images/themes-preview/matery.png" width="260" alt="Matery theme" /> | <img src="./public/images/themes-preview/commerce.png" width="260" alt="Commerce theme" /> |
+
+---
+
 ## 为什么选择 FeiShow？
 
 你已经在飞书里积累了大量文档、知识库和项目记录。但如果想对外公开成一个像样的网站（博客、产品官网、帮助中心、团队 Wiki），通常需要把内容手动搬运到 WordPress、Hexo、Notion 或维护一套复杂 CMS。
