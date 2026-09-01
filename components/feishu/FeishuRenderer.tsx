@@ -683,12 +683,13 @@ function BlockView({
     }
 
     case "code": {
-      const lang = block.language && block.language !== "plain" && block.language !== "plaintext" ? block.language : "";
+      const rawLang = (block.language || "plaintext").toLowerCase().trim();
+      const lang = rawLang === "plain" ? "plaintext" : rawLang || "plaintext";
       const codeString = plainTextFromRuns(block.text);
       return (
         <div className="notion-code-wrapper my-3">
-          <pre className={`notion-code ${lang ? `language-${lang}` : ""}`}>
-            <code className={lang ? `language-${lang}` : undefined}>
+          <pre className={`notion-code language-${lang}`}>
+            <code className={`language-${lang}`}>
               {codeString}
             </code>
           </pre>

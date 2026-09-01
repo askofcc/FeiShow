@@ -19,7 +19,8 @@
   }
 }
 
-.dark-mode .notion-code {
+.dark-mode .notion-code,
+.dark .notion-code {
   background-color: rgba(17, 24, 39, 1);
   border-color: rgba(55, 65, 81, 1);
 }
@@ -30,7 +31,8 @@
   background: none !important;
   padding: 0 !important;
 }
-.dark-mode .notion code {
+.dark-mode .notion code,
+.dark .notion code {
   color: rgba(229, 231, 235, 1);
 }
 .token.cdata,
@@ -95,7 +97,9 @@ pre[class*='language-'] {
   color: rgba(31, 41, 55, 1);
 }
 .dark-mode code[class*='language-'],
-.dark-mode pre[class*='language-'] {
+.dark-mode pre[class*='language-'],
+.dark code[class*='language-'],
+.dark pre[class*='language-'] {
   color: rgba(249, 250, 251, 1);
 }
 pre::-webkit-scrollbar {
