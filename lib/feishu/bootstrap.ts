@@ -393,8 +393,10 @@ export async function resolveFeishuTables(): Promise<ResolvedTables> {
       configTableId,
       source
     }
-    if (process.env.ENABLE_CACHE !== 'false' && process.env.ENABLE_CACHE !== '0') {
-      cache = resolved
+    if (resolved.contentAppToken && resolved.contentTableId) {
+      if (process.env.ENABLE_CACHE !== 'false' && process.env.ENABLE_CACHE !== '0') {
+        cache = resolved
+      }
     }
     return resolved
   })()

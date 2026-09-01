@@ -1,3 +1,17 @@
+function isCacheableValue(value: any): boolean {
+  if (value === null || value === undefined) return false
+  if (Array.isArray(value) && value.length === 0) return false
+  if (
+    typeof value === "object" &&
+    value?.accessError &&
+    !/permission|403|99991672/i.test(value.accessError)
+  ) {
+    // Transient network/timeout error -> do not cache
+    return false
+  }
+  return true
+}
+
 /**
  * Process-local async memo + in-flight dedupe with TTL.
  * Critical for Vercel SSG: many getStaticProps share one Node process.
@@ -62,8 +76,7 @@ export async function memoAsync<T>(
   entry.promise = (async () => {
     try {
       const value = await loader()
-      if (cacheDisabled) {
-        // Disabling cache must not disable same-request de-duplication.
+      if (cacheDisabled || !isCacheableValue(value)) {
         s.delete(key)
       } else {
         entry.value = value

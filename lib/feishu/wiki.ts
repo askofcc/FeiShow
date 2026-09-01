@@ -68,15 +68,11 @@ export function parseWikiToken(input: string): string | null {
 export async function resolveWikiNode(token: string): Promise<WikiNode | null> {
   if (!token) return null;
   return memoAsync("wiki-node", token, async () => {
-    try {
-      const qs = new URLSearchParams({ token });
-      const data = await feishuFetch<GetNodeData>(
-        `/open-apis/wiki/v2/spaces/get_node?${qs.toString()}`,
-      );
-      return data.node || null;
-    } catch {
-      return null;
-    }
+    const qs = new URLSearchParams({ token });
+    const data = await feishuFetch<GetNodeData>(
+      `/open-apis/wiki/v2/spaces/get_node?${qs.toString()}`,
+    );
+    return data.node || null;
   });
 }
 
