@@ -1,10 +1,39 @@
 # FeiShow
 
-在飞书写内容，发布成现代独立网站。
+把飞书文档与知识库，一秒发布为高颜值独立网站。
 
-[在线演示](https://feishow.srint.cn/) · [最少步骤部署](./docs/deploy/feishu-minimal.md) · [GitHub 仓库](https://github.com/askofcc/FeiShow)
+[在线演示](https://feishow.srint.cn/) · [GitHub 仓库](https://github.com/askofcc/FeiShow)
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/askofcc/FeiShow&env=FEISHU_APP_ID,FEISHU_APP_SECRET,FEISHU_SITE_ROOT&envDescription=App%20ID%2C%20Secret%2C%20wiki%20root%20URL&project-name=feishow&repository-name=FeiShow)
+
+---
+
+## 💡 为什么选择 FeiShow？
+
+市面上类似将飞书文档/知识库转为独立站的商业插件，通常采用订阅制，官方收费高达 **¥6,600 / 年**，且存在模板单一、数据受限、不支持自托管与缺乏 AI 结构化能力等痛点。
+
+**FeiShow 是一款 100% 开源免费的飞书无头 CMS 与静态站点生成系统：**
+- 💰 **零软件成本**：立省每年 6,600 元商业软件采购费，代码完全开源，支持 Vercel / Cloudflare / Docker 自由自托管。
+- 📝 **写作体验不变**：直接在飞书写文档、搭知识库、建多维表格，改完内容后站点自动无缝同步。
+- 🎨 **25+ 精美主题即刻开箱即用**：博客风、文档站（GitBook）、产品落地页、卡片流、杂志风等，多维表格一行配置即可热切换。
+- 📊 **多维表格深度融合**：文章、分类、标签、自定义 Slug、置顶、多级导航菜单全部通过多维表格直观管理。
+- 📚 **知识库批量分发**：支持知识库内多文档批量创建副本与统一权限管理，整套站点内容轻松维护。
+- 🤖 **AI 原生就绪 (AI-Ready)**：自带 `/llms.txt`、干净 Markdown 提纯引擎与标准 Agent API，一键为大模型与 RAG 知识库提供纯净数据源。
+
+---
+
+## 📊 核心能力横向对比
+
+| 核心维度 | 商业建站插件（如飞站等） | 传统 CMS（WordPress / Hexo） | **FeiShow（开源自托管）** |
+| :--- | :--- | :--- | :--- |
+| **软件授权成本** | **¥6,600 / 年** 商业订阅 | 免费 / 部分主题与插件收费 | **100% 永久开源免费** |
+| **内容编写端** | 飞书文档 / 知识库 | 网页后台富文本 / 本地 Markdown | **原生飞书文档与知识库** |
+| **主题丰富度** | 1~2 套固定样式，难以深度定制 | 需手动安装配置，生态割裂 | **25+ 套现代化主题，表格一键热切换** |
+| **数据与部署掌控** | 闭源托管，数据受制于第三方平台 | 需自行维护服务器与数据库 | **完全自托管，走官方 OpenAPI 只读鉴权，数据 100% 私有** |
+| **多维表格 CMS 能力** | 仅基础文档列表展示 | 需额外二次开发数据表 | **多维表格深度驱动（导航、分类、标签、置顶、CONFIG 动态配置）** |
+| **批量内容分发** | 手动逐篇新建 | 依赖导入导出备份包 | **知识库内原生支持多文档批量复制与统一权限继承** |
+| **AI / Agent 数据出口** | 无结构化出口 | 无 | **内置 `/llms.txt` + 标准 Agent API + 纯净 Markdown 提纯** |
+| **部署速度** | 平台绑定 | 10~30 分钟服务器环境配置 | **Vercel 一键 1 分钟上线 / Docker 容器化** |
 
 ---
 
@@ -22,29 +51,16 @@
 
 ---
 
-## 为什么选择 FeiShow？
+## 核心架构：一站只认一个飞书主链接
 
-你已经在飞书里积累了大量文档、知识库和项目记录。但如果想对外公开成一个像样的网站（博客、产品官网、帮助中心、团队 Wiki），通常需要把内容手动搬运到 WordPress、Hexo、Notion 或维护一套复杂 CMS。
-
-**FeiShow 让你直接把飞书当成网站的内容后台（CMS）：**
-
-- 📝 **继续在飞书写作**：享受飞书出色的富文本、多维表格与协作体验，改完即自动同步。
-- 🎨 **25+ 精美主题开箱即用**：博客风、文档站（GitBook/Hexo）、作品集、杂志风等，随时在飞书里一行切换。
-- ⚡ **极简一站式维护**：全站只认一个飞书知识库根页，文档、栏目、多维表格、独立页面全自动发现。
-- 🤖 **AI 原生就绪（AI-Ready）**：自带 `/llms.txt` 与标准 Agent API，将飞书复杂编辑态数据提纯为干净的 Markdown 与结构化 JSON。
-- 🔍 **专业站点能力**：独立域名、SEO 优化、深色模式、多级目录（TOC）、文章搜索、RSS 订阅、Sitemap 生成全内置。
-
----
-
-## 核心架构与原理：一站只认一个飞书根页
-
-`FEISHU_SITE_ROOT` 是 FeiShow 的主链接，也是站点的唯一内容入口。它指向一个飞书知识库根页；根页下的内容表和文档构成站点，配置中心则由内容表按需引用。
+`FEISHU_SITE_ROOT` 是 FeiShow 的主链接，也是站点的唯一入口。它指向知识库中的主配置文档（例如 `https://xxx.feishu.cn/wiki/xxxxxx`）。系统会自动递归发现其挂靠的内容多维表格、子文档与配置中心。
 
 ```text
-FEISHU_SITE_ROOT（只在建站时填一次）
-  ├─ 内容表（多维表格） → 菜单、文章、页面、分类
-  ├─ 飞书文档          → 实际正文内容
-  └─ 可选：配置中心    → 单独的 CONFIG 表，按需管理站名、主题、SEO
+FEISHU_SITE_ROOT（建站时只填一次主链接）
+  ├─ 首页文档 / 空间主页  → 提供站点默认标题、简介、图标与 Banner
+  ├─ 内容表（多维表格）   → 驱动导航菜单、文章列表、单页、分类与标签
+  ├─ 飞书文档与子知识库   → 实际文章正文内容
+  └─ 可选：配置中心 (CONFIG) → 自由定制主题、SEO、语言、站点元数据
 ```
 
 **日常零后台负担**：不需要手抄 `table_id` 或文档 token，也不需要在部署平台反复改配置。日常内容增删与站点微调均在飞书内完成。
@@ -53,90 +69,91 @@ FEISHU_SITE_ROOT（只在建站时填一次）
 |---|---|---|
 | **普通访客 / 读者** | 直接访问独立域名浏览 | 独立站网页端 |
 | **内容创作者 / 运营** | 不需要开发者权限与 API Secret | 飞书文档、内容表、CONFIG 表 |
-| **站点部署者 / 开发者**| 填入根页链接与一次性凭证部署 | 托管平台（换根页或排障时才需要） |
+| **站点部署者 / 开发者**| 填入主链接与一次性凭证部署 | 托管平台（换主链接或排障时才需要） |
 
 ---
 
 ## 用户操作指南：选择适合你的使用模式
 
-FeiShow 根据用户场景分为三种操作深度：从**0 代码小白极简建站**，到**生产级稳定控制**，再到**开发者深度折腾**。
+FeiShow 根据用户场景分为三种使用模式：从 **0 代码小白 1 分钟极速上线**，到 **生产级稳定控制**，再到 **进阶极客与开发者模式**。
 
-### 🌱 模式一：普通用户极简模式（克隆模板 + 公开凭证或公开可读）
+### 🌱 模式一：普通用户极简模式（克隆模板 + 公开分享，1 分钟极速上线）
 
-适合不想折腾开放平台开发者后台、仅想在 1 分钟内极速体验建站的个人：
+适合不想折腾开放平台开发者后台、仅想在 1 分钟内最快体验建站的个人（这也是最少步骤部署路径）：
 
-1. **克隆官方根页模板**：
+1. **克隆官方页面模板**：
    - 打开 [飞书官方页面模板](https://test-d2al261ggga5.feishu.cn/wiki/AHHowAmX9itAKWkHvWOcqQOPneg)（包含多维表格「内容」、示例文章与配置中心）。
-   - 点击右上角「...」选择「复制页面」或克隆到自己的知识空间中，复制新生成的根页主链接（`FEISHU_SITE_ROOT`）。
-2. **开箱即用：使用公开应用凭据**（免去手动创建与配置应用）：
-   - `FEISHU_APP_ID`：`cli_aa0f2dc1f8f81beb`
-   - `FEISHU_APP_SECRET`：`raTlSQRuA0Sr8oTRt5VJxe7X1vDkVZSg`
-   - 在克隆后的知识库根页右上角点击「分享」→「添加文档应用 / 协作者」→ 搜索上述应用并授予 **「可阅读」** 权限。
-3. **一键部署或交给 AI 助手**：
-   - 将克隆后的主链接及上述凭据直接填入 Vercel 部署向导，或发给 AI 编程助手（如 Codex、ChatGPT 等）协助完成。
+   - 点击右上角「...」选择「复制页面」或复制到自己的知识库中，复制新生成的首页主链接（`FEISHU_SITE_ROOT`）。
+2. **开启公开可读权限**：
+   - 在克隆后的知识库页面右上角点击 **「分享」**；
+   - 将链接分享设置为 **「互联网上获得链接的人可阅读」**（确保勾选“应用到所有子页面”）。
+3. **一键 Vercel 部署**：
+   - 点击下方一键部署按钮，填入 **3 个变量**：
+     - `FEISHU_APP_ID`：`cli_aa0f2dc1f8f81beb`（开箱即用公开凭据）
+     - `FEISHU_APP_SECRET`：`raTlSQRuA0Sr8oTRt5VJxe7X1vDkVZSg`（开箱即用公开凭据）
+     - `FEISHU_SITE_ROOT`：你刚才复制的飞书页面主链接
 
-> 💡 **公开分享说明**：若不使用应用凭据，亦可在根页开启「互联网获得链接的人可阅读」（需勾选应用到所有子页面）。但官方 OpenAPI 配合应用授权通道速度更快、稳定性更高，且无需向公网公开源文档。
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/askofcc/FeiShow&env=FEISHU_APP_ID,FEISHU_APP_SECRET,FEISHU_SITE_ROOT&envDescription=App%20ID%2C%20Secret%2C%20wiki%20root%20URL&project-name=feishow&repository-name=FeiShow)
+
+4. **自检验证**：
+   - 部署完成后打开 `https://你的域名/api/feishu/health`，确认连接正常即可浏览网站。
 
 ---
 
-### 🚀 模式二：稳定精细控制模式（推荐生产使用：开通专属自建应用 / 智能体 + 精细只读权限）
+### 🚀 模式二：稳定精细控制模式（推荐生产使用：专属自建应用 + 私密只读授权）
 
-适合正式个人站点、团队官网、产品文档站，或包含受控私有内容的场景：
+适合正式个人站点、团队官网、产品文档站，或**不希望将源文档公开暴露到公网**的私密场景：
 
 1. **创建专属自建应用（智能体）**：
    - **快捷通道**：点击 [一键创建应用智能体快捷入口](https://open.feishu.cn/page/launcher?from=backend_oneclick) 快速开通；
-   - **常规通道**：前往 [飞书开放平台 (open.feishu.cn)](https://open.feishu.cn/app) → 点击「创建企业自建应用」（可命名为你的站点机器人 / 智能体）。
+   - **常规通道**：前往 [飞书开放平台 (open.feishu.cn)](https://open.feishu.cn/app) → 点击「创建企业自建应用」。
 2. **开通只读权限清单**（在开放平台「开发配置」→「权限管理」中添加，并**创建版本并发布**）：
    - `docx:document:readonly`（云文档 / 新版文档读取：拉取正文 blocks 与文档属性）
    - `wiki:wiki:readonly`（知识库读取：解析知识库节点树与子文档层级）
    - `bitable:app:readonly`（多维表格读取：查询内容表菜单/文章索引与 CONFIG 表）
    - `drive:drive:readonly`（云空间读取：下载正文图片、文档封面及附件素材）
 3. **获取应用凭证**：
-   - 在「凭证与基础信息」中复制 `App ID` (`FEISHU_APP_ID`) 与 `App Secret` (`FEISHU_APP_SECRET`)。
-4. **知识库根页授权**：
-   - 打开 `FEISHU_SITE_ROOT` 根页右上角「分享」→「添加文档应用」/「添加协作者」→ 搜索刚创建的应用名称 → 授予 **「可阅读」** 权限（子页面与表格自动继承）。
+   - 在「凭证与基础信息」中复制专属 `App ID` (`FEISHU_APP_ID`) 与 `App Secret` (`FEISHU_APP_SECRET`)。
+4. **知识库私密授权**：
+   - 打开 `FEISHU_SITE_ROOT` 主页右上角「分享」→「添加文档应用 / 协作者」→ 搜索刚创建的应用名称 → 授予 **「可阅读」** 权限（子页面与表格自动继承）。
 
-> ✅ **核心优势：**
-> - **100% 官方 OpenAPI 稳定通道**：走官方鉴权接口，响应迅速稳定，不受公网网页防爬或会话策略干扰。
-> - **数据安全私密**：无需将文档公开分享至公网，只有获得授权的应用凭证才能读取内容。
-
----
-
-### 🛠️ 模式三：极客与开发者模式（深度折腾、无头 CMS、多主题与私有化）
-
-针对有深度定制或集成需求的开发者：
-
-- **自由热切换 25+ 主题**：直接在飞书 CONFIG 表改 `THEME`，或在 URL 上加 `?theme=gitbook`、`?theme=simple` 实时预览。
-- **作为无头 CMS（Headless CMS）**：不使用自带前端，仅将 FeiShow 部署为数据服务，前端用自己的框架，调用 Agent API。
-- **开发自定义主题**：基于清晰的 `THEME_DATA_CONTRACT.md` 开发新主题，主题层只消费结构化数据与 `<NotionPage />` 统一正文组件，无需编写一行飞书 API 代码。
-- **Docker 私有化部署**：`docker compose up -d --build` 构建并运行生产 standalone 镜像。
+> ✅ **为什么推荐模式二（对比模式一的公开分享）？**
+> - **数据安全私密**：无需将文档设置为“互联网公开”，源文档与表格对外部完全不可见，只有获得授权的应用凭证才能通过 OpenAPI 读取。
+> - **100% 官方 API 稳定通道**：走官方鉴权接口，响应速度快且稳定，不受网页防爬策略干扰。
 
 ---
 
-## 快速部署（最少步骤）
+### 🛠️ 模式三：进阶极客与开发者模式（知识库批量复制、多主题、无头 CMS 与 Docker）
 
-完整图文说明见：[最少步骤部署指南](./docs/deploy/feishu-minimal.md)。首次部署只需下面这条路径：
+#### 1. 知识库空间高级技巧与批量文档分发
+对于多文档管理与站点内容矩阵，**飞书知识库空间（Wiki Space）是批量创建与管理文档的理想载体**：
+- **批量复制创建文档**：知识库内部原生支持对目录节点进行批量复制与批量创建文档副本，快速分发整套模板内容。
+- **默认权限统一继承**：在知识库空间层级设置默认权限后，新创建的子文档与表格会自动继承父级权限，无需逐篇重复配置授权。
 
-1. **克隆飞书根页模板**：打开 [飞书页面模板](https://test-d2al261ggga5.feishu.cn/wiki/AHHowAmX9itAKWkHvWOcqQOPneg)，点击右上角「...」复制克隆到自己的知识空间中，获取新页面的主链接（`FEISHU_SITE_ROOT`）。
-2. **准备应用凭证（二选一）**：
-   - **极速体验（开箱即用）**：使用公开提供的应用凭据（无需手动创建应用）：
-     - `FEISHU_APP_ID`: `cli_aa0f2dc1f8f81beb`
-     - `FEISHU_APP_SECRET`: `raTlSQRuA0Sr8oTRt5VJxe7X1vDkVZSg`
-   - **生产推荐（专属应用）**：点击 [一键创建应用智能体](https://open.feishu.cn/page/launcher?from=backend_oneclick) 获取专属 App ID / Secret。
-3. **一键 Vercel 部署**，填入 **3 个环境变量**：
+#### 2. 自由热切换 25+ 主题
+- 直接在飞书 CONFIG 表改 `THEME`，或在 URL 上加 `?theme=gitbook`、`?theme=simple` 实时预览。
+- 基于清晰的 [主题数据开发契约 (THEME_DATA_CONTRACT)](./docs/feishu/THEME_DATA_CONTRACT.md) 快速开发新主题，只消费结构化数据与 `<NotionPage />` 统一组件。
 
-| 环境变量 | 填写内容 | 说明 / 默认示例 |
-|---|---|---|
-| `FEISHU_APP_ID` | 开放平台 App ID | 示例/公开凭据：`cli_aa0f2dc1f8f81beb`（或填专属 App ID） |
-| `FEISHU_APP_SECRET` | 开放平台 App Secret | 示例/公开凭据：`raTlSQRuA0Sr8oTRt5VJxe7X1vDkVZSg`（或填专属 Secret） |
-| `FEISHU_SITE_ROOT` | 飞书根页链接 | 克隆后的知识库根页链接，形如 `https://xxx.feishu.cn/wiki/xxxxxxxx` |
+#### 3. 作为无头 CMS（Headless CMS）
+- 不使用自带前端，仅将 FeiShow 部署为数据服务，前端用自己的框架调用 Agent API。
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/askofcc/FeiShow&env=FEISHU_APP_ID,FEISHU_APP_SECRET,FEISHU_SITE_ROOT&envDescription=App%20ID%2C%20Secret%2C%20wiki%20root%20URL&project-name=feishow&repository-name=FeiShow)
+#### 4. Docker 私有化部署
+```bash
+# 准备环境文件并填写飞书三项变量
+cp .env.feishu.example .env.docker.local
+docker compose up -d --build
+```
 
-4. **根页授权**：在克隆后的飞书根页右上角点击「分享」→「添加文档应用 / 协作者」，添加对应应用并授予 **「可阅读」** 权限。
-5. **自检验证**：部署完成后打开健康检查确认连接状态：`https://你的域名/api/feishu/health`。
+开发热更新：
+```bash
+docker compose -f docker-compose.dev.yml up
+```
 
-> 💡 **小贴士**：仓库若是私有的，请先 Fork 到自己的 GitHub 账号，再导入 Vercel 部署。
+清理旧构建缓存：
+```bash
+docker builder prune -f
+docker image prune -f
+```
 
 ---
 
@@ -209,57 +226,6 @@ curl -sS "https://你的域名/api/agent/posts/<slug>?format=md"
 
 ---
 
-## 本地开发与 Docker 自托管
-
-### 本地运行
-
-```bash
-git clone https://github.com/askofcc/FeiShow.git
-cd FeiShow
-npx yarn@1.22.22 install
-cp .env.feishu.example .env.local
-# 填写 FEISHU_APP_ID / FEISHU_APP_SECRET / FEISHU_SITE_ROOT
-npx yarn@1.22.22 dev -p 3460
-```
-
-### Docker 一键部署
-
-默认 `docker compose` 构建生产 standalone 镜像，不要用开发挂载当正式部署。
-
-```bash
-# 准备环境文件并填写飞书三项变量
-cp .env.feishu.example .env.docker.local
-docker compose up -d --build
-```
-
-开发热更新：
-
-```bash
-docker compose -f docker-compose.dev.yml up
-```
-
-如果本机 Docker Desktop 磁盘涨得很快，先清掉旧构建缓存再部署：
-
-```bash
-docker builder prune -f
-docker image prune -f
-```
-
-生产服务器不要在每次发布后无限保留 BuildKit 缓存。上面的 `docker builder prune -f`
-只清理未使用的构建缓存，不会删除正在运行的容器或当前使用的镜像；也可以按需只保留最近
-7 天的缓存：
-
-```bash
-docker builder prune --filter until=168h
-```
-
-生产 standalone 容器不挂载 `.next`、`node_modules` 或 Yarn 缓存，运行时 Feishu 数据缓存默认
-使用进程内存（配置 `REDIS_URL` 时使用 Redis）。因此运行中的容器不会因为正常访问持续累积本地
-文件。Docker 磁盘长期增长通常来自反复 `--build` 留下的 BuildKit 缓存、旧镜像，或宿主机日志；
-Compose 已为应用日志设置 `10MB x 3` 的轮转上限。
-
----
-
 ## 常见排障与健康检查
 
 部署遇到问题时，优先访问健康自检端点：`https://你的域名/api/feishu/health`
@@ -267,7 +233,7 @@ Compose 已为应用日志设置 `10MB x 3` 的轮转上限。
 | 检查项报错 | 最常见原因 | 解决方法 |
 |---|---|---|
 | **应用鉴权失败** | App ID/Secret 不匹配，或权限未发布 | 前往开放平台核对凭据，并确认权限已「创建版本并发布」 |
-| **根页无法读取** | 应用未添加至知识库协作者 | 飞书根页右上角「分享」→ 添加文档应用为「可阅读」 |
+| **根页无法读取** | 未开启公开分享（模式一）或未添加应用协作者（模式二） | 检查分享设置或添加应用为「可阅读」 |
 | **内容表未找到** | 根页下缺少包含「标题/类型/文档」列的多维表格 | 检查多维表格列名，并确认应用有权读取该表格 |
 | **CONFIG 表未找到** | 未建配置表（不影响正常建站） | 如需个性化配置再建表，并在内容表新增「类型=配置」记录引用它 |
 
@@ -277,6 +243,7 @@ Compose 已为应用日志设置 `10MB x 3` 的轮转上限。
 
 | 需求 | 参考文档 |
 |---|---|
+| 最少步骤部署指南 | [最少步骤部署指南](./docs/deploy/feishu-minimal.md) |
 | 深入理解全站配置优先级 | [配置来源与环境变量划分](./docs/feishu/CONFIG_SOURCES.md) |
 | 多维表格字段详细契约 | [内容表契约说明](./docs/feishu/FEISHU_CONTENT_TABLE_CONTRACT.md) |
 | 配置中心高级开关指南 | [CONFIG 表完整字段文档](./docs/feishu/FEISHU_BITABLE_CONFIG_CONTRACT.md) |
