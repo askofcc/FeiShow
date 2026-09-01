@@ -31,13 +31,7 @@ const siteConfig = {
    * Build/SSG light mode: skip per-doc summary/cover fan-out (avoids Feishu rate limits on Vercel).
    * Override with FEISHU_BUILD_LIGHT=false to force full fill during build.
    */
-  buildLight:
-    process.env.FEISHU_BUILD_LIGHT === 'false'
-      ? false
-      : process.env.FEISHU_BUILD_LIGHT === 'true' ||
-        process.env.BUILD_MODE === 'true' ||
-        process.env.NEXT_PHASE === 'phase-production-build' ||
-        process.env.npm_lifecycle_event === 'build',
+  buildLight: process.env.FEISHU_BUILD_LIGHT !== 'false',
   feishu: {
     appId,
     appSecret: env('FEISHU_APP_SECRET'),

@@ -39,6 +39,7 @@ type ListNodesData = {
 export function parseWikiSpaceId(input: string): string | null {
   const raw = (input || "").trim();
   if (!raw) return null;
+  if (raw.startsWith("space:")) return raw.slice(6);
   const mSpace = raw.match(/\/wiki\/space\/([0-9A-Za-z_-]+)/);
   if (mSpace?.[1]) return mSpace[1];
   if (/^\d{15,}$/.test(raw)) return raw;

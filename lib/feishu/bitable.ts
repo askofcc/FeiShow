@@ -144,12 +144,15 @@ export function extractDocumentId(value: BitableFieldValue | undefined): string 
   const raw = extractTextField(value).trim();
   if (!raw) return undefined;
 
+  const mSpace = raw.match(/\/wiki\/space\/([0-9A-Za-z_-]+)/);
+  if (mSpace?.[1]) return `space:${mSpace[1]}`;
+
   // direct token-like string
-  if (/^[a-zA-Z0-9]{10,}$/.test(raw) && !raw.includes("/")) return raw;
+  if (/^[a-zA-Z0-9_-]{10,}$/.test(raw) && !raw.includes("/")) return raw;
 
   // URLs: https://xxx.feishu.cn/docx/TOKEN or /wiki/TOKEN or /docs/TOKEN
-  const match = raw.match(/\/(docx|wiki|docs|doc)\/([a-zA-Z0-9]+)/);
-  if (match?.[2]) return match[2];
+  const match = raw.match(/\/(docx|wiki|docs|doc)\/([a-zA-Z0-9_-]+)/);
+  if (match?.[2] && match[2] !== "space") return match[2];
 
   return raw;
 }
@@ -204,22 +207,23 @@ export function extractDocToken(value: BitableFieldValue | undefined): string | 
     for (const item of value) {
       if (!item || typeof item !== "object") continue;
       const any = item as Record<string, unknown>;
-      if (typeof any.token === "string" && any.token) return any.token;
-      if (typeof any.link === "string") {
-        const m = String(any.link).match(/\/(docx|wiki|docs|doc)\/([a-zA-Z0-9]+)/);
-        if (m?.[2]) return m[2];
-      }
-      if (typeof any.url === "string") {
-        const m = String(any.url).match(/\/(docx|wiki|docs|doc)\/([a-zA-Z0-9]+)/);
-        if (m?.[2]) return m[2];
-      }
-      if (typeof any.text === "string") {
-        const m = String(any.text).match(/\/(docx|wiki|docs|doc)\/([a-zA-Z0-9]+)/);
-        if (m?.[2]) return m[2];
-        if (/^[a-zA-Z0-9]{10,}$/.test(any.text)) return any.text;
+      if (typeof any.token === "string" && any.token && any.token !== "space") return any.token;
+      const rawUrl = String(any.link || any.url || any.text || "");
+      if (rawUrl) {
+        const mSpace = rawUrl.match(/\/wiki\/space\/([0-9A-Za-z_-]+)/);
+        if (mSpace?.[1]) return `space:${mSpace[1]}`;
+        const m = rawUrl.match(/\/(docx|wiki|docs|doc)\/([a-zA-Z0-9_-]+)/);
+        if (m?.[2] && m[2] !== "space") return m[2];
+        if (/^[a-zA-Z0-9_-]{10,}$/.test(rawUrl)) return rawUrl;
       }
     }
   }
+
+  const raw = extractTextField(value).trim();
+  if (!raw) return undefined;
+
+  const mSpace = raw.match(/\/wiki\/space\/([0-9A-Za-z_-]+)/);
+  if (mSpace?.[1]) return `space:${mSpace[1]}`;
 
   return extractDocumentId(value);
 }

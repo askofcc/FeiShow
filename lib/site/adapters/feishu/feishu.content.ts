@@ -859,6 +859,9 @@ export async function fillMissingCovers(
       ({ row }) =>
         !row.coverToken &&
         row.documentId &&
+        !row.documentId.startsWith('space:') &&
+        row.documentId !== 'space' &&
+        /^[A-Za-z0-9_-]{10,}$/.test(row.documentId) &&
         (row.type === 'post' ||
           row.type === 'page' ||
           row.type === 'notice' ||
