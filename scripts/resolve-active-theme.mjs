@@ -37,12 +37,52 @@ loadEnvFile(process.env.FEISHU_ENV_FILE || '/run/secrets/feishu_env')
 loadEnvFile(path.join(projectRoot, '.env.local'))
 loadEnvFile(path.join(projectRoot, '.env.docker.local'))
 
+const THEME_DISPLAY_ORDER = [
+  // 🌟 第一梯队：高颜值旗舰/主力推荐主题
+  "gitbook",
+  "simple",
+  "fuwari",
+  "heo",
+  "medium",
+  "hexo",
+  "fukasawa",
+  "claude",
+  "thoughtlite",
+  "typography",
+  // 📦 第二梯队：常规/特色主题
+  "next",
+  "nobelium",
+  "magzine",
+  "plog",
+  "photo",
+  "movie",
+  "game",
+  "starter",
+  "example",
+  // 💤 第三梯队：边缘/特定场景/体验欠佳主题（后置沉底）
+  "matery",
+  "proxio",
+  "landing",
+  "nav",
+  "opc",
+  "commerce",
+  "endspace"
+]
+
 function availableThemes() {
-  return fs
+  const list = fs
     .readdirSync(themeRoot, { withFileTypes: true })
     .filter(item => item.isDirectory())
     .map(item => item.name)
-    .sort()
+
+  return list.sort((a, b) => {
+    const idxA = THEME_DISPLAY_ORDER.indexOf(a)
+    const idxB = THEME_DISPLAY_ORDER.indexOf(b)
+    const orderA = idxA >= 0 ? idxA : 100
+    const orderB = idxB >= 0 ? idxB : 100
+    if (orderA !== orderB) return orderA - orderB
+    return a.localeCompare(b)
+  })
 }
 
 function validTheme(name) {
