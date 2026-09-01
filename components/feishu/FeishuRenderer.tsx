@@ -270,9 +270,9 @@ function EmbedCard({
 
   // 3. Table / Sheet / Bitable Preview
   if (kind === "sheet" || kind === "bitable") {
-    const visibleHeaders = (preview?.headers || []).filter((h) => !h.startsWith("_"));
+    const visibleHeaders = (preview?.headers || []).filter((h) => !h.startsWith("_") && h.trim());
     const rows = preview?.rows || [];
-    const columnCount = Math.max(visibleHeaders.length, ...rows.map((r) => r.length));
+    const columnCount = visibleHeaders.length || Math.max(...rows.map((r) => r.length), 0);
 
     if (columnCount > 0 && (visibleHeaders.length > 0 || rows.length > 0)) {
       return (
@@ -287,30 +287,30 @@ function EmbedCard({
             <table className="notion-simple-table w-full text-xs">
               {visibleHeaders.length > 0 ? (
                 <thead>
-                  <tr className="bg-gray-50/40 dark:bg-gray-800/30">
+                  <tr className="bg-gray-100/70 dark:bg-gray-800/60 border-b border-gray-200 dark:border-gray-700">
                     {visibleHeaders.map((h, i) => (
                       <th
                         key={i}
-                        className="notion-simple-table-cell px-3 py-2 text-left font-medium text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 whitespace-nowrap"
+                        className="notion-simple-table-cell px-3.5 py-2.5 text-left font-semibold text-gray-900 dark:text-gray-100 border-r border-gray-200 dark:border-gray-700 last:border-r-0 whitespace-nowrap"
                       >
-                        {h || "—"}
+                        {renderInlineFormatted(h || "—")}
                       </th>
                     ))}
                   </tr>
                 </thead>
               ) : null}
-              <tbody>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                 {rows.map((row, ri) => (
                   <tr
                     key={ri}
-                    className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-colors"
+                    className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
                   >
                     {Array.from({ length: columnCount }, (_, ci) => (
                       <td
                         key={ci}
-                        className="notion-simple-table-cell px-3 py-2 text-gray-600 dark:text-gray-300"
+                        className="notion-simple-table-cell px-3.5 py-2.5 text-gray-700 dark:text-gray-300 border-r border-gray-100 dark:border-gray-800 last:border-r-0"
                       >
-                        {row[ci] || "—"}
+                        {renderInlineFormatted(row[ci] || "—")}
                       </td>
                     ))}
                   </tr>
@@ -387,6 +387,62 @@ function isSafeUrl(url?: string | null): boolean {
   return true;
 }
 
+function renderInlineFormatted(text?: string | null): ReactNode {
+  if (!text) return null;
+  const str = String(text);
+  if (!str.includes("[") && !str.includes("`") && !str.includes("**")) {
+    return str;
+  }
+  const regex = /\[([^\]]+)\]\(([^)]+)\)|`([^`]+)`|\*\*([^*]+)\*\*/g;
+  const parts: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(str)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(str.slice(lastIndex, match.index));
+    }
+    if (match[1] && match[2]) {
+      const label = match[1];
+      const href = match[2].trim();
+      if (isSafeUrl(href)) {
+        parts.push(
+          <a
+            key={match.index}
+            href={href}
+            className="notion-link underline text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+            target={href.startsWith("http") ? "_blank" : undefined}
+            rel={href.startsWith("http") ? "noreferrer" : undefined}
+          >
+            {label}
+          </a>
+        );
+      } else {
+        parts.push(label);
+      }
+    } else if (match[3]) {
+      parts.push(
+        <code key={match.index} className="notion-inline-code">
+          {match[3]}
+        </code>
+      );
+    } else if (match[4]) {
+      parts.push(
+        <strong key={match.index} className="notion-b">
+          {match[4]}
+        </strong>
+      );
+    }
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < str.length) {
+    parts.push(str.slice(lastIndex));
+  }
+
+  return parts.length ? <>{parts}</> : str;
+}
+
 function RichText({ runs }: { runs?: TextRun[] }) {
   if (!runs?.length) return null;
   return (
@@ -394,7 +450,7 @@ function RichText({ runs }: { runs?: TextRun[] }) {
       {runs.map((run, idx) => {
         let node: ReactNode = run.text;
         const s = run.style;
-        if (!s) return <span key={idx}>{node}</span>;
+        if (!s) return <span key={idx}>{renderInlineFormatted(run.text)}</span>;
         if (s.inlineEquation) {
           return (
             <span key={idx} className="notion-equation notion-equation-inline inline-block px-1 align-middle">
@@ -415,6 +471,8 @@ function RichText({ runs }: { runs?: TextRun[] }) {
               </a>
             );
           }
+        } else if (!s.inlineCode) {
+          node = renderInlineFormatted(run.text);
         }
         return <span key={idx}>{node}</span>;
       })}
@@ -730,16 +788,28 @@ function BlockView({
         );
       }
       return (
-        <div className="notion-simple-table-wrapper my-4 overflow-x-auto">
-          <table className="notion-simple-table w-full">
+        <div className="notion-simple-table-wrapper my-4 overflow-x-auto border border-gray-200 dark:border-gray-800 rounded-xl shadow-2xs">
+          <table className="notion-simple-table w-full text-sm">
             <tbody>
               {matrix.map((row, ri) => (
-                <tr key={ri} className={ri === 0 ? "notion-simple-table-header-row font-medium bg-gray-50/50 dark:bg-gray-800/40" : undefined}>
+                <tr
+                  key={ri}
+                  className={
+                    ri === 0
+                      ? "notion-simple-table-header-row font-semibold bg-gray-100/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700"
+                      : "border-b border-gray-100 dark:border-gray-800 last:border-b-0 hover:bg-gray-50/40 dark:hover:bg-gray-800/20 transition-colors"
+                  }
+                >
                   {row.map((cellId, ci) => {
                     const cell = blockMap[cellId];
                     const Tag = ri === 0 ? "th" : "td";
                     return (
-                      <Tag key={ci} className="notion-simple-table-cell p-2 border border-gray-200 dark:border-gray-700">
+                      <Tag
+                        key={ci}
+                        className={`notion-simple-table-cell px-3.5 py-2.5 border-r border-gray-200 dark:border-gray-800 last:border-r-0 text-left align-top ${
+                          ri === 0 ? "font-semibold text-gray-900 dark:text-gray-100" : "text-gray-700 dark:text-gray-300"
+                        }`}
+                      >
                         {cell
                           ? cell.children?.length
                             ? cell.children.map((cid) => {

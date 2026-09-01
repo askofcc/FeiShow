@@ -22,20 +22,41 @@ function cellText(value: unknown): string {
     return String(value);
   }
   if (Array.isArray(value)) {
+    // Check if elements are rich text segments (e.g. from Feishu Sheet)
+    const isRichText = value.some(
+      (v) => v && typeof v === "object" && ("type" in v || "link" in v || "texts" in v || "segmentStyle" in v),
+    );
+    if (isRichText) {
+      return value
+        .map((v) => {
+          if (v == null) return "";
+          if (typeof v === "object") {
+            const obj = v as { text?: string; link?: string; texts?: Array<{ text?: string }>; name?: string };
+            const text = obj.text || (obj.texts ? obj.texts.map((t) => t.text || "").join("") : "") || "";
+            if (obj.link) {
+              const label = text.trim();
+              return label ? `[${label}](${obj.link})` : text;
+            }
+            return text;
+          }
+          return String(v);
+        })
+        .join("");
+    }
     return value
-      .map((v) => {
-        if (v == null) return "";
-        if (typeof v === "object" && v !== null && "text" in v) return String((v as { text?: string }).text || "");
-        if (typeof v === "object" && v !== null && "name" in v) return String((v as { name?: string }).name || "");
-        return cellText(v);
-      })
+      .map((v) => cellText(v))
       .filter(Boolean)
       .join(", ");
   }
   if (typeof value === "object") {
-    const o = value as Record<string, unknown>;
-    if (typeof o.text === "string") return o.text;
+    const o = value as { text?: string; link?: string; texts?: Array<{ text?: string }>; name?: string };
+    const text = o.text || (o.texts ? o.texts.map((t) => t.text || "").join("") : "") || "";
+    if (o.link) {
+      const label = text.trim();
+      return label ? `[${label}](${o.link})` : text;
+    }
     if (typeof o.name === "string") return o.name;
+    return text;
   }
   return "";
 }
@@ -89,14 +110,23 @@ export async function enrichEmbedMetadata(content: FeishuPageContent): Promise<F
           const valuesData = await feishuJson(
             `/open-apis/sheets/v2/spreadsheets/${encodeURIComponent(spreadsheetToken)}/values/${encodeURIComponent(range)}`,
           );
-          const values: unknown[][] = valuesData?.valueRange?.values || [];
-          if (values.length) {
-            const trimmed = values
-              .map((row) => (row || []).slice(0, 6).map((c) => cellText(c)))
-              .filter((row) => row.some((c) => c.trim()));
+          const rawValues: unknown[][] = valuesData?.valueRange?.values || [];
+          if (rawValues.length) {
+            const formatted = rawValues.map((row) => (row || []).map((c) => cellText(c)));
+            // Filter out trailing columns where ALL cells across ALL rows are empty
+            let maxCol = 0;
+            formatted.forEach((row) => {
+              row.forEach((cell, ci) => {
+                if (cell && cell.trim()) {
+                  maxCol = Math.max(maxCol, ci + 1);
+                }
+              });
+            });
+            const trimmed = formatted
+              .map((row) => row.slice(0, maxCol))
+              .filter((row) => row.some((c) => c && c.trim()));
+
             if (trimmed.length) {
-              // First row is only a header row when more data follows; a
-              // single-row sheet is rendered as one data row (headers = []).
               if (trimmed.length > 1) {
                 block.embed.preview = { headers: trimmed[0], rows: trimmed.slice(1, 6) };
               } else {

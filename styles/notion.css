@@ -2005,7 +2005,16 @@ svg + .notion-page-title-text {
 }
 
 .notion-simple-table {
-  @apply whitespace-nowrap overflow-x-auto block w-full border-0 !important;
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.notion-simple-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  margin: 1rem 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .notion-asset-wrapper-pdf > div {
@@ -2167,8 +2176,14 @@ code.language-mermaid {
   @apply text-center font-bold dark:bg-gray-800 !important;
 } */
 
-.notion-simple-table td {
-  border: 1px solid var(#eee) !important;
+.notion-simple-table td,
+.notion-simple-table th {
+  border: 1px solid rgba(229, 231, 235, 1);
+}
+
+html.dark .notion-simple-table td,
+html.dark .notion-simple-table th {
+  border-color: rgba(55, 65, 81, 1);
 }
 
 /* 视频尺寸bug */
