@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     } else {
       res.setHeader('Content-Type', upstream.headers.get('content-type') || 'image/png')
     }
-    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400')
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800')
     return res.status(200).send(trimmed || raw)
   } catch (e) {
     return res.status(502).json({ error: 'download failed' })

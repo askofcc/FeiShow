@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const upstream = await downloadMedia(token)
     const contentType = upstream.headers.get('content-type') || 'application/octet-stream'
     res.setHeader('Content-Type', contentType)
-    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400')
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800')
     if (req.method === 'HEAD') {
       return res.status(200).end()
     }

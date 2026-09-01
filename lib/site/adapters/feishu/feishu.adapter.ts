@@ -285,10 +285,18 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     }
     // List cards use each document/category cover. Do not stamp the site banner
     // onto every post — that banner belongs on the header only.
-    categoryRowsFilled = await fillMissingCovers(categoryRowsFilled, { concurrency: 2 })
-    allPostRows = await fillMissingCovers(allPostRows, { concurrency: 3 })
-    pageRowsFilled = await fillMissingCovers(pageRowsFilled, { concurrency: 2 })
-    noticeRowsFilled = await fillMissingCovers(noticeRowsFilled, { concurrency: 2 })
+    const allRowsNeedingCovers = [
+      ...categoryRowsFilled,
+      ...allPostRows,
+      ...pageRowsFilled,
+      ...noticeRowsFilled
+    ]
+    const coversFilled = await fillMissingCovers(allRowsNeedingCovers, { concurrency: 2 })
+    const coverByRecord = new Map(coversFilled.map(r => [r.recordId, r]))
+    categoryRowsFilled = categoryRowsFilled.map(r => coverByRecord.get(r.recordId) || r)
+    allPostRows = allPostRows.map(r => coverByRecord.get(r.recordId) || r)
+    pageRowsFilled = pageRowsFilled.map(r => coverByRecord.get(r.recordId) || r)
+    noticeRowsFilled = noticeRowsFilled.map(r => coverByRecord.get(r.recordId) || r)
     allPostRows = applyCoverCascade(allPostRows, categoryRowsFilled, null)
   } catch (e) {
     console.warn('[feishu] fill drive/summary/cover skipped', e)
