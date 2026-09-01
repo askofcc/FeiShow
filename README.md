@@ -168,7 +168,7 @@ docker image prune -f
 | 换整套内容源或换知识空间 | 托管平台改 `FEISHU_SITE_ROOT` | 是，重新部署 |
 | 修复读不到内容、权限报错 | 飞书开放平台权限与根页分享设置 | 通常不需要改代码 |
 
-### 快速定制站点外观（CONFIG 表常用 4 项）
+### 快速定制站点外观（CONFIG 表常用配置）
 
 在 CONFIG 表中新增以下行并勾选「启用」即可生效：
 
@@ -177,7 +177,15 @@ docker image prune -f
 | `TITLE` | `我的技术空间` | 浏览器标签页标题、站点名称 |
 | `DESCRIPTION` | `专注分享工程实践与深度思考` | 首页副标题与 SEO 描述 |
 | `LINK` | `https://your-domain.com` | Sitemap、RSS 与社交分享的站点基准 URL |
-| `THEME` | `example` (或 `simple`, `gitbook`, `heo`) | 站点主题风格 |
+| `THEME` | `example` (或 `simple`, `gitbook`, `heo`) | 站点主题风格（25+ 主题热切） |
+| `NEXT_REVALIDATE_SECOND` | `5`（调试期） / `300`（正式运行） | 缓存刷新间隔（单位：秒） |
+
+> 💡 **新手调试必看（内容更新延迟疑问）：**
+> - **为什么飞书改完后刷新网页没有立即变？**  
+>   为保障站点极速访问并避免频繁消耗飞书 API 配额，系统默认开启了 **5 分钟（300 秒）缓存**。
+> - **建站初期频繁改动怎么办？**  
+>   在 CONFIG 表添加 `NEXT_REVALIDATE_SECOND` 填入 `5` 并勾选启用，网站就会在 **5 秒内极速同步** 飞书的所有改动；调试满意后改回 `300` 即可。
+> - **立刻强制生效**：在 Vercel 部署控制台点击一次 **「Redeploy」**，即可立即全站强制刷新。
 
 完整配置项清单详见：[CONFIG 表说明](./docs/feishu/FEISHU_BITABLE_CONFIG_CONTRACT.md)。
 
