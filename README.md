@@ -273,6 +273,7 @@ curl -sS "https://你的域名/api/agent/posts/<slug>?format=md"
 | 深入理解全站配置优先级 | [配置来源与环境变量划分](./docs/feishu/CONFIG_SOURCES.md) |
 | 多维表格字段详细契约 | [内容表契约说明](./docs/feishu/FEISHU_CONTENT_TABLE_CONTRACT.md) |
 | 配置中心高级开关指南 | [CONFIG 表完整字段文档](./docs/feishu/FEISHU_BITABLE_CONFIG_CONTRACT.md) |
+| 缓存架构与分级治理指南 | [缓存架构与防打爆指南](./docs/feishu/CACHE_ARCHITECTURE.md) |
 | 开发与定制新前端主题 | [主题数据开发契约 (THEME_DATA_CONTRACT)](./docs/feishu/THEME_DATA_CONTRACT.md) |
 | 单篇文档契约与权限 | [文档调用与权限契约](./docs/feishu/FEISHU_DOCUMENT_CONTRACT.md) |
 
