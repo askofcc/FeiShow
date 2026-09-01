@@ -17,12 +17,27 @@ function store(namespace: string): Map<string, Entry<any>> {
   return s
 }
 
+const LONG_TTL_NAMESPACES = new Set([
+  "docx-blocks",
+  "docx-blocks-first-page",
+  "docx-meta",
+  "article-body",
+  "wiki-node",
+  "drive-meta",
+  "embed-meta"
+])
+
 export async function memoAsync<T>(
   namespace: string,
   key: string,
   loader: () => Promise<T>,
-  ttlMs = 300_000
+  customTtlMs?: number
 ): Promise<T> {
+  const defaultTtlMs = LONG_TTL_NAMESPACES.has(namespace)
+    ? 3600_000 // 1 hour for document content & metadata
+    : 300_000  // 5 minutes for general config / table queries
+
+  const ttlMs = Number.isFinite(customTtlMs) && customTtlMs! > 0 ? customTtlMs! : defaultTtlMs
   const cacheDisabled = process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'
   if (!key) {
     return loader()

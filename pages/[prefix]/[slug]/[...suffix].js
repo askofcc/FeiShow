@@ -55,8 +55,8 @@ export async function getStaticProps({
     revalidate: isStaticExport
       ? undefined
       : siteConfig(
-        'NEXT_REVALIDATE_SECOND',
-        BLOG.NEXT_REVALIDATE_SECOND,
+        'POST_REVALIDATE_SECOND',
+        siteConfig('NEXT_REVALIDATE_SECOND', BLOG.NEXT_REVALIDATE_SECOND, props.NOTION_CONFIG),
         props.NOTION_CONFIG
       ),
     notFound: !props.post

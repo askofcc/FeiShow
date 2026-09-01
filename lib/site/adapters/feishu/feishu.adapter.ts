@@ -273,16 +273,16 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     pageRowsFilled = pageRowsFilled.map(r => byRecord.get(r.recordId) || r)
     noticeRowsFilled = noticeRowsFilled.map(r => byRecord.get(r.recordId) || r)
 
-    const buildLight = Boolean((siteConfig as any).buildLight ?? false)
-    if (buildLight) {
-      console.log(
-        '[feishu] BUILD_LIGHT: skip per-doc summaries; still fill document covers'
-      )
-    } else {
-      allPostRows = await fillMissingSummaries(allPostRows, { concurrency: 3, maxLen: 120 })
-      pageRowsFilled = await fillMissingSummaries(pageRowsFilled, { concurrency: 2, maxLen: 120 })
-      noticeRowsFilled = await fillMissingSummaries(noticeRowsFilled, { concurrency: 2, maxLen: 120 })
-    }
+    const allRowsNeedingSummaries = [
+      ...allPostRows,
+      ...pageRowsFilled,
+      ...noticeRowsFilled
+    ]
+    const summariesFilled = await fillMissingSummaries(allRowsNeedingSummaries, { concurrency: 2, maxLen: 120 })
+    const summaryByRecord = new Map(summariesFilled.map(r => [r.recordId, r]))
+    allPostRows = allPostRows.map(r => summaryByRecord.get(r.recordId) || r)
+    pageRowsFilled = pageRowsFilled.map(r => summaryByRecord.get(r.recordId) || r)
+    noticeRowsFilled = noticeRowsFilled.map(r => summaryByRecord.get(r.recordId) || r)
     // List cards use each document/category cover. Do not stamp the site banner
     // onto every post — that banner belongs on the header only.
     const allRowsNeedingCovers = [
