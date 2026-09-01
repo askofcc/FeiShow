@@ -13,6 +13,7 @@ import {
 import {
   isDocxObjType,
   listWikiChildren,
+  parseWikiSpaceId,
   parseWikiToken,
   resolveWikiNode,
   type WikiNode
@@ -405,12 +406,20 @@ export async function expandCategoryPosts(
 ): Promise<ContentRow[]> {
   const posts: ContentRow[] = []
   for (const cat of categoryRows) {
-    const token = cat.nodeToken || cat.docToken
-    if (!token) continue
+    const rawToken = cat.nodeToken || cat.docToken
+    if (!rawToken) continue
     try {
-      const parent = await resolveWikiNode(token)
-      if (!parent?.space_id || !parent.node_token) continue
-      const children = await listWikiChildren(parent.space_id, parent.node_token)
+      const spaceId = parseWikiSpaceId(rawToken)
+      let children: WikiNode[] = []
+      if (spaceId) {
+        children = await listWikiChildren(spaceId)
+      } else {
+        const token = parseWikiToken(rawToken) || rawToken
+        const parent = await resolveWikiNode(token)
+        if (parent?.space_id && parent.node_token) {
+          children = await listWikiChildren(parent.space_id, parent.node_token)
+        }
+      }
       for (const child of children) {
         // Category folders can contain bitables/sheets/files. Site only renders docx articles.
         if (!isDocxObjType(child.obj_type)) continue
@@ -472,6 +481,14 @@ async function resolveSiteRootDocumentId(): Promise<string> {
     process.env.FEISHU_ROOT_DOCUMENT_ID ||
     ''
   if (!rootInput) return ''
+  const spaceId = parseWikiSpaceId(String(rootInput))
+  if (spaceId) {
+    try {
+      const topNodes = await listWikiChildren(spaceId, undefined, { pageSize: 50, maxPages: 2 })
+      const firstDoc = topNodes.find(n => isDocxObjType(n.obj_type) && n.obj_token)
+      if (firstDoc?.obj_token) return firstDoc.obj_token
+    } catch {}
+  }
   const wikiToken = parseWikiToken(String(rootInput))
   if (wikiToken) {
     const node = await resolveWikiNode(wikiToken)

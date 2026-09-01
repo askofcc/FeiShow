@@ -2,7 +2,7 @@ import siteConfig from '@/lib/feishu/config'
 import { extractDocToken, extractTextField, listBitableRecordsFrom } from './bitable'
 import { feishuFetch } from './client'
 import { listDocumentBlocks } from './docx'
-import { listWikiChildren, parseWikiToken, resolveWikiNode } from './wiki'
+import { listWikiChildren, parseWikiSpaceId, parseWikiToken, resolveWikiNode } from './wiki'
 
 export type FeishuTableRef = {
   appToken: string
@@ -254,8 +254,55 @@ export async function resolveFeishuTables(): Promise<ResolvedTables> {
 
     if (needDiscover && siteRoot) {
       try {
+        const spaceId = parseWikiSpaceId(siteRoot)
         const token = parseWikiToken(siteRoot)
-        if (token) {
+        if (spaceId) {
+          const found: FeishuTableRef[] = []
+          const topNodes = await listWikiChildren(spaceId, undefined, {
+            pageSize: 50,
+            maxPages: 5
+          })
+          for (const node of topNodes) {
+            if (isBitableObjType(node.obj_type) && node.obj_token) {
+              try {
+                found.push(...(await inspectAppTables(String(node.obj_token), node.title || '')))
+              } catch (e) {
+                console.warn('[feishu] list tables failed for wiki bitable', node.obj_token, e)
+              }
+            } else if (node.obj_token && !isBitableObjType(node.obj_type)) {
+              try {
+                found.push(...(await collectEmbeddedTables(String(node.obj_token))))
+              } catch (e) {}
+            }
+          }
+          const content =
+            found.find(f => f.kind === 'content') ||
+            found.find(f => (f.tableName || '').includes('内容') || (f.tableName || '').includes('博客'))
+
+          if (!contentAppToken && content) contentAppToken = content.appToken
+          if (!contentTableId && content) contentTableId = content.tableId
+
+          if (contentAppToken && contentTableId && (!configAppToken || !configTableId)) {
+            try {
+              const config = await resolveConfigFromContentTable(contentAppToken, contentTableId)
+              if (config) {
+                if (!configAppToken) configAppToken = config.appToken
+                if (!configTableId) configTableId = config.tableId
+              }
+            } catch (e) {}
+          }
+          if (contentAppToken || configAppToken) {
+            source =
+              envContentApp || envContentTable || envConfigApp || envConfigTable
+                ? 'mixed'
+                : 'site-root'
+            console.log('[feishu] tables resolved from space site root', {
+              source,
+              content: contentAppToken && contentTableId ? `${contentAppToken}/${contentTableId}` : null,
+              config: configAppToken && configTableId ? `${configAppToken}/${configTableId}` : null
+            })
+          }
+        } else if (token) {
           const root = await resolveWikiNode(token)
           if (root?.space_id && root.node_token) {
             const found: FeishuTableRef[] = []

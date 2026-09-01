@@ -35,19 +35,31 @@ type ListNodesData = {
   has_more?: boolean;
 };
 
-/** Extract wiki node token from a /wiki/xxx URL or bare token. */
+/** Extract space_id from /wiki/space/:space_id URL or bare numeric ID (>=15 digits). */
+export function parseWikiSpaceId(input: string): string | null {
+  const raw = (input || "").trim();
+  if (!raw) return null;
+  const mSpace = raw.match(/\/wiki\/space\/([0-9A-Za-z_-]+)/);
+  if (mSpace?.[1]) return mSpace[1];
+  if (/^\d{15,}$/.test(raw)) return raw;
+  return null;
+}
+
+/** Extract wiki node token from a /wiki/xxx URL or bare token (excluding /wiki/space/). */
 export function parseWikiToken(input: string): string | null {
   const raw = (input || "").trim();
   if (!raw) return null;
+  if (raw.includes("/wiki/space/")) return null;
+  if (/^\d{15,}$/.test(raw)) return null;
   // bare token
   if (/^[A-Za-z0-9_-]{10,}$/.test(raw) && !raw.includes("/")) return raw;
   try {
     const u = new URL(raw);
     const m = u.pathname.match(/\/wiki\/([A-Za-z0-9_-]+)/);
-    if (m?.[1]) return m[1];
+    if (m?.[1] && m[1] !== "space") return m[1];
   } catch {
     const m = raw.match(/\/wiki\/([A-Za-z0-9_-]+)/);
-    if (m?.[1]) return m[1];
+    if (m?.[1] && m[1] !== "space") return m[1];
   }
   return null;
 }
