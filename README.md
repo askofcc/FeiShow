@@ -45,31 +45,30 @@
 
 | 适用场景 | 推荐主题代号（点击直接在线预览） | 风格特点与适用人群 |
 | :--- | :--- | :--- |
-| **技术博客 / 极客写作** | [`heo`](https://feishow.srint.cn/?theme=heo) · [`hexo`](https://feishow.srint.cn/?theme=hexo) · [`next`](https://feishow.srint.cn/?theme=next) · [`matery`](https://feishow.srint.cn/?theme=matery) | 现代渐变光效、暗色适配、分类标签、TOC 目录、代码高亮 |
-| **极简笔记 / 专栏文字** | [`simple`](https://feishow.srint.cn/?theme=simple) · [`medium`](https://feishow.srint.cn/?theme=medium) · [`nobelium`](https://feishow.srint.cn/?theme=nobelium) · [`typography`](https://feishow.srint.cn/?theme=typography) | 沉浸式阅读、干净留白、排版克制、适合思考与随笔记录 |
-| **技术文档 / 团队知识库** | [`gitbook`](https://feishow.srint.cn/?theme=gitbook) · [`claude`](https://feishow.srint.cn/?theme=claude) · [`thoughtlite`](https://feishow.srint.cn/?theme=thoughtlite) | 多级树形侧边栏、清晰层级、适合帮助中心与开源项目手册 |
-| **SaaS 官网 / 产品落地页** | [`landing`](https://feishow.srint.cn/?theme=landing) · [`starter`](https://feishow.srint.cn/?theme=starter) · [`proxio`](https://feishow.srint.cn/?theme=proxio) | 现代 Hero 首屏、特性介绍、定价卡片、行动号召 (CTA) |
-| **作品集 / 个人品牌 / 简历** | [`opc`](https://feishow.srint.cn/?theme=opc) · [`proxio`](https://feishow.srint.cn/?theme=proxio) · [`fukasawa`](https://feishow.srint.cn/?theme=fukasawa) | 个人名片、One-Page Card、设计展示、独立开发者品牌 |
-| **摄影相册 / 大图画廊** | [`photo`](https://feishow.srint.cn/?theme=photo) · [`plog`](https://feishow.srint.cn/?theme=plog) | 瀑布流画廊、大图排版、视觉冲击力强、适合摄影与生活记录 |
-| **网址导航 / 资源聚合** | [`nav`](https://feishow.srint.cn/?theme=nav) | 分类网址导航、工具箱收集、友情链接矩阵 |
-| **电商微商城 / 独立展示** | [`commerce`](https://feishow.srint.cn/?theme=commerce) | 商品橱窗、展示卡片、适合个人微店铺或作品售卖 |
-| **二次元 / 创意与特色** | [`fuwari`](https://feishow.srint.cn/?theme=fuwari) · [`game`](https://feishow.srint.cn/?theme=game) · [`movie`](https://feishow.srint.cn/?theme=movie) · [`endspace`](https://feishow.srint.cn/?theme=endspace) | 动效卡片、二次元风格、复古像素游戏、影视评分墙 |
+| **技术文档 / 团队知识库** | [`gitbook`](https://feishow.srint.cn/?theme=gitbook) · [`claude`](https://feishow.srint.cn/?theme=claude) · [`thoughtlite`](https://feishow.srint.cn/?theme=thoughtlite) | **首选推荐**：多级树形侧边栏、排版严谨、适合帮助中心与飞书知识库外发 |
+| **极简笔记 / 专栏随笔** | [`simple`](https://feishow.srint.cn/?theme=simple) · [`medium`](https://feishow.srint.cn/?theme=medium) · [`nobelium`](https://feishow.srint.cn/?theme=nobelium) · [`typography`](https://feishow.srint.cn/?theme=typography) | **沉浸体验**：干净留白、极致阅读舒适度、适合思考与随笔记录 |
+| **现代极客 / 技术博客** | [`heo`](https://feishow.srint.cn/?theme=heo) · [`hexo`](https://feishow.srint.cn/?theme=hexo) · [`next`](https://feishow.srint.cn/?theme=next) | **高颜值博主**：渐变光效、暗色适配、分类标签、TOC 目录、代码高亮 |
+| **产品官网 / SaaS 落地页** | [`landing`](https://feishow.srint.cn/?theme=landing) · [`starter`](https://feishow.srint.cn/?theme=starter) | **商业展示**：现代 Hero 首屏、特性矩阵、CTA 行动号召与产品介绍 |
+| **动效卡片 / 视觉潮流** | [`fuwari`](https://feishow.srint.cn/?theme=fuwari) · [`magzine`](https://feishow.srint.cn/?theme=magzine) | **个性表达**：动效卡片流、二次元与现代杂志美学 |
+| **摄影相册 / 大图画廊** | [`photo`](https://feishow.srint.cn/?theme=photo) · [`plog`](https://feishow.srint.cn/?theme=plog) · [`fukasawa`](https://feishow.srint.cn/?theme=fukasawa) | **图片优先**：大图瀑布流、画廊排版、适合摄影与生活视觉记录 |
+| **导航站 / 个人名片 / 创意** | [`nav`](https://feishow.srint.cn/?theme=nav) · [`opc`](https://feishow.srint.cn/?theme=opc) · [`proxio`](https://feishow.srint.cn/?theme=proxio) · [`game`](https://feishow.srint.cn/?theme=game) · [`movie`](https://feishow.srint.cn/?theme=movie) | **垂直功能**：网址导航、单页名片、复古像素游戏、影视评分墙 |
+| **更多主题** | [`matery`](https://feishow.srint.cn/?theme=matery) · [`commerce`](https://feishow.srint.cn/?theme=commerce) · [`endspace`](https://feishow.srint.cn/?theme=endspace) | 质感卡片、微商城、深色极客空间等按需选用 |
 
 ---
 
 ### 🖼️ 精选代表主题视觉预览
 
-| Heo（极客博客风） | GitBook（技术文档风） | Hexo（经典博客） |
+| GitBook（技术文档 / 知识库） | Heo（现代极客博客） | Simple（极简笔记） |
 | :---: | :---: | :---: |
-| <img src="./public/images/themes-preview/heo.png" width="260" alt="Heo theme" /> | <img src="./public/images/themes-preview/gitbook.png" width="260" alt="GitBook theme" /> | <img src="./public/images/themes-preview/hexo.png" width="260" alt="Hexo theme" /> |
-| **Simple（极简笔记）** | **Fuwari（动效卡片）** | **Landing（产品落地页）** |
-| <img src="./public/images/themes-preview/simple.png" width="260" alt="Simple theme" /> | <img src="./public/images/themes-preview/fuwari.png" width="260" alt="Fuwari theme" /> | <img src="./public/images/themes-preview/landing.png" width="260" alt="Landing theme" /> |
-| **Medium（专栏杂志）** | **Matery（卡片流）** | **Commerce（微商店/展示）** |
-| <img src="./public/images/themes-preview/medium.png" width="260" alt="Medium theme" /> | <img src="./public/images/themes-preview/matery.png" width="260" alt="Matery theme" /> | <img src="./public/images/themes-preview/commerce.png" width="260" alt="Commerce theme" /> |
+| <img src="./public/images/themes-preview/gitbook.png" width="260" alt="GitBook theme" /> | <img src="./public/images/themes-preview/heo.png" width="260" alt="Heo theme" /> | <img src="./public/images/themes-preview/simple.png" width="260" alt="Simple theme" /> |
+| **Claude（AI 文档风）** | **Hexo（经典博客）** | **Fuwari（动效卡片）** |
+| <img src="./public/images/themes-preview/claude.png" width="260" alt="Claude theme" /> | <img src="./public/images/themes-preview/hexo.png" width="260" alt="Hexo theme" /> | <img src="./public/images/themes-preview/fuwari.png" width="260" alt="Fuwari theme" /> |
+| **Landing（产品落地页）** | **Medium（专栏杂志）** | **Starter（初创官网）** |
+| <img src="./public/images/themes-preview/landing.png" width="260" alt="Landing theme" /> | <img src="./public/images/themes-preview/medium.png" width="260" alt="Medium theme" /> | <img src="./public/images/themes-preview/starter.png" width="260" alt="Starter theme" /> |
 
 > 💡 **主题切换方法**：
-> - **永久生效**：在飞书 `CONFIG` 表中将 `THEME` 配置值填入上方表格中的主题代号（如 `heo` / `gitbook` / `simple`）并勾选启用；
-> - **即时预览**：在浏览器任意页面 URL 后面加上参数即可实时体验，例如：`https://你的域名/?theme=gitbook` 或 `?theme=fuwari`。
+> - **永久生效**：在飞书 `CONFIG` 表中将 `THEME` 配置值填入上方表格中的主题代号（如 `gitbook` / `heo` / `simple`）并勾选启用；
+> - **即时预览**：在浏览器任意页面 URL 后面加上参数即可实时体验，例如：`https://你的域名/?theme=gitbook` 或 `?theme=claude`。
 
 ---
 
