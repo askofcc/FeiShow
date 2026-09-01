@@ -2,5 +2,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [],
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "regions": [
+    "hkg1"
+  ]
 }
