@@ -444,7 +444,7 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
           : Number(
               configMap.POST_REVALIDATE_SECOND ??
                 process.env.NEXT_PUBLIC_POST_REVALIDATE_SECOND ??
-                3600
+                86400
             ),
       NEXT_REVALIDATE_SECOND:
         process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'

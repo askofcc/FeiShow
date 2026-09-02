@@ -35,7 +35,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', contentType)
     res.setHeader('Content-Length', String(buf.length))
     // Valid media: Cache aggressively on Edge CDN with SWR
-    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800')
+    res.setHeader('Cache-Control', 'public, max-age=2592000, s-maxage=31536000, immutable')
     if (req.method === 'HEAD') {
       return res.status(200).end()
     }

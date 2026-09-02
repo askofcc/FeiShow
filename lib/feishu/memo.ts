@@ -48,8 +48,8 @@ export async function memoAsync<T>(
   customTtlMs?: number
 ): Promise<T> {
   const defaultTtlMs = LONG_TTL_NAMESPACES.has(namespace)
-    ? 3600_000 // 1 hour for document content & metadata
-    : 300_000  // 5 minutes for general config / table queries
+    ? 86400_000 // 24 hours for document content & metadata
+    : 300_000   // 5 minutes for general config / table queries
 
   const ttlMs = Number.isFinite(customTtlMs) && customTtlMs! > 0 ? customTtlMs! : defaultTtlMs
   const cacheDisabled = process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'

@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     } else {
       res.setHeader('Content-Type', upstream.headers.get('content-type') || 'image/png')
     }
-    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800')
+    res.setHeader('Cache-Control', 'public, max-age=2592000, s-maxage=31536000, immutable')
     return res.status(200).send(trimmed || raw)
   } catch (e) {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
