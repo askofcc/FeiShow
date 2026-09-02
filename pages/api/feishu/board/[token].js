@@ -49,6 +49,7 @@ export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800')
     return res.status(200).send(trimmed || raw)
   } catch (e) {
-    return res.status(502).json({ error: 'download failed' })
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+    return res.status(502).json({ error: 'download failed', message: e?.message })
   }
 }

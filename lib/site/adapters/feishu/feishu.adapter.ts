@@ -430,11 +430,20 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
       THEME: configMap.THEME || 'example',
       CMS_PROVIDER: 'feishu',
       // Cache TTL only from CONFIG-TABLE (or 300s default) — not a Vercel requirement
+      CONFIG_REVALIDATE_SECOND:
+        process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'
+          ? 1
+          : Number(
+              configMap.CONFIG_REVALIDATE_SECOND ??
+                configMap.NEXT_REVALIDATE_SECOND ??
+                300
+            ),
       NEXT_REVALIDATE_SECOND:
         process.env.ENABLE_CACHE === 'false' || process.env.ENABLE_CACHE === '0'
           ? 1
           : Number(
-              configMap.NEXT_REVALIDATE_SECOND ??
+              configMap.CONFIG_REVALIDATE_SECOND ??
+                configMap.NEXT_REVALIDATE_SECOND ??
                 configMap.NEXT_PUBLIC_REVALIDATE_SECOND ??
                 process.env.NEXT_REVALIDATE_SECOND ??
                 process.env.NEXT_PUBLIC_REVALIDATE_SECOND ??

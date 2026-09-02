@@ -96,8 +96,8 @@ export async function getStaticProps(req) {
     revalidate: process.env.EXPORT
       ? undefined
       : siteConfig(
-          'NEXT_REVALIDATE_SECOND',
-          BLOG.NEXT_REVALIDATE_SECOND,
+          'CONFIG_REVALIDATE_SECOND',
+          siteConfig('NEXT_REVALIDATE_SECOND', BLOG.NEXT_REVALIDATE_SECOND, props.NOTION_CONFIG),
           props.NOTION_CONFIG
         )
   }
