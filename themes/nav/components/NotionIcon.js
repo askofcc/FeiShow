@@ -1,22 +1,38 @@
-import LazyImage from '@/components/LazyImage'
+import LazyImage from "@/components/LazyImage"
 
 /**
- * notion的图标icon
- * 可能是emoji 可能是 svg 也可能是 图片
+ * notion/feishu 的图标icon
+ * 可能是emoji 可能是 svg 也可能是 图片或 FontAwesome
  * @returns
  */
-const NotionIcon = ({ icon }) => {
-  let imgSize = 8
-  let fontSize = ''
-  if (!icon) {
-    return <></>
+const NotionIcon = ({ icon, className = "" }) => {
+  if (!icon || typeof icon !== "string") {
+    return null
   }
-  fontSize = (Math.round(imgSize / 2) - 1) > 0 ? (Math.round(imgSize / 2) - 1) : ''
-  if (icon.startsWith('http') || icon.startsWith('data:')) {
-    return <LazyImage src={icon} width={40} height={40} className={`w-10 h-10 inline`}/>
+  const raw = icon.trim()
+  if (!raw) return null
+
+  if (
+    raw.startsWith("http") ||
+    raw.startsWith("data:") ||
+    raw.startsWith("/api/feishu/media/") ||
+    raw.startsWith("/")
+  ) {
+    return (
+      <LazyImage
+        src={raw}
+        width={40}
+        height={40}
+        className={`w-10 h-10 inline object-cover rounded-md mr-1 ${className}`.trim()}
+      />
+    )
   }
 
-  return <span className={`mr-1 text-4xl`}>{icon}</span>
+  if (/^(fa[srlb]?|fa-solid|fa-regular|fa-brands)\s+fa-/.test(raw)) {
+    return <i className={`${raw} mr-1 text-2xl ${className}`.trim()} aria-hidden />
+  }
+
+  return <span className={`mr-1 text-3xl ${className}`.trim()}>{raw}</span>
 }
 
 export default NotionIcon

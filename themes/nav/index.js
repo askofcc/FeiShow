@@ -133,7 +133,7 @@ const LayoutBase = props => {
         <main
           id='wrapper'
           className={
-            (JSON.parse(siteConfig('LAYOUT_SIDEBAR_REVERSE'))
+            (siteConfig('LAYOUT_SIDEBAR_REVERSE', false)
               ? 'flex-row-reverse'
               : '') + ' relative flex justify-between w-full h-screen mx-auto'
           }>

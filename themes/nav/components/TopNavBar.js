@@ -36,7 +36,7 @@ export default function TopNavBar(props) {
       // const header = document.querySelector('#top-nav')
       const header = document.querySelector('#container-inner')
       const showNav =
-        scrollS <= windowTop || scrollS < 5 || scrollS <= header.clientHeight // 非首页无大图时影藏顶部 滚动条置顶时隐藏
+        scrollS <= windowTop || scrollS < 5 || scrollS <= (header?.clientHeight || 0) // 非首页无大图时影藏顶部 滚动条置顶时隐藏
       if (!showNav) {
         nav && nav.classList.replace('-top-20', 'top-0')
         windowTop = scrollS
