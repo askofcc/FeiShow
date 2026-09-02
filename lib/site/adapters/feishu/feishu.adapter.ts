@@ -297,7 +297,7 @@ async function fetchSiteFromFeishuUncached(): Promise<SiteData> {
     allPostRows = allPostRows.map(r => coverByRecord.get(r.recordId) || r)
     pageRowsFilled = pageRowsFilled.map(r => coverByRecord.get(r.recordId) || r)
     noticeRowsFilled = noticeRowsFilled.map(r => coverByRecord.get(r.recordId) || r)
-    allPostRows = applyCoverCascade(allPostRows, categoryRowsFilled, null)
+    allPostRows = applyCoverCascade(allPostRows, categoryRowsFilled, bannerEarly.pageCover)
   } catch (e) {
     console.warn('[feishu] fill drive/summary/cover skipped', e)
   }

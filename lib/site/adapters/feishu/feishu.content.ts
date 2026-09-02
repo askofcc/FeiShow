@@ -413,11 +413,20 @@ export async function expandCategoryPosts(
       let children: WikiNode[] = []
       if (spaceId) {
         children = await listWikiChildren(spaceId)
+        if (!cat.coverToken && !cat.coverUrl) {
+          const homeDoc = children.find(c => c.title === "首页" && isDocxObjType(c.obj_type)) || children.find(c => isDocxObjType(c.obj_type))
+          if (homeDoc?.obj_token) {
+            cat.documentId = homeDoc.obj_token
+          }
+        }
       } else {
         const token = parseWikiToken(rawToken) || rawToken
         const parent = await resolveWikiNode(token)
         if (parent?.space_id && parent.node_token) {
           children = await listWikiChildren(parent.space_id, parent.node_token)
+          if (!cat.coverToken && !cat.coverUrl && parent.obj_token) {
+            cat.documentId = parent.obj_token
+          }
         }
       }
       for (const child of children) {
