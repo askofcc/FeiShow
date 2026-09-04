@@ -116,8 +116,7 @@ nav {
   backdrop-filter: blur(10px);
 }
 
-.medium-zoom--opened .medium-zoom-overlay {
-  background: rgba(0, 0, 0, 0.75) !important;
+.medium-zoom-overlay {
   z-index: 1000 !important;
 }
 

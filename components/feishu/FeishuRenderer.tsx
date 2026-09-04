@@ -1,4 +1,5 @@
-import React, { Component, useState, type ReactNode } from "react";
+import React, { Component, useState, useEffect, useRef, type ReactNode } from "react";
+import mediumZoom from "@fisch0920/medium-zoom";
 import Link from "next/link";
 import { useGlobal } from "@/lib/global";
 import { Equation } from "@/components/Equation";
@@ -89,16 +90,61 @@ function BoardPreview({
   subtitle?: string;
 }) {
   const [hasError, setHasError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const zoomRef = useRef<any>(null);
   const displayTitle = title || "画板";
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !imageUrl) return;
+    const zoom = mediumZoom({
+      background: "rgba(0, 0, 0, 0.8)",
+      margin: 16,
+    });
+    zoomRef.current = zoom;
+    if (imgRef.current) {
+      zoom.attach(imgRef.current);
+    }
+    return () => {
+      zoom.detach();
+    };
+  }, [imageUrl, retryKey]);
+
+  const handleLoad = () => {
+    setHasError(false);
+    if (imgRef.current && zoomRef.current) {
+      zoomRef.current.attach(imgRef.current);
+    }
+  };
 
   if (!imageUrl || hasError) {
     return (
-      <div className="notion-unsupported-card my-3.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 flex items-center gap-2.5 text-xs text-gray-500 dark:text-gray-400">
-        <span className="text-base flex-shrink-0" aria-hidden>🎨</span>
-        <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{displayTitle}</span>
+      <div
+        className="notion-unsupported-card my-3.5 w-full p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50/60 dark:bg-gray-900/40 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 select-none cursor-pointer"
+        onClick={() => {
+          if (imageUrl) {
+            setHasError(false);
+            setRetryKey((k) => k + 1);
+          }
+        }}
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="text-base flex-shrink-0" aria-hidden>🎨</span>
+          <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{displayTitle}</span>
+        </div>
+        {imageUrl ? (
+          <span className="text-[11px] bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 px-2 py-0.5 rounded">
+            点击重试
+          </span>
+        ) : null}
       </div>
     );
   }
+
+  const effectiveUrl =
+    retryKey > 0 && imageUrl
+      ? `${imageUrl}${imageUrl.includes("?") ? "&" : "?"}_r=${retryKey}`
+      : imageUrl;
 
   return (
     <figure className="notion-asset-wrapper notion-embed-preview my-4 w-full">
@@ -107,12 +153,15 @@ function BoardPreview({
           <span>🎨</span> <span>{displayTitle}</span>
         </span>
       </div>
-      <div className="flex justify-center rounded-lg border border-gray-200/80 dark:border-gray-800 bg-white p-2 shadow-2xs">
+      <div className="flex justify-center rounded-lg border border-gray-200/80 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-2xs">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imageUrl}
+          ref={imgRef}
+          key={effectiveUrl}
+          src={effectiveUrl}
           alt={displayTitle}
           loading="lazy"
+          onLoad={handleLoad}
           onError={() => setHasError(true)}
           className="notion-image notion-embed-preview-img max-w-full max-h-[420px] w-auto h-auto rounded-md cursor-zoom-in"
         />
@@ -140,12 +189,37 @@ function ImageWithFallback({
   const [loaded, setLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const imgRef = useRef<HTMLImageElement | null>(null);
+  const zoomRef = useRef<any>(null);
   const displayAlt = alt && alt !== "image" ? alt : "图片";
 
   const aspectRatio =
     width && height && width > 0 && height > 0
       ? `${width} / ${height}`
       : undefined;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !src) return;
+    const zoom = mediumZoom({
+      background: "rgba(0, 0, 0, 0.8)",
+      margin: 16,
+    });
+    zoomRef.current = zoom;
+    if (imgRef.current) {
+      zoom.attach(imgRef.current);
+    }
+    return () => {
+      zoom.detach();
+    };
+  }, [src, retryCount]);
+
+  const handleLoad = () => {
+    setLoaded(true);
+    setHasError(false);
+    if (imgRef.current && zoomRef.current) {
+      zoomRef.current.attach(imgRef.current);
+    }
+  };
 
   if (!src || hasError) {
     return (
@@ -193,15 +267,13 @@ function ImageWithFallback({
         )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={imgRef}
           key={effectiveSrc}
           className="notion-image rounded-md cursor-zoom-in w-full h-auto object-contain"
           src={effectiveSrc}
           alt={alt || ""}
           loading="lazy"
-          onLoad={() => {
-            setLoaded(true);
-            setHasError(false);
-          }}
+          onLoad={handleLoad}
           onError={() => {
             if (retryCount < 1) {
               setTimeout(() => {
