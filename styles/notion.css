@@ -2086,18 +2086,45 @@ html.dark .notion-callout .notion-text {
   height: auto !important;
 }
 
-/* simple table设置 */
-table,
-thead,
-tbody {
-  display: block;
+/* simple table 规范响应式设置：大屏自适应，窄屏平滑左右横移 */
+.notion-simple-table-wrapper {
+  overflow-x: auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 1rem 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
-thead,
-tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+.notion-simple-table {
+  width: max-content !important;
+  min-width: 100% !important;
+  border-collapse: collapse;
+  display: table !important;
+  table-layout: auto !important;
+}
+
+.notion-simple-table thead,
+.notion-simple-table tbody {
+  display: table-row-group !important;
+}
+
+.notion-simple-table thead {
+  display: table-header-group !important;
+}
+
+.notion-simple-table tr {
+  display: table-row !important;
+  width: auto !important;
+}
+
+.notion-simple-table td,
+.notion-simple-table th,
+.notion-simple-table-cell {
+  display: table-cell !important;
+  min-width: 120px;
+  padding: 8px 14px !important;
+  vertical-align: top;
 }
 
 .notion-collection-card {
