@@ -60,14 +60,7 @@ export default function FeishuPage({ post, className }) {
     }
 
     attachZoom()
-    const timer = setTimeout(attachZoom, 500)
-
-    const container = document.getElementById('notion-article')
-    let observer = null
-    if (container) {
-      observer = new MutationObserver(() => attachZoom())
-      observer.observe(container, { childList: true, subtree: true })
-    }
+    const timer = setTimeout(attachZoom, 600)
 
     // 2. 处理 URL 锚点跳转
     const hash = window?.location?.hash

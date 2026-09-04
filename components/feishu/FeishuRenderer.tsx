@@ -194,9 +194,7 @@ function ImageWithFallback({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           key={effectiveSrc}
-          className={`notion-image rounded-md cursor-zoom-in w-full h-auto object-contain transition-opacity duration-300 ${
-            loaded ? "opacity-100" : "opacity-0"
-          }`}
+          className="notion-image rounded-md cursor-zoom-in w-full h-auto object-contain"
           src={effectiveSrc}
           alt={alt || ""}
           loading="lazy"
