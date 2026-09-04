@@ -620,7 +620,7 @@ function BlockView({
 
     case "heading1":
       return (
-        <h2 id={block.id} data-id={block.id} className="notion-h notion-h1 break-words">
+        <h2 id={block.id} data-id={block.id} className="notion-h notion-h1">
           <span className="notion-h-title">
             <RichText runs={block.text ?? []} />
           </span>
@@ -628,7 +628,7 @@ function BlockView({
       );
     case "heading2":
       return (
-        <h3 id={block.id} data-id={block.id} className="notion-h notion-h2 break-words">
+        <h3 id={block.id} data-id={block.id} className="notion-h notion-h2">
           <span className="notion-h-title">
             <RichText runs={block.text ?? []} />
           </span>
@@ -636,7 +636,7 @@ function BlockView({
       );
     case "heading3":
       return (
-        <h4 id={block.id} data-id={block.id} className="notion-h notion-h3 break-words">
+        <h4 id={block.id} data-id={block.id} className="notion-h notion-h3">
           <span className="notion-h-title">
             <RichText runs={block.text ?? []} />
           </span>
@@ -657,7 +657,7 @@ function BlockView({
       const empty = !block.text?.length || !plainTextFromRuns(block.text).trim();
       if (empty && !children.length) return <div className="notion-blank" />;
       return (
-        <div className="notion-text break-words">
+        <div className="notion-text">
           <RichText runs={block.text ?? []} />
           {children.length ? (
             <div className="notion-text-children">
@@ -713,7 +713,7 @@ function BlockView({
     case "quote":
     case "quote_container":
       return (
-        <blockquote className="notion-quote break-words w-full max-w-full">
+        <blockquote className="notion-quote">
           {block.text?.length ? (
             <div>
               <RichText runs={block.text ?? []} />
@@ -726,13 +726,13 @@ function BlockView({
     case "callout": {
       const bgClass = (block.callout?.backgroundColor && CALLOUT_BG_MAP[block.callout.backgroundColor]) || "notion-gray_background";
       return (
-        <div className={`notion-callout ${bgClass} w-full max-w-full`}>
+        <div className={`notion-callout ${bgClass}`}>
           <div className="notion-page-icon-inline notion-page-icon-span">
             <span className="notion-page-icon" role="img" aria-label="callout">
               {mapEmoji(block.callout?.emoji)}
             </span>
           </div>
-          <div className="notion-callout-text min-w-0 flex-1 break-words">
+          <div className="notion-callout-text">
             {block.text?.length ? <RichText runs={block.text ?? []} /> : null}
             {children.length ? <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} /> : null}
           </div>
@@ -745,7 +745,7 @@ function BlockView({
       const lang = rawLang === "plain" ? "plaintext" : rawLang || "plaintext";
       const codeString = plainTextFromRuns(block.text);
       return (
-        <div className="notion-code-wrapper my-3 w-full max-w-full overflow-hidden">
+        <div className="notion-code-wrapper my-3">
           <pre className={`notion-code language-${lang}`}>
             <code className={`language-${lang}`}>
               {codeString}
@@ -758,7 +758,7 @@ function BlockView({
     case "equation": {
       const math = plainTextFromRuns(block.text);
       return (
-        <div className="notion-equation notion-equation-block py-2 my-2 w-full max-w-full overflow-x-auto text-center">
+        <div className="notion-equation notion-equation-block py-2 my-2 overflow-x-auto text-center">
           <Equation math={math} />
         </div>
       );
