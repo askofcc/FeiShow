@@ -450,7 +450,7 @@ function RichText({ runs }: { runs?: TextRun[] }) {
       {runs.map((run, idx) => {
         let node: ReactNode = run.text;
         const s = run.style;
-        if (!s) return <span key={idx}>{renderInlineFormatted(run.text)}</span>;
+        if (!s) return <React.Fragment key={idx}>{renderInlineFormatted(run.text)}</React.Fragment>;
         if (s.inlineEquation) {
           return (
             <span key={idx} className="notion-equation notion-equation-inline inline-block px-1 align-middle">
@@ -474,7 +474,7 @@ function RichText({ runs }: { runs?: TextRun[] }) {
         } else if (!s.inlineCode) {
           node = renderInlineFormatted(run.text);
         }
-        return <span key={idx}>{node}</span>;
+        return <React.Fragment key={idx}>{node}</React.Fragment>;
       })}
     </>
   );
@@ -492,12 +492,10 @@ function ListItemBody({
   const children = resolveChildBlocks(block.children, blockMap, { excludeTableCell: true });
 
   return (
-    <li>
-      <div className="notion-list-item">
-        <span className="notion-list-item-body">
-          <RichText runs={block.text ?? []} />
-        </span>
-      </div>
+    <li className="my-0.5">
+      <span className="notion-list-item-content inline">
+        <RichText runs={block.text ?? []} />
+      </span>
       {children.length ? (
         <div className="notion-list-item-children">
           <BlockChildren blocks={children} blockMap={blockMap} depth={depth + 1} />
@@ -758,7 +756,7 @@ function BlockView({
     case "equation": {
       const math = plainTextFromRuns(block.text);
       return (
-        <div className="notion-equation notion-equation-block py-2 my-2 overflow-x-auto text-center">
+        <div className="notion-equation notion-equation-block py-2 my-2 w-full max-w-full overflow-x-auto text-center">
           <Equation math={math} />
         </div>
       );
