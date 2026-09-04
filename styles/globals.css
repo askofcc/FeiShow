@@ -117,8 +117,12 @@ nav {
 }
 
 .medium-zoom-overlay {
-  background: none !important;
-  /* background: rgba(0, 0, 0, 0.01) none repeat scroll 0% 0% !important; */
+  background: rgba(0, 0, 0, 0.75) !important;
+  z-index: 1000 !important;
+}
+
+.medium-zoom-image--opened {
+  z-index: 1001 !important;
 }
 
 .shadow-text {

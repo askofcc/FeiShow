@@ -238,8 +238,7 @@ html.dark {
 
 @media (max-width: 768px) {
   .medium-zoom-image--opened {
-    object-fit: fill !important;
-    height: auto !important;
+    cursor: zoom-out !important;
   }
 }
 

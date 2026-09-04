@@ -40,10 +40,10 @@ export default function FeishuPage({ post, className }) {
   useEffect(() => {
     if (!isBrowser) return
 
-    // 1. 初始化 mediumZoom
+    // 1. 初始化 mediumZoom 并动态监听新图片渲染
     if (!zoomRef.current) {
       zoomRef.current = mediumZoom({
-        background: 'rgba(0, 0, 0, 0.3)',
+        background: 'rgba(0, 0, 0, 0.75)',
         margin: getMediumZoomMargin()
       })
     }
@@ -62,6 +62,13 @@ export default function FeishuPage({ post, className }) {
     attachZoom()
     const timer = setTimeout(attachZoom, 500)
 
+    const container = document.getElementById('notion-article')
+    let observer = null
+    if (container) {
+      observer = new MutationObserver(() => attachZoom())
+      observer.observe(container, { childList: true, subtree: true })
+    }
+
     // 2. 处理 URL 锚点跳转
     const hash = window?.location?.hash
     if (hash && hash.length > 1) {
@@ -73,6 +80,7 @@ export default function FeishuPage({ post, className }) {
 
     return () => {
       clearTimeout(timer)
+      if (observer) observer.disconnect()
       if (zoomRef.current) {
         zoomRef.current.detach()
       }

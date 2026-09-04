@@ -136,29 +136,44 @@ function ImageWithFallback({
   width?: number;
 }) {
   const [hasError, setHasError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
   const displayAlt = alt && alt !== "image" ? alt : "图片";
 
   if (!src || hasError) {
     return (
-      <div className="notion-asset-wrapper notion-asset-wrapper-image my-4 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-900/30 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+      <div
+        className="notion-asset-wrapper notion-asset-wrapper-image my-4 p-4 border border-dashed border-gray-300 dark:border-gray-700 rounded-xl bg-gray-50/50 dark:bg-gray-900/30 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 select-none cursor-pointer"
+        onClick={() => {
+          if (src) {
+            setHasError(false);
+            setRetryKey((k) => k + 1);
+          }
+        }}
+      >
         <div className="flex items-center gap-2.5 min-w-0">
           <span className="text-lg flex-shrink-0">🖼️</span>
           <span className="font-medium text-gray-700 dark:text-gray-300 truncate">{displayAlt}</span>
         </div>
-        <span className="text-[11px] text-gray-400 dark:text-gray-500 bg-gray-200/60 dark:bg-gray-800 px-2.5 py-0.5 rounded flex-shrink-0">
-          图片无法展示或加载失败
+        <span className={`text-[11px] px-2.5 py-0.5 rounded flex-shrink-0 ${src ? "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 hover:underline" : "bg-gray-200/60 dark:bg-gray-800 text-gray-400 dark:text-gray-500"}`}>
+          {src ? "点击重新加载" : "图片无法展示或加载失败"}
         </span>
       </div>
     );
   }
+
+  const effectiveSrc =
+    retryKey > 0 && src
+      ? `${src}${src.includes("?") ? "&" : "?"}_r=${retryKey}`
+      : src;
 
   return (
     <figure className="notion-asset-wrapper notion-asset-wrapper-image my-4">
       <div style={{ width: "100%", maxWidth: width || "100%" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          key={effectiveSrc}
           className="notion-image rounded-md cursor-zoom-in"
-          src={src}
+          src={effectiveSrc}
           alt={alt || ""}
           loading="lazy"
           onError={() => setHasError(true)}
