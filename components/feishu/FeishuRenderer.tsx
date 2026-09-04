@@ -130,14 +130,22 @@ function ImageWithFallback({
   src,
   alt,
   width,
+  height,
 }: {
   src?: string;
   alt?: string;
   width?: number;
+  height?: number;
 }) {
+  const [loaded, setLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [retryKey, setRetryKey] = useState(0);
+  const [retryCount, setRetryCount] = useState(0);
   const displayAlt = alt && alt !== "image" ? alt : "图片";
+
+  const aspectRatio =
+    width && height && width > 0 && height > 0
+      ? `${width} / ${height}`
+      : undefined;
 
   if (!src || hasError) {
     return (
@@ -146,7 +154,8 @@ function ImageWithFallback({
         onClick={() => {
           if (src) {
             setHasError(false);
-            setRetryKey((k) => k + 1);
+            setLoaded(false);
+            setRetryCount((c) => c + 1);
           }
         }}
       >
@@ -162,25 +171,52 @@ function ImageWithFallback({
   }
 
   const effectiveSrc =
-    retryKey > 0 && src
-      ? `${src}${src.includes("?") ? "&" : "?"}_r=${retryKey}`
+    retryCount > 0 && src
+      ? `${src}${src.includes("?") ? "&" : "?"}_r=${retryCount}`
       : src;
 
   return (
-    <figure className="notion-asset-wrapper notion-asset-wrapper-image my-4">
-      <div style={{ width: "100%", maxWidth: width || "100%" }}>
+    <figure className="notion-asset-wrapper notion-asset-wrapper-image my-4 w-full max-w-full">
+      <div
+        className="relative rounded-md overflow-hidden bg-gray-100/60 dark:bg-gray-800/40"
+        style={{
+          width: "100%",
+          maxWidth: width || "100%",
+          aspectRatio: aspectRatio,
+          minHeight: aspectRatio ? undefined : (loaded ? undefined : "160px"),
+        }}
+      >
+        {!loaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800/60 text-gray-400 dark:text-gray-500 text-xs animate-pulse">
+            <span className="opacity-70">图片加载中...</span>
+          </div>
+        )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           key={effectiveSrc}
-          className="notion-image rounded-md cursor-zoom-in"
+          className={`notion-image rounded-md cursor-zoom-in w-full h-auto object-contain transition-opacity duration-300 ${
+            loaded ? "opacity-100" : "opacity-0"
+          }`}
           src={effectiveSrc}
           alt={alt || ""}
           loading="lazy"
-          onError={() => setHasError(true)}
+          onLoad={() => {
+            setLoaded(true);
+            setHasError(false);
+          }}
+          onError={() => {
+            if (retryCount < 1) {
+              setTimeout(() => {
+                setRetryCount((c) => c + 1);
+              }, 800);
+            } else {
+              setHasError(true);
+            }
+          }}
         />
       </div>
       {alt && alt !== "image" ? (
-        <figcaption className="notion-asset-caption mt-1 text-xs text-gray-400">
+        <figcaption className="notion-asset-caption mt-1.5 text-xs text-gray-400 text-center">
           {alt}
         </figcaption>
       ) : null}
@@ -779,7 +815,14 @@ function BlockView({
 
     case "image": {
       const src = block.image?.url || (block.image?.token ? `/api/feishu/media/${block.image.token}` : undefined);
-      return <ImageWithFallback src={src} alt={block.image?.alt} width={block.image?.width} />;
+      return (
+        <ImageWithFallback
+          src={src}
+          alt={block.image?.alt}
+          width={block.image?.width}
+          height={block.image?.height}
+        />
+      );
     }
 
     case "divider":
