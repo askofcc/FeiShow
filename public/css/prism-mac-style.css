@@ -7,6 +7,9 @@
 .code-toolbar {
   position: relative;
   width: 100%;
+  max-width: 100% !important;
+  min-width: 0;
+  box-sizing: border-box;
   margin: 1rem 0;
   border-radius: 14px;
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -86,8 +89,12 @@ html.dark .code-toolbar {
   border: none !important;
   background: transparent !important;
   color: rgba(255, 255, 255, 0.9) !important;
-  overflow: auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 /* 5. 智能折叠 S1 极简 UI */
@@ -183,3 +190,62 @@ html.dark .collapse-panel {
 .code-toolbar .token.keyword { color: #ff7ab2; }
 .code-toolbar .token.function,
 .code-toolbar .token.class-name { color: #ffd479; }
+
+
+/* 7. 移动端响应式优化 (Mobile & Touch Devices) */
+@media (max-width: 640px) {
+  .code-toolbar {
+    border-radius: 10px;
+    margin: 0.75rem 0;
+  }
+
+  .pre-mac {
+    left: 10px;
+    top: 10px;
+    gap: 5px;
+  }
+
+  .pre-mac > span {
+    width: 8px;
+    height: 8px;
+  }
+
+  .code-toolbar > .toolbar {
+    height: 28px;
+    padding: 0 6px;
+    gap: 4px;
+    max-width: calc(100% - 48px);
+  }
+
+  .code-toolbar .toolbar-item > button {
+    font-size: 11px !important;
+    padding: 3px 6px !important;
+    border-radius: 6px !important;
+  }
+
+  .code-toolbar .toolbar-item > span {
+    font-size: 10px !important;
+    padding: 2px 4px !important;
+    opacity: 0.75;
+  }
+
+  .code-toolbar pre.notion-code,
+  .collapse-panel pre.notion-code {
+    font-size: 13px !important;
+    line-height: 1.5 !important;
+    padding: 34px 0.75rem 0.75rem !important;
+  }
+
+  .collapse-panel-wrapper {
+    border-radius: 10px;
+  }
+
+  .collapse-header {
+    height: 32px;
+    padding: 0 10px;
+  }
+
+  .collapse-label {
+    font-size: 12px;
+  }
+}

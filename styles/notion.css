@@ -139,6 +139,15 @@ html.dark {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.notion-page-content-inner > * {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .notion-aside {
@@ -2213,4 +2222,48 @@ html.dark .notion-link-mention-provider {
 
 html.dark .notion-link-mention-link {
   color: inherit;
+}
+
+
+/* FeiShow Mobile & Inline Code Refinements */
+.notion-inline-code {
+  color: #eb5757;
+  background: rgba(135, 131, 120, 0.15);
+  padding: 0.15em 0.38em;
+  border-radius: 4px;
+  font-size: 85%;
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  vertical-align: baseline;
+}
+
+html.dark .notion-inline-code,
+.dark-mode .notion-inline-code {
+  color: #ff7b72 !important;
+  background: rgba(255, 123, 114, 0.14) !important;
+}
+
+/* Callouts in Dark Mode: preserve red alert semantics */
+html.dark .notion-callout.notion-red_background,
+.dark-mode .notion-callout.notion-red_background {
+  border: 1px solid rgba(248, 113, 113, 0.4) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.18),
+    rgba(30, 41, 59, 0.5)
+  ) !important;
+  color: #fecaca !important;
+}
+
+.notion-callout {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.notion-callout-text {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }

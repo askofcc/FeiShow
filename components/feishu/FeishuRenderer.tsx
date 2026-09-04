@@ -745,7 +745,7 @@ function BlockView({
       const lang = rawLang === "plain" ? "plaintext" : rawLang || "plaintext";
       const codeString = plainTextFromRuns(block.text);
       return (
-        <div className="notion-code-wrapper my-3">
+        <div className="notion-code-wrapper my-3 w-full max-w-full min-w-0 overflow-hidden">
           <pre className={`notion-code language-${lang}`}>
             <code className={`language-${lang}`}>
               {codeString}
