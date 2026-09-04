@@ -2214,3 +2214,51 @@ html.dark .notion-link-mention-provider {
 html.dark .notion-link-mention-link {
   color: inherit;
 }
+
+
+/* Mobile responsive article refinements */
+.notion-simple-table-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.notion-simple-table {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+.notion-inline-code {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.notion-callout {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.notion-callout-text {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.notion-equation-block {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+@media (max-width: 768px) {
+  .notion-simple-table-cell {
+    padding: 6px 8px !important;
+    font-size: 13px !important;
+    word-break: break-word;
+  }
+}
